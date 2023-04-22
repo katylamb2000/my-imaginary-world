@@ -73,14 +73,14 @@ function Header(){
                         />
             <h1 className="text-2xl font-bold text-purple-600 text-center">My Imaginary World</h1>
 <div className="flex space-x-3">
-{/* <button 
+<button 
   role='link'
   disabled={!session}
   onClick={createCheckoutSession}
   className='text-white p-2 rounded-lg bg-pink-600 hover:bg-pink-400 hover:shadow-xl'>
 
     Checkout
-  </button> */}
+  </button>
 
 
 {admin && (
