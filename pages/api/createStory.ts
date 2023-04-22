@@ -19,9 +19,9 @@ export default async function createStory(
 ) {
 
 
-  const {  model, session, storyId, prompt } = req.body
+  const {   session, storyId, prompt } = req.body
 
-  console.log( model, session, storyId, prompt )
+  console.log( session, storyId, prompt )
 
   if (!prompt) {
     res.status(400).json({ answer: { message: 'i dont have a prompt' } });
