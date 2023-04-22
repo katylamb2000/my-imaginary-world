@@ -98,6 +98,20 @@ function StoryPage() {
 
   useEffect(() => {
     if (!storyContent) return;
+
+    storyContent.docs.map(sc => {
+      if (sc.data().imagePrompt )return;
+      else {
+        createStoryImagePrompt(sc)
+      }
+
+    })
+    // console.log('STORY CONTENT CHECKING FOR IMAGE Prompts ~~~>', storyContent)
+
+  }, [storyContent])
+
+  useEffect(() => {
+    if (!storyContent) return;
     const sortedPages = storyContent.docs
       .map(doc => ({ id: doc.id, data: doc.data() }))
       .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
@@ -113,8 +127,8 @@ function StoryPage() {
 
 
   const createStoryImagePrompt = async(page: PageData) => {
-
-    const pagePrompt = `${basePrompt} - the full story is ${fullStory}. The page I want you to generate an ai art generator prompt for is ${page.data.page}. This is a childrens story book for a 4 year old girl. The media you should reference is disney and pixar. `
+    console.log('creating IP for', page.data.page)
+    const pagePrompt = `${basePrompt} - the full story is ${fullStory}. The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a 4 year old girl. The media you should reference is disney and pixar. `
     
     try{
      const response = await fetch('/api/createStoryImagePrompts', {

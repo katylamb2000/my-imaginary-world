@@ -1,6 +1,7 @@
 import openai from './chatgpt'
 
-const query = async (prompt: string, model: string) => {
+const query = async (prompt: string) => {
+
     const res = await openai
       .createCompletion({
         model: "text-davinci-003",
@@ -42,7 +43,7 @@ const query = async (prompt: string, model: string) => {
         // Remove the title from the pages array
         const pagesWithoutTitle = pages.slice(1);
   
-        return { title, pages: pagesWithoutTitle, story };
+        return { title, pages: pagesWithoutTitle, story, prompt };
       })
       .catch((err) => ({ message: `Oh GOSH the Story Wizard has writers block right now ! (Error: ${err.message} ${prompt})` }));  
     return res;

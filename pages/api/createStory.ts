@@ -18,8 +18,10 @@ export default async function createStory(
   res: NextApiResponse<{ answer: { title: string; pages: string[]; story: string; } | { message: string } }>
 ) {
 
-  console.log(req.body);
+
   const {  model, session, storyId, prompt } = req.body
+
+  console.log( model, session, storyId, prompt )
 
   if (!prompt) {
     res.status(400).json({ answer: { message: 'i dont have a prompt' } });
@@ -37,39 +39,9 @@ export default async function createStory(
   }
 
   // ChatGPT query
-//   const response = await query(prompt);
 
-//   // Add the story data to Firestore
-//   const storyRequest = {
-//     response,
-//     storyId,
-//     createdAt: admin.firestore.Timestamp.now(),
-//     user: session.user,
-//   };
-
-//   const docRef = await adminDb
-//     // .collection("storyRequests")
-//     .collection("users")
-//     .doc(session.user.email)
-//     .collection('storys')
-//     .doc(storyId)
-//     .collection('storyContent')
-//     .add(storyRequest);
-
-//   // Get the ID of the added document
-
-
-// // Save the story data to Firestore
-// await adminDb.collection('stories').doc(storyId).set(storyRequest);
-  
-
-
-// res.status(200).json({ answer: response, docRef });
-// }
-
-// ChatGPT query
-const response = await query(model, prompt);
-
+const response = await query(prompt);
+console.log('this is the response! ---> !!', response)
 // Save the story data to Firestore
 const storyRequest = {
   storyId,
@@ -100,15 +72,15 @@ response.pages.forEach(async (page, index) => {
 }
 
 // Save the story metadata to a separate document
-const storyMetadata = {
-  ...storyRequest,
-  title: response.title,
-  pageCount: response.pages.length,
-};
-await adminDb
-  .collection("stories")
-  .doc(storyId)
-  .set(storyMetadata);
+// const storyMetadata = {
+//   ...storyRequest,
+//   title: response.title,
+//   pageCount: response.pages.length,
+// };
+// await adminDb
+//   .collection("stories")
+//   .doc(storyId)
+//   .set(storyMetadata);
 
 res.status(200).json({ answer: response });
 }

@@ -155,8 +155,9 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         }),
     })
     const data = await response.json();
-    setStoryContent(data.answer)
-    setTitle(data.answer.pages[0])
+    console.log(data)
+    // setStoryContent(data.answer)
+    // setTitle(data.answer.pages[0])
 
     setLoading(false)
     toast.success('Your story has been created', {

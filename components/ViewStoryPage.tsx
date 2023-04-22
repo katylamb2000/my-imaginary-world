@@ -28,7 +28,6 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
   const selectedPageTextColor = useSelector((state: RootState) =>  state.pageToEdit.textColor);
   const selectedPageTextSize = useSelector((state: RootState) =>  state.pageToEdit.textSize);
 
-  console.log('THIS IS PAGE Prompt +++++> ', page.data.imagePrompt.imagePrompt)
   // const [imagePrompt, imagePromptLoading, imagePromptError] = useCollection(
   //   session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent', page.id, 'imagePrompts') : null,
   // );
