@@ -8,7 +8,8 @@ module.exports = {
     ]
   },
   env: {
-    stripe_public_key: process.env.STRIPE_PUBLIC_KEY_TEST
+    stripe_public_key: process.env.STRIPE_PUBLIC_KEY_TEST,
+    next_leg_api_token: process.env.NEXT_LEG_API_TOKEN,
   },
   experimental: {
     appDir: true

@@ -102,7 +102,7 @@ const sendPromptToMidJourneyApi = () => {
 
 
 const sendImagineCommand = async () => {
-  console.log(process.env.NEXT_LEG_API_TOKEN)
+  console.log(process.env.next_leg_api_token)
   // try {
   //   const data = {
   //     cmd: 'imagine',
