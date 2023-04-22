@@ -98,9 +98,11 @@ function StoryPage() {
 
   useEffect(() => {
     if (!storyContent) return;
-
+    
     storyContent.docs.map(sc => {
-      if (sc.data().imagePrompt )return;
+      if (sc.data().imagePrompt){
+        console.log('already got a prompt', sc.data().imagePrompt)
+      }
       else {
         createStoryImagePrompt(sc)
       }
