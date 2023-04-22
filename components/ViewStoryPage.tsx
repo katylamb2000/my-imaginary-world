@@ -96,6 +96,10 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
 //     }
 // }
 
+const sendPromptToMidJourneyApi = () => {
+  console.log(page.data.imagePrompt?.imagePrompt)
+}
+
 const pageSelected = () => {
     dispatch(setId(page.id));
     console.log('text size', selectedPageTextSize)
@@ -144,7 +148,12 @@ const editPageContent = () => {
       }
       <div className="grid grid-cols-4">
       <p className='italic text-sm col-span-3'>{page.data.imagePrompt?.imagePrompt}</p>
-      <button className="bg-pink-600 text-white p-4 mx-2 rounded-lg col-span-1">send prompt to midjounrey api</button>
+      <button 
+          className="bg-pink-600 text-white p-4 mx-2 rounded-lg col-span-1"
+          onClick={sendPromptToMidJourneyApi}
+        >
+        send prompt to midjounrey api
+      </button>
       </div>
 </div>
 
