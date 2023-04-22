@@ -2,7 +2,11 @@ import React from 'react'
 
 function AddVillain() {
   return (
-    <div >AddVillain</div>
+    <div >
+    <h1>
+AddVillain
+    </h1>
+    </div>
   )
 }
 
