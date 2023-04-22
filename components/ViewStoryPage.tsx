@@ -102,29 +102,30 @@ const sendPromptToMidJourneyApi = () => {
 
 
 const sendImagineCommand = async () => {
-  try {
-    const data = {
-      cmd: 'imagine',
-      msg: page.data.imagePrompt?.imagePrompt,
-      ref: '',
-      webhookOverride: ''
-    };
+  console.log(process.env.NEXT_LEG_API_TOKEN)
+  // try {
+  //   const data = {
+  //     cmd: 'imagine',
+  //     msg: page.data.imagePrompt?.imagePrompt,
+  //     ref: '',
+  //     webhookOverride: ''
+  //   };
 
-    const config = {
-      method: 'post',
-      url: 'https://api.thenextleg.io/api',
-      headers: {
-        Authorization: process.env.NEXT_LEG_API_TOKEN,
-        'Content-Type': 'application/json'
-      },
-      data: data
-    };
+  //   const config = {
+  //     method: 'post',
+  //     url: 'https://api.thenextleg.io/api',
+  //     headers: {
+  //       Authorization: process.env.NEXT_LEG_API_TOKEN,
+  //       'Content-Type': 'application/json'
+  //     },
+  //     data: data
+  //   };
 
-    const response = await axios(config);
-    console.log(JSON.stringify(response.data));
-  } catch (error) {
-    console.log(error);
-  }
+  //   const response = await axios(config);
+  //   console.log(JSON.stringify(response.data));
+  // } catch (error) {
+  //   console.log(error);
+  // }
 };
 
 
