@@ -33,7 +33,7 @@ const decreaseTextSize = () => {
 
 
   return (
-    <div className="bg-green-400 w-2/5 h-screen">
+    <div className="bg-pink-200 w-2/5 h-screen">
     
         {selectedPageText !== '' && (
             <div className='w-full'> 
