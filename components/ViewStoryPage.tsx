@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ArrowDownCircleIcon, ArrowUpCircleIcon } from "@heroicons/react/24/outline";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { useSession } from 'next-auth/react'
+import axios from "axios";
 import type { RootState } from '../app/GlobalRedux/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { setId, setText } from '../app/GlobalRedux/Features/pageToEditSlice'
@@ -100,6 +101,34 @@ const sendPromptToMidJourneyApi = () => {
   console.log(page.data.imagePrompt?.imagePrompt)
 }
 
+
+const sendImagineCommand = async () => {
+  try {
+    const data = {
+      cmd: 'imagine',
+      msg: page.data.imagePrompt?.imagePrompt,
+      ref: '',
+      webhookOverride: ''
+    };
+
+    const config = {
+      method: 'post',
+      url: 'https://api.thenextleg.io/api',
+      headers: {
+        Authorization: process.env.NEXT_LEG_API_TOKEN,
+        'Content-Type': 'application/json'
+      },
+      data: data
+    };
+
+    const response = await axios(config);
+    console.log(JSON.stringify(response.data));
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+
 const pageSelected = () => {
     dispatch(setId(page.id));
     console.log('text size', selectedPageTextSize)
@@ -150,7 +179,7 @@ const editPageContent = () => {
       <p className='italic text-sm col-span-3'>{page.data.imagePrompt?.imagePrompt}</p>
       <button 
           className="bg-pink-600 text-white p-4 mx-2 rounded-lg col-span-1"
-          onClick={sendPromptToMidJourneyApi}
+          onClick={sendImagineCommand}
         >
         send prompt to midjounrey api
       </button>
