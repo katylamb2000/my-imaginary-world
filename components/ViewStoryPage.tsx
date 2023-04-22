@@ -130,7 +130,6 @@ const sendImagineCommand = async () => {
 
 const pageSelected = () => {
     dispatch(setId(page.id));
-    console.log('text size', selectedPageTextSize)
   }
 
 const editPageContent = () => {
