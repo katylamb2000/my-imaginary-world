@@ -114,7 +114,7 @@ const sendImagineCommand = async () => {
       method: 'post',
       url: 'https://api.thenextleg.io/api',
       headers: {
-        Authorization: process.env.next_leg_api_token,
+        Authorization: `Bearer ${process.env.next_leg_api_token}`,
         'Content-Type': 'application/json'
       },
       data: data
