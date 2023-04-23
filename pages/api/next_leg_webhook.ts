@@ -11,7 +11,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons } = req.body;
 
      // Deserialize the ref field to extract storyId, userId, and page
-     const { storyId, userId, page, action } = JSON.parse(ref);
+     const { storyId, userId, page, action, heroId } = JSON.parse(ref);
  try{
      // Update the story data in Firestore
      if (action === 'imagine') {
@@ -51,10 +51,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           .doc(userId)
           .collection('storys')
           .doc(storyId)
-          .collection('Hero')
-          .add({
-            imageChoices: imageUrl, 
+          .collection('hero')
+          .doc(heroId)
 
+          await docRef.update({
+            imageChoices: imageUrl,
           });
 
        }

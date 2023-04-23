@@ -89,14 +89,15 @@ const createNewStory = async() => {
   });
   setHeroCharacterId(doc.id)
   console.log('this is the hero id', doc.id)
+  // generateCharacter()
 }catch(err){
   console.log(err)
 }}
 
-// useEffect(() => {
-//   if (!heroCharacterId) return;
-//   generateCharacter()
-// }, [heroCharacterId])
+useEffect(() => {
+  if (!heroCharacterId) return;
+  generateCharacter()
+}, [heroCharacterId])
 
 // const generateCharacter = async() => {
 //   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
@@ -129,7 +130,7 @@ const generateCharacter = async () => {
     const data = {
       cmd: 'imagine',
       msg: `${prompt} --v 5 `,
-      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'createHero' }),
+      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId }),
       webhookOverride: ''
     };
 
@@ -328,7 +329,7 @@ return (
                    'Create your hero'
       }
               </button>
-              <button onClick={generateCharacter}> generate image of character</button>
+              {/* <button onClick={generateCharacter}> generate image of character</button> */}
             </div>
           </form>
         </div>
