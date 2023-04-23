@@ -96,9 +96,12 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
 //     }
 // }
 
-const sendPromptToMidJourneyApi = () => {
-  console.log(page.data.imagePrompt?.imagePrompt)
-}
+
+ useEffect(() => {
+  if (!page.data.imageChoices) return;
+  setImage(page.data.imageChoices)
+ })
+
 
 
 const sendImagineCommand = async () => {
@@ -152,14 +155,14 @@ const editPageContent = () => {
         /> 
 )}
 
-{imageMask && (
+{/* {imageMask && (
   <Image src={'https://firebasestorage.googleapis.com/v0/b/my-imaginary-world-b5705.appspot.com/o/whiteBottomCloudBorder.png?alt=media&token=97b97e01-2f13-4f28-b758-0d6d3f304372'} 
                     layout="fill"
                     objectFit="cover"
                     alt=''
                     className="rounded-lg z-10 blur-sm "
         /> 
-)}   
+)}    */}
 
 
 <div className="bg-red-400 z-50"> 

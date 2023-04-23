@@ -23,8 +23,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
        .doc(page);
  
      await docRef.update({
-       imageUrl,
-       content,
+       imageChoices: imageUrl,
+       imagePrompt: content,
      });
 
     // Send a success response to acknowledge receipt of the webhook data
