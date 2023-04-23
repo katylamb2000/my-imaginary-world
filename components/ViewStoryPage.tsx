@@ -119,7 +119,7 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
   console.log(button, page.data.buttonMessageId)
   try {
     const data = {
-      btn: button,
+      button: button,
       buttonMessageId: page.data.buttonMessageId,
       ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , page: page.id, action: 'button' }),
       webhookOverride: ''
