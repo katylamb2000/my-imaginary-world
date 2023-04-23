@@ -23,10 +23,12 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
   const dispatch = useDispatch()
   const [thumbnailImage, setThumbnailImage] = useState<null | string>(null)
   const [image, setImage] = useState<null | string>(null)
+  const [finalImage, setFinalImage] = useState<null | string>(null)
   const [imageMask, setImageMask] = useState<null | string>(null)
   const selectedPageId = useSelector((state: RootState) =>  state.pageToEdit.id);
   const selectedPageTextColor = useSelector((state: RootState) =>  state.pageToEdit.textColor);
   const selectedPageTextSize = useSelector((state: RootState) =>  state.pageToEdit.textSize);
+  const [buttons, setButtons] = useState([])
 
   // const [imagePrompt, imagePromptLoading, imagePromptError] = useCollection(
   //   session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent', page.id, 'imagePrompts') : null,
@@ -59,29 +61,29 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
   //   }
   // }
 
-  const createImage = async() => {
-    const prompt = imagePrompts?.docs[0].data().imagePrompt
-    try{
+  // const createImage = async() => {
+  //   const prompt = imagePrompts?.docs[0].data().imagePrompt
+  //   try{
 
-      const response = await fetch('/api/leapImage', {
-         method: 'POST', 
-         headers: {
-           'Content-Type': 'application/json'
-         },
-         body: JSON.stringify({
-           prompt: prompt,
-           session,
-           storyId: storyId,
-           page: page.id
-         }),
-       });
-       const data = await response.json();
-       console.log('THIs is the URI from leAp', data.answer.images[0].uri)
+  //     const response = await fetch('/api/leapImage', {
+  //        method: 'POST', 
+  //        headers: {
+  //          'Content-Type': 'application/json'
+  //        },
+  //        body: JSON.stringify({
+  //          prompt: prompt,
+  //          session,
+  //          storyId: storyId,
+  //          page: page.id
+  //        }),
+  //      });
+  //      const data = await response.json();
+  //      console.log('THIs is the URI from leAp', data.answer.images[0].uri)
 
-     }catch(err){
-       alert(err)
-     }
-  }
+  //    }catch(err){
+  //      alert(err)
+  //    }
+  // }
 
 
 //   const updateStoryThumbnailImage = async(uri: string) => {
@@ -100,16 +102,54 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
  useEffect(() => {
   if (!page.data.imageChoices) return;
   setImage(page.data.imageChoices)
- })
+ }, [page])
 
+ useEffect(() => {
+  if (!page.data.finalImage) return;
+  setImage(page.data.finalImage)
+ }, [page])
+
+
+ useEffect(() => {
+  if (!page.data.buttons) return;
+  setButtons(page.data.buttons)
+ }, [page])
+
+ const buttonClicked = async(button: string) => {
+  console.log(button, page.data.buttonMessageId)
+  try {
+    const data = {
+      btn: button,
+      buttonMessageId: page.data.buttonMessageId,
+      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , page: page.id, action: 'button' }),
+      webhookOverride: ''
+    };
+
+    const config = {
+      method: 'post',
+      url: 'https://api.thenextleg.io/api',
+      headers: {
+        Authorization: `Bearer ${process.env.next_leg_api_token}`,
+        'Content-Type': 'application/json'
+      },
+      data: data,
+    };
+
+    const response = await axios(config);
+    console.log(JSON.stringify(response.data));
+  } catch (error) {
+    console.log(error);
+  }
+
+ }
 
 
 const sendImagineCommand = async () => {
   try {
     const data = {
       cmd: 'imagine',
-      msg: page.data.imagePrompt?.imagePrompt,
-      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , page: page.id }),
+      msg: `${page.data.imagePrompt?.imagePrompt} --v 5 `,
+      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , page: page.id, action: 'imagine' }),
       webhookOverride: ''
     };
 
@@ -141,19 +181,31 @@ const editPageContent = () => {
 }
 
   return (
+  <div className="h-full w-full bg-gray-100">
     <div 
         className={`w-3/5 h-4/5 bg-white rounded-lg border ${page.id === selectedPageId ? 'border-purple-500' : 'border-gray-100'}  shadow-xl mx-auto my-8 text-center relative`} 
         onClick={pageSelected}
     >
 
-{image &&  (
+{image && !finalImage &&  (
   <Image src={image} 
                     layout="fill"
                     objectFit="cover"
                     alt=''
-                    className="rounded-lg"
+                    className="rounded-lg z-10"
         /> 
 )}
+
+{finalImage &&  (
+  <Image src={finalImage} 
+                    layout="fill"
+                    objectFit="cover"
+                    alt=''
+                    className="rounded-lg z-10"
+        /> 
+)}
+
+
 
 {/* {imageMask && (
   <Image src={'https://firebasestorage.googleapis.com/v0/b/my-imaginary-world-b5705.appspot.com/o/whiteBottomCloudBorder.png?alt=media&token=97b97e01-2f13-4f28-b758-0d6d3f304372'} 
@@ -187,6 +239,15 @@ const editPageContent = () => {
       </div>
 </div>
 
+</div>
+
+{buttons.length > 0 && (
+  <div className="flex bg-white w-2/5 border rounded-lg space-x-2 mx-auto justify-evenly ">
+    {buttons.map(button => (
+  <button onClick={() => buttonClicked(button)} className="p-2 hover:bg-pink-400 rounded-full hover:text-white">{button}</button>
+    ))}
+  </div>
+)}
 </div>
   )
 }

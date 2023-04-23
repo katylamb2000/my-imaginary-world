@@ -11,9 +11,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons } = req.body;
 
      // Deserialize the ref field to extract storyId, userId, and page
-     const { storyId, userId, page } = JSON.parse(ref);
+     const { storyId, userId, page, action } = JSON.parse(ref);
  
      // Update the story data in Firestore
+     if (action === 'imagine') {
      const docRef = adminDb
        .collection('users')
        .doc(userId)
@@ -28,7 +29,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
        buttonMessageId,
        buttons
      });
+    }
 
+    if (action === 'button') {
+        const docRef = adminDb
+          .collection('users')
+          .doc(userId)
+          .collection('storys')
+          .doc(storyId)
+          .collection('storyContent')
+          .doc(page);
+    
+        await docRef.update({
+          finalImage: imageUrl,
+        });
+       }
     // Send a success response to acknowledge receipt of the webhook data
     res.status(200).json({ message: 'Webhook received' });
   } else {
