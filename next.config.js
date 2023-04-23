@@ -4,7 +4,8 @@ module.exports = {
   images: {
     domains: [
       'firebasestorage.googleapis.com',
-      'static.tryleap.ai'
+      'static.tryleap.ai',
+      'cdn.discordapp.com'
     ]
   },
   env: {
