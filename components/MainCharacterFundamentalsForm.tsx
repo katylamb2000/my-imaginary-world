@@ -7,6 +7,7 @@ import { addDoc, collection, serverTimestamp, doc  } from 'firebase/firestore';
 import { useSession } from 'next-auth/react';
 import { db } from '../firebase'
 import SyncLoader from "react-spinners/SyncLoader";
+import axios from 'axios';
 
 interface ImageOption {
   uri: string;
@@ -97,30 +98,57 @@ const createNewStory = async() => {
 //   generateCharacter()
 // }, [heroCharacterId])
 
-const generateCharacter = async() => {
-  const prompt = `mdjrny-v4 style cartoon 6 year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background`
-  console.log(prompt)
-  try{
-    const response = await fetch('/api/generate', {
-        method: 'POST', 
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt: prompt
-            // prompt: "Generate a 2D game art of a 6-year-old female character named Mdjrny-V4 in the style of Tim Shumate and Alex Hirsch. The character should have brown, shoulder-length pigtails, brown eyes, and a happy expression. She should be wearing a white dress and have a rounded, highly-detailed face. The character should be of white ethnicity and have a wide-angle, whole-body view. The background should be white.", 
-        }),
-    })
-    const data = await response.json();
-    console.log('this is the returnedDAta!!! ----> ',  data)
-    setImageOptions(data.answer.images)
+// const generateCharacter = async() => {
+//   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
+//   console.log(prompt)
+//   try{
+//     const response = await fetch('/api/generate', {
+//         method: 'POST', 
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({
+//           prompt: prompt
+//         }),
+//     })
+//     const data = await response.json();
+//     console.log('this is the returnedDAta!!! ----> ',  data)
+//     setImageOptions(data.answer.images)
 
-    setLoading(false)
-  } catch(err) {
-    setLoading(false)
-    console.log(err)
+//     setLoading(false)
+//   } catch(err) {
+//     setLoading(false)
+//     console.log(err)
+//   }
+// }
+
+const generateCharacter = async () => {
+  const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
+
+  try {
+    const data = {
+      cmd: 'imagine',
+      msg: `${prompt} --v 5 `,
+      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'createHero' }),
+      webhookOverride: ''
+    };
+
+    const config = {
+      method: 'post',
+      url: 'https://api.thenextleg.io/api',
+      headers: {
+        Authorization: `Bearer ${process.env.next_leg_api_token}`,
+        'Content-Type': 'application/json'
+      },
+      data: data,
+    };
+
+    const response = await axios(config);
+    console.log(JSON.stringify(response.data));
+  } catch (error) {
+    console.log(error);
   }
-}
+};
 
 return (
   <div className="bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4">

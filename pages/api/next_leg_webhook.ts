@@ -44,6 +44,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           finalImage: imageUrl,
         });
        }
+
+    if (action === 'createHero') {
+        const docRef = adminDb
+          .collection('users')
+          .doc(userId)
+          .collection('storys')
+          .doc(storyId)
+          .collection('Hero')
+          .add({
+            imagechoices: imageUrl, 
+
+          });
+       }
     // Send a success response to acknowledge receipt of the webhook data
     res.status(200).json({ message: 'Webhook received' });
   } else {
