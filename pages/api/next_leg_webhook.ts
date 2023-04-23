@@ -12,7 +12,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
      // Deserialize the ref field to extract storyId, userId, and page
      const { storyId, userId, page, action } = JSON.parse(ref);
- 
+ try{
      // Update the story data in Firestore
      if (action === 'imagine') {
      const docRef = adminDb
@@ -53,12 +53,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           .doc(storyId)
           .collection('Hero')
           .add({
-            imagechoices: imageUrl, 
+            imageChoices: imageUrl, 
 
           });
+
        }
+       res.status(200).json({ message: 'Webhook received' });
+ }catch(err){
+    console.error('Error:', err);
+    res.status(500).json({ message: 'Internal server error' });
+ }
     // Send a success response to acknowledge receipt of the webhook data
-    res.status(200).json({ message: 'Webhook received' });
+
   } else {
     // Return an error if the request method is not POST
     res.status(405).json({ message: 'Method not allowed' });
