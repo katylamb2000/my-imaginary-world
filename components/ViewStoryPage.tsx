@@ -106,7 +106,7 @@ const sendImagineCommand = async () => {
     const data = {
       cmd: 'imagine',
       msg: page.data.imagePrompt?.imagePrompt,
-      ref: '',
+      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , page: page.id }),
       webhookOverride: ''
     };
 
@@ -117,7 +117,7 @@ const sendImagineCommand = async () => {
         Authorization: `Bearer ${process.env.next_leg_api_token}`,
         'Content-Type': 'application/json'
       },
-      data: data
+      data: data,
     };
 
     const response = await axios(config);
