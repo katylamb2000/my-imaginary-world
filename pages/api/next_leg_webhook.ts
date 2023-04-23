@@ -8,7 +8,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     console.log('Webhook data:', req.body);
 
      // Extract the required data from the webhook response
-     const { imageUrl, originatingMessageId, content, ref } = req.body;
+     const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons } = req.body;
 
      // Deserialize the ref field to extract storyId, userId, and page
      const { storyId, userId, page } = JSON.parse(ref);
@@ -25,6 +25,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      await docRef.update({
        imageChoices: imageUrl,
        imagePrompt: content,
+       buttonMessageId,
+       buttons
      });
 
     // Send a success response to acknowledge receipt of the webhook data
