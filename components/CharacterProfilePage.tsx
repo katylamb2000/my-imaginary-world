@@ -79,13 +79,21 @@ function CharacterProfilePage({ hero }: Props) {
     }
   }
 
+  useEffect(() => {
+    if (!myHero) return;
+    if (!myHero.heroImage) return;
+    if (myHero.heroImage && !myHero.seed){
+      getHeroSeed()
+    }
+  }, [myHero])
+
   const getHeroSeed = async() => {
     try {
       const data = {
 
         buttonMessageId: myHero.buttonMessageId,
         reaction: '✉️',
-        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'getHeroSeed' }),
+        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'getHeroSeed' }),
         webhookOverride: ''
       };
   
@@ -130,7 +138,7 @@ function CharacterProfilePage({ hero }: Props) {
   return (
     <div className='mx-auto my-6 bg-white rounded-lg border border-gray-100 w-4/5 h-4/5 grid grid-cols-4'>
       <div className="col-span-1 mx-auto text-center justify-center align-middle"> 
-      {myHero?.imageChoices ? (
+      {myHero?.imageChoices && !myHero.heroImage ? (
  
         <img src={myHero.imageChoices}                       
           className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
@@ -140,7 +148,13 @@ function CharacterProfilePage({ hero }: Props) {
         className="h-48 w-48 rounded-full cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4"
        />
       }
-      {buttons.length > 0  && (
+
+      {myHero?.heroImage && (
+           <img src={myHero.heroImage}                       
+           className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
+         />
+      )}
+      {buttons.length > 0 && !myHero.heroImage && (
         <div className='flex space-x-4'>
           {buttons.map(btn => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
