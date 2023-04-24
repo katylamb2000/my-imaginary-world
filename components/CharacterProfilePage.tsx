@@ -93,7 +93,7 @@ function CharacterProfilePage({ hero }: Props) {
       const data = {
         buttonMessageId: myHero.buttonMessageId,
         reaction: '✉️',
-        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'getHeroSeed' }),
+        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
         webhookOverride: ''
       };
   

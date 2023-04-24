@@ -10,7 +10,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
      // Extract the required data from the webhook response
      const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons, seed } = req.body;
-    
+    console.log(seed)
      // Deserialize the ref field to extract storyId, userId, and page
      const { storyId, userId, page, action, heroId } = JSON.parse(ref);
  try{
@@ -78,7 +78,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         
           });
         }
-          if (action === 'getHeroSeed') {
+          if (action === 'seed') {
             console.log('Lets try and get hero seed!')
             const docRef = adminDb
               .collection('users')
@@ -89,7 +89,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
               .doc(heroId)
     
               await docRef.update({
-                seed: seed,
+                seed
             
               });
             }
