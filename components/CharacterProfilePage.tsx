@@ -57,8 +57,35 @@ function CharacterProfilePage({ hero }: Props) {
       const data = {
         button: btn,
         buttonMessageId: myHero.buttonMessageId,
-        reaction: '✉️',
         ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'upscaleCharacter' }),
+        webhookOverride: ''
+      };
+  
+      const config = {
+        method: 'post',
+        url: 'https://api.thenextleg.io/api',
+        headers: {
+          Authorization: `Bearer ${process.env.next_leg_api_token}`,
+          'Content-Type': 'application/json'
+        },
+        data: data,
+      };
+  
+      const response = await axios(config);
+      console.log(JSON.stringify(response.data));
+      getHeroSeed()
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const getHeroSeed = async() => {
+    try {
+      const data = {
+
+        buttonMessageId: myHero.buttonMessageId,
+        reaction: '✉️',
+        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'getHeroSeed' }),
         webhookOverride: ''
       };
   
