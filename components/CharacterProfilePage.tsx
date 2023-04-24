@@ -88,15 +88,20 @@ function CharacterProfilePage({ hero }: Props) {
   }, [myHero])
 
   const getHeroSeed = async() => {
-    console.log('trying to get hero seed', myHero.buttonMessageId)
     try {
-      const data = {
-        buttonMessageId: myHero.buttonMessageId,
-        reaction: "✉️",
-        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
-        webhookOverride: ''
+      const data = JSON.stringify({
+        "reaction": "✉️",
+        "buttonMessageId": "your-button-message-id",
+        "ref": { storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' },
 
-      };
+      });
+      // const data = {
+      //   buttonMessageId: myHero.buttonMessageId,
+      //   reaction: JSON.stringify({"✉️"}),
+      //   ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
+      //   webhookOverride: ''
+
+      // };
   
       const config = {
         method: 'post',
