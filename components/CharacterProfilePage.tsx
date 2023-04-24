@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react'
 import { db } from '../firebase'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { usePathname } from 'next/navigation'
-import { BucketExceptionMessages } from '@google-cloud/storage/build/src/bucket'
+import axios from 'axios'
 
 type Props = {
   hero: any;
@@ -51,6 +51,34 @@ function CharacterProfilePage({ hero }: Props) {
   
   }, [hero])
 
+  const upscaleChosenImage = async(btn: string) => {
+    console.log(btn)
+    try {
+      const data = {
+        button: btn,
+        MessageId: myHero.button,
+        reaction: '✉️',
+        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'upscaleCharacter' }),
+        webhookOverride: ''
+      };
+  
+      const config = {
+        method: 'post',
+        url: 'https://api.thenextleg.io/api',
+        headers: {
+          Authorization: `Bearer ${process.env.next_leg_api_token}`,
+          'Content-Type': 'application/json'
+        },
+        data: data,
+      };
+  
+      const response = await axios(config);
+      console.log(JSON.stringify(response.data));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   
 
   const generateCharacterImage = async () => {
@@ -73,10 +101,6 @@ function CharacterProfilePage({ hero }: Props) {
     }
   }
 
-  const handleGenerateCharacterImage = () => {
-    generateCharacterImage();
-  }
-
   return (
     <div className='mx-auto my-6 bg-white rounded-lg border border-gray-100 w-4/5 h-4/5 grid grid-cols-4'>
       <div className="col-span-1 mx-auto text-center justify-center align-middle"> 
@@ -93,7 +117,7 @@ function CharacterProfilePage({ hero }: Props) {
       {buttons.length > 0  && (
         <div className='flex space-x-4'>
           {buttons.map(btn => (
-            <button>{btn}</button>
+            <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
           )
         )}
       </div>
@@ -111,7 +135,7 @@ function CharacterProfilePage({ hero }: Props) {
             <p>{myHero?.clothing}</p>
           </div>
     
-          <div className='w-full '>
+          {/* <div className='w-full '>
             {!myHero?.image && (
             <button 
                 onClick={handleGenerateCharacterImage}
@@ -119,7 +143,7 @@ function CharacterProfilePage({ hero }: Props) {
                   generate character image
             </button>
                 )}
-          </div>
+          </div> */}
       </div>
     </div>
   )

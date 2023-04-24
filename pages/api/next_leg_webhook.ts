@@ -1,6 +1,7 @@
 // pages/api/webhook.ts
 import { adminDb } from '../../firebaseAdmin';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { setDefaultResultOrder } from 'dns';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
@@ -8,7 +9,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     console.log('Webhook data:', req.body);
 
      // Extract the required data from the webhook response
-     const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons } = req.body;
+     const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons, seed } = req.body;
 
      // Deserialize the ref field to extract storyId, userId, and page
      const { storyId, userId, page, action, heroId } = JSON.parse(ref);
@@ -62,7 +63,23 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           });
 
        }
+
+       if (action === 'upscaleHero') {
+        const docRef = adminDb
+          .collection('users')
+          .doc(userId)
+          .collection('storys')
+          .doc(storyId)
+          .collection('hero')
+          .doc(heroId)
+
+          await docRef.update({
+            heroImage: imageUrl,
+            seed: seed,
+        
+          });
        res.status(200).json({ message: 'Webhook received' });
+        }
  }catch(err){
     console.error('Error:', err);
     res.status(500).json({ message: 'Internal server error' });

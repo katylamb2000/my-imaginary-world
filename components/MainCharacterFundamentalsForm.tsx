@@ -99,29 +99,7 @@ useEffect(() => {
   generateCharacter()
 }, [heroCharacterId])
 
-// const generateCharacter = async() => {
-//   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
-//   console.log(prompt)
-//   try{
-//     const response = await fetch('/api/generate', {
-//         method: 'POST', 
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({
-//           prompt: prompt
-//         }),
-//     })
-//     const data = await response.json();
-//     console.log('this is the returnedDAta!!! ----> ',  data)
-//     setImageOptions(data.answer.images)
 
-//     setLoading(false)
-//   } catch(err) {
-//     setLoading(false)
-//     console.log(err)
-//   }
-// }
 
 const generateCharacter = async () => {
   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
