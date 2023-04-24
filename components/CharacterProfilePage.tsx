@@ -73,7 +73,7 @@ function CharacterProfilePage({ hero }: Props) {
   
       const response = await axios(config);
       console.log(JSON.stringify(response.data));
-      getHeroSeed()
+      // getHeroSeed()
     } catch (error) {
       console.log(error);
     }
