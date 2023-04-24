@@ -88,13 +88,14 @@ function CharacterProfilePage({ hero }: Props) {
   }, [myHero])
 
   const getHeroSeed = async() => {
-    console.log('trying to get hero seed')
+    console.log('trying to get hero seed', myHero.buttonMessageId)
     try {
       const data = {
         buttonMessageId: myHero.buttonMessageId,
-        reaction: '✉️',
+        reaction: "✉️",
         ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
         webhookOverride: ''
+
       };
   
       const config = {
@@ -175,15 +176,15 @@ function CharacterProfilePage({ hero }: Props) {
             <p>{myHero?.clothing}</p>
           </div>
     
-          {/* <div className='w-full '>
+          <div className='w-full '>
             {!myHero?.image && (
             <button 
-                onClick={handleGenerateCharacterImage}
+                onClick={getHeroSeed}
                 className='bg-purple-400 p-4 mx-auto text-white rounded-lg cursor-pointer hover:opacity-50 hover:shadow-xl'>
-                  generate character image
+                  generate character seed
             </button>
                 )}
-          </div> */}
+          </div>
       </div>
     </div>
   )

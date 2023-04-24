@@ -75,6 +75,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
           await docRef.update({
             heroImage: imageUrl,
+            buttonMessageId,
         
           });
         }
