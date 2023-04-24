@@ -242,7 +242,7 @@ function StoryPage() {
       )}
 
       {storyBuilderActive == 'add hero' && (
-         <MainCharacterFundamentalsForm />
+         <MainCharacterFundamentalsForm  />
       )}
 
       {storyBuilderActive == 'hero' && (

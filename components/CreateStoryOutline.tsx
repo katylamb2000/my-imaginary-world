@@ -85,7 +85,7 @@ function CreateStoryOutline({ hero }: Props) {
 
 const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('handling create story outline')
+
     setLoading(true)
     await addDoc(collection(db, 'users', session?.user?.email!, 'storys', storyId!, 'storyOutline'),
         {
@@ -155,9 +155,6 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         }),
     })
     const data = await response.json();
-    console.log(data)
-    // setStoryContent(data.answer)
-    // setTitle(data.answer.pages[0])
 
     setLoading(false)
     toast.success('Your story has been created', {
@@ -181,12 +178,8 @@ useEffect(() => {
 }, [title])
 
 const updateStoryTitle = async () => {
-  console.log("updating TITLE", title);
 
-  if (!session?.user?.email || !storyId) {
-    console.log("Session email or storyId is not defined");
-    return;
-  }
+  if (!session?.user?.email || !storyId) return; 
 
   try {
     const story = await updateDoc(

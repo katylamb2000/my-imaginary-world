@@ -8,7 +8,6 @@ type Props = {
   hero: any;
   storyContent: any;
   switchToEdit: any;
-
 }
 
 function SideBar({ hero, storyContent, switchToEdit }: Props) {

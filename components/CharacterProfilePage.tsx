@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react'
 import { db } from '../firebase'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
 import { usePathname } from 'next/navigation'
+import { BucketExceptionMessages } from '@google-cloud/storage/build/src/bucket'
 
 type Props = {
   hero: any;
@@ -12,6 +13,7 @@ type Props = {
 
 function CharacterProfilePage({ hero }: Props) {
     const [myHero, setMyHero] = useState<null | any>(null)
+    const [buttons, setButtons] = useState([])
     const [storyId, setStoryId] = useState<null | string>(null)
     const [heroId, setHeroId] = useState<null | string>(null)
     const { data: session } = useSession()
@@ -31,6 +33,12 @@ function CharacterProfilePage({ hero }: Props) {
   }, [pathname])
 
   useEffect(() => {
+      if (!myHero) return;
+      if (!myHero.buttons) return;
+      setButtons(myHero.buttons)
+  }, [myHero])
+
+  useEffect(() => {
     console.log('the chosen one', hero?.docs[0]?.data())
     if (hero?.docs[0]?.data()){
       console.log('got a hero', hero?.docs[0]?.data())
@@ -42,6 +50,8 @@ function CharacterProfilePage({ hero }: Props) {
     }
   
   }, [hero])
+
+  
 
   const generateCharacterImage = async () => {
 
@@ -70,15 +80,24 @@ function CharacterProfilePage({ hero }: Props) {
   return (
     <div className='mx-auto my-6 bg-white rounded-lg border border-gray-100 w-4/5 h-4/5 grid grid-cols-4'>
       <div className="col-span-1 mx-auto text-center justify-center align-middle"> 
-      {myHero?.image ? (
-        <img src={myHero.image}                       
-          className="h-48 w-48 rounded-full cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 border border-purple-500"
+      {myHero?.imageChoices ? (
+ 
+        <img src={myHero.imageChoices}                       
+          className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
         />
       ):
       <img src={`https://ui-avatars.com/api/?name=${myHero?.name}`}                       
         className="h-48 w-48 rounded-full cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4"
        />
       }
+      {buttons.length > 0  && (
+        <div className='flex space-x-4'>
+          {buttons.map(btn => (
+            <button>{btn}</button>
+          )
+        )}
+      </div>
+      ) }
       <p>{myHero?.name}</p>
       </div>
       <div className="col-span-3"> 
