@@ -88,6 +88,7 @@ function CharacterProfilePage({ hero }: Props) {
   }, [myHero])
 
   const getHeroSeed = async() => {
+    console.log('trying to get hero seed')
     try {
       const data = {
 
