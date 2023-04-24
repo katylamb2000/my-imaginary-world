@@ -91,7 +91,6 @@ function CharacterProfilePage({ hero }: Props) {
     console.log('trying to get hero seed')
     try {
       const data = {
-
         buttonMessageId: myHero.buttonMessageId,
         reaction: '✉️',
         ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'getHeroSeed' }),

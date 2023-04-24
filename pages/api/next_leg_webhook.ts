@@ -79,6 +79,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           });
         }
           if (action === 'getHeroSeed') {
+            console.log('Lets try and get hero seed!')
             const docRef = adminDb
               .collection('users')
               .doc(userId)
