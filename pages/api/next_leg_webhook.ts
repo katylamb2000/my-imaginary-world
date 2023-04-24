@@ -1,7 +1,7 @@
 // pages/api/webhook.ts
 import { adminDb } from '../../firebaseAdmin';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { setDefaultResultOrder } from 'dns';
+// import { setDefaultResultOrder } from 'dns';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
@@ -10,7 +10,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
      // Extract the required data from the webhook response
      const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons, seed } = req.body;
-
+    
      // Deserialize the ref field to extract storyId, userId, and page
      const { storyId, userId, page, action, heroId } = JSON.parse(ref);
  try{
@@ -92,8 +92,9 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
                 seed: seed,
             
               });
+            }
        res.status(200).json({ message: 'Webhook received' });
-        }
+    
  }catch(err){
     console.error('Error:', err);
     res.status(500).json({ message: 'Internal server error' });
