@@ -56,7 +56,7 @@ function CharacterProfilePage({ hero }: Props) {
     try {
       const data = {
         button: btn,
-        MessageId: myHero.buttonMessageId,
+        buttonMessageId: myHero.buttonMessageId,
         reaction: '✉️',
         ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'upscaleCharacter' }),
         webhookOverride: ''
@@ -79,7 +79,6 @@ function CharacterProfilePage({ hero }: Props) {
     }
   }
 
-  
 
   const generateCharacterImage = async () => {
 
