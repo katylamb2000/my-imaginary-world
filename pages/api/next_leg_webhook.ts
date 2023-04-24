@@ -64,7 +64,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
        }
 
-       if (action === 'upscaleHero') {
+       if (action === 'upscaleCharacter') {
         const docRef = adminDb
           .collection('users')
           .doc(userId)
@@ -75,9 +75,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
           await docRef.update({
             heroImage: imageUrl,
-            seed: seed,
         
           });
+        }
+          if (action === 'getSeed') {
+            const docRef = adminDb
+              .collection('users')
+              .doc(userId)
+              .collection('storys')
+              .doc(storyId)
+              .collection('hero')
+              .doc(heroId)
+    
+              await docRef.update({
+                seed: seed,
+            
+              });
        res.status(200).json({ message: 'Webhook received' });
         }
  }catch(err){
