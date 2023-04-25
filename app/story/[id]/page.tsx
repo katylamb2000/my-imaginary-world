@@ -39,15 +39,15 @@ function StoryPage() {
   const selectedPageId = useSelector((state: RootState) =>  state.pageToEdit.id);
   const selectedPageText = useSelector((state: RootState) =>  state.pageToEdit.text);
 
-  const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. 
+  const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for a children's book. 
 
   I will provide you with a the full story and then one specific section of the story and your job is to elaborate these into full, explicit, coherent prompts. prompts involve describing the content and style of images in concise accurate language. It is useful to be explicit and use references to popular culture, artists and mediums. 
 
-  I will give you some examples of the style desired. 
+  I will give you some examples of the style desired. I will also give you the character i want to use as the key actors in the scene. 
   
   Your focus needs to be on nouns and adjectives. Please define the exact camera that should be used. 
   
-  Here is a formula for you to use: 
+  Here is a formula template for you to use: 
   
   IMAGE_TYPE: Macro close-up | GENRE: Fantasy | EMOTION: Quirky | SCENE: A tiny fairy sitting on a mushroom in a magical forest, surrounded by glowing fireflies | ACTORS: Fairy | LOCATION TYPE: Magical forest | CAMERA MODEL: Fujifilm X-T4 | CAMERA LENSE: 100mm f/2.8 Macro | SPECIAL EFFECTS: Infrared photography | TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest — ar 16:9
   
@@ -130,7 +130,7 @@ function StoryPage() {
 
   const createStoryImagePrompt = async(page: PageData) => {
     console.log('creating IP for', page.data.page)
-    const pagePrompt = `${basePrompt} - the full story is ${fullStory}. The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a 4 year old girl. The media you should reference is disney and pixar. `
+    const pagePrompt = `${basePrompt} - the full story is ${fullStory}. The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a 4 year old girl. The media you should reference is disney and pixar. The hero character is ${heroCharacter}`
     
     try{
      const response = await fetch('/api/createStoryImagePrompts', {

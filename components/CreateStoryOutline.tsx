@@ -65,8 +65,8 @@ function CreateStoryOutline({ hero }: Props) {
     if (hero.length == 0){
       setHeroDescription('create your own hero character')
     }
-    console.log('this i s here--> ', hero)
-    const description = `a ${hero.gender} called ${hero.name}`
+
+    const description = `a ${hero.gender} called ${hero.name} the character is ${hero.age} years old.`
     setHeroDescription(description)
   }, [hero])
 
@@ -174,27 +174,8 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
 
 useEffect(() => {
   if (!title) return;
-  updateStoryTitle()
+  // updateStoryTitle()
 }, [title])
-
-const updateStoryTitle = async () => {
-
-  if (!session?.user?.email || !storyId) return; 
-
-  try {
-    const story = await updateDoc(
-      doc(db, "users", session.user.email, "storys", storyId),
-      {
-        title: title,
-      }
-    );
-    console.log(story);
-    dispatch(setName("view story"));
-  } catch (err) {
-    console.log(err);
-  }
-};
-
 
   return (
     <div className="bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4">
