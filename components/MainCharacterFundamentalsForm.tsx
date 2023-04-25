@@ -8,6 +8,9 @@ import { useSession } from 'next-auth/react';
 import { db } from '../firebase'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
+import { toast } from 'react-hot-toast';
+import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
 
 interface ImageOption {
   uri: string;
@@ -17,7 +20,7 @@ interface ImageOption {
 function MainCharacterFundamentalsForm() {
   const [loading, setLoading] = useState(false)
   const [storyId, setStoryId] = useState<null | string>(null); 
-  const [name, setName] = useState('');
+  const [characterName, setCharacterName] = useState('');
   const [setting, setSetting] = useState('')
   const [favouriteThings, setFavouriteThings] = useState('')
   const [age, setAge] = useState('')
@@ -33,7 +36,7 @@ function MainCharacterFundamentalsForm() {
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
-
+  const dispatch = useDispatch()
   let [color, setColor] = useState("#ffffff");
 
   const override: CSSProperties = {
@@ -78,7 +81,7 @@ const createNewStory = async() => {
    const doc = await addDoc(collection(db, "users", session?.user?.email!, 'storys', storyId!, 'hero' ), {
       userId: session?.user?.email!,
       createdAt: serverTimestamp(), 
-      name: name, 
+      name: characterName, 
       gender: gender,
       hairColor: hairColor, 
       hairStyle: hairStyle,
@@ -89,6 +92,8 @@ const createNewStory = async() => {
   });
   setHeroCharacterId(doc.id)
   console.log('this is the hero id', doc.id)
+
+  dispatch(setName("hero"));
   // generateCharacter()
 }catch(err){
   console.log(err)
@@ -153,8 +158,8 @@ return (
             // required
             className="appearance-none rounded-none relative block w-full px-3 py-2 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
             placeholder="Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={characterName}
+            onChange={(e) => setCharacterName(e.target.value)}
           />
         </div>
       </div>
@@ -252,7 +257,7 @@ return (
       <div className="rounded-md shadow-sm -space-y-px">
         <div>
           <label htmlFor="name" className="sr-only">
-            Colthing
+            Clothing
           </label>
           <input
             id="clothing"
