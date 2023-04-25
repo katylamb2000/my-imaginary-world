@@ -66,8 +66,16 @@ response.pages.forEach(async (page, index) => {
     .doc(`page_${index + 1}`)
     .set(pageRequest);
 });
-
-}else{
+await adminDb
+.collection("users")
+.doc(session.user.email)
+.collection("storys")
+.doc(storyId)
+.update({
+  title: response.pages[1],
+});
+}
+else{
   return;
 }
 
