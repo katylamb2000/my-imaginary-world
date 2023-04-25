@@ -93,6 +93,7 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
             setting: setting,
             thingsToInclude: favouriteThings,
             storyStyle: genre,
+            style: style
         }
     )
 
@@ -161,7 +162,7 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
             id: notification
         })
 
-
+        dispatch(setName('view story'))
 }catch(err){
   toast.error('FAIL', {
     id: notification
