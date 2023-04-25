@@ -121,6 +121,33 @@ function CharacterProfilePage({ hero }: Props) {
     }
   }
 
+const huntingForSeed = async() => {
+
+const data = JSON.stringify({
+  "reaction": "✉️",
+  "buttonMessageId": myHero.buttonMessageId,
+   ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
+});
+
+const config = {
+  method: 'post',
+  url: 'https://api.thenextleg.io/api',
+  headers: {
+    'Authorization': `Bearer ${process.env.next_leg_api_token}`,
+    'Content-Type': 'application/json'
+  },
+  data: data
+};
+
+axios(config)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data));
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+}
+
 
   const generateCharacterImage = async () => {
 
@@ -185,7 +212,7 @@ function CharacterProfilePage({ hero }: Props) {
           <div className='w-full '>
             {!myHero?.image && (
             <button 
-                onClick={getHeroSeed}
+                onClick={huntingForSeed}
                 className='bg-purple-400 p-4 mx-auto text-white rounded-lg cursor-pointer hover:opacity-50 hover:shadow-xl'>
                   generate character seed
             </button>
