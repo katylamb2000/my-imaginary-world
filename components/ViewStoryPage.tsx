@@ -98,10 +98,10 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
 //     }
 // }
 
-useEffect(() => {
-  if (page.data.imageChoices) return;
-  sendImagineCommand()
- }, [page])
+// useEffect(() => {
+//   if (page.data.imageChoices) return;
+//   sendImagineCommand()
+//  }, [page])
 
 
  useEffect(() => {
@@ -235,7 +235,7 @@ const editPageContent = () => {
             {page.data.page}
         </p>
       }
-      {/* <div className="grid grid-cols-4">
+      <div className="grid grid-cols-4">
       <p className='italic text-sm col-span-3'>{page.data.imagePrompt?.imagePrompt}</p>
       <button 
           className="bg-pink-600 text-white p-4 mx-2 rounded-lg col-span-1"
@@ -243,7 +243,7 @@ const editPageContent = () => {
         >
         send prompt to midjounrey api
       </button>
-      </div> */}
+      </div>
 </div>
 
 </div>
