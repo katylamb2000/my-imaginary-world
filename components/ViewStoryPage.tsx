@@ -98,6 +98,11 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
 //     }
 // }
 
+useEffect(() => {
+  if (page.data.imageChoices) return;
+  sendImagineCommand()
+ }, [page])
+
 
  useEffect(() => {
   if (!page.data.imageChoices) return;
@@ -142,6 +147,8 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
   }
 
  }
+
+ 
 
 
 const sendImagineCommand = async () => {
