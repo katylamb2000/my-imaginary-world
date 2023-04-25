@@ -76,10 +76,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           await docRef.update({
             heroImage: imageUrl,
             buttonMessageId,
-        
+            buttons
           });
         }
-          if (action === 'seed') {
+        
+        if (action === 'seed') {
             console.log('Lets try and get hero seed!')
             const docRef = adminDb
               .collection('users')
@@ -94,7 +95,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             
               });
             }
-       res.status(200).json({ message: 'Webhook received' });
+res.status(200).json({ message: 'Webhook received' });
     
  }catch(err){
     console.error('Error:', err);
