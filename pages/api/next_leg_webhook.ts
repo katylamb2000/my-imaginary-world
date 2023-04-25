@@ -1,12 +1,12 @@
 // pages/api/webhook.ts
 import { adminDb } from '../../firebaseAdmin';
 import { NextApiRequest, NextApiResponse } from 'next';
-// import { setDefaultResultOrder } from 'dns';
+import { setDefaultResultOrder } from 'dns';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     // Log the incoming data for debugging purposes
-    console.log('Webhook data:', req.body);
+    console.log('ALL Webhook data:', req.body);
 
      // Extract the required data from the webhook response
      const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons, seed } = req.body;
