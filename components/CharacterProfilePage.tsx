@@ -91,7 +91,7 @@ function CharacterProfilePage({ hero }: Props) {
     try {
       const data = JSON.stringify({
         "reaction": '✉️',
-        "buttonMessageId": "your-button-message-id",
+        "buttonMessageId": myHero.buttonMessageId,
         "ref": { storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' },
 
       });
