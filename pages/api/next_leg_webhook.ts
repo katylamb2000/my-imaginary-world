@@ -4,6 +4,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { setDefaultResultOrder } from 'dns';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+console.log('BEFORE IF POST data:', req.body)
   if (req.method === 'POST') {
     // Log the incoming data for debugging purposes
     console.log('ALL Webhook data:', req.body);

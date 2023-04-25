@@ -89,21 +89,20 @@ function CharacterProfilePage({ hero }: Props) {
 
   const getHeroSeed = async() => {
     try {
-      const data = JSON.stringify({
-        "reaction": '✉️',
-        "buttonMessageId": myHero.buttonMessageId,
-        "ref": { storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' },
+      // const data = JSON.stringify({
+      //   "reaction": '✉️',
+      //   "buttonMessageId": myHero.buttonMessageId,
+      //   "ref": { storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' },
 
-      });
+      // });
 
+  
+      const data = {
+        buttonMessageId: myHero.buttonMessageId,
+        reaction: "✉️",
+        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
+      };
       console.log('this is data', data)
-      // const data = {
-      //   buttonMessageId: myHero.buttonMessageId,
-      //   reaction: JSON.stringify({"✉️"}),
-      //   ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
-      //   webhookOverride: ''
-
-      // };
   
       const config = {
         method: 'post',
