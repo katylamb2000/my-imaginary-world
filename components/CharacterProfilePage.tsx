@@ -189,6 +189,14 @@ function CharacterProfilePage({ hero }: Props) {
                   generate character seed
             </button>
                 )}
+      {buttons.length > 0 && myHero.heroImage && (
+        <div className='flex space-x-4'>
+          {buttons.map(btn => (
+            <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
+          )
+        )}
+      </div>
+      ) }
           </div>
       </div>
     </div>
