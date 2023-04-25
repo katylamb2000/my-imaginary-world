@@ -15,6 +15,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      const { storyId, userId, page, action, heroId } = JSON.parse(ref);
  try{
      // Update the story data in Firestore
+
+     if (action === 'seed') {
+        const docRef = adminDb
+          .collection('users')
+          .doc(userId)
+          .collection('storys')
+          .doc(storyId)
+          .collection('hero')
+          .doc(heroId)
+
+          await docRef.update({
+            seed: 'i want a seed'
+        
+          });
+        }
      if (action === 'imagine') {
      const docRef = adminDb
        .collection('users')
@@ -80,21 +95,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           });
         }
         
-        if (action === 'seed') {
-            console.log('Lets try and get hero seed!')
-            const docRef = adminDb
-              .collection('users')
-              .doc(userId)
-              .collection('storys')
-              .doc(storyId)
-              .collection('hero')
-              .doc(heroId)
-    
-              await docRef.update({
-                seed
-            
-              });
-            }
+ 
 res.status(200).json({ message: 'Webhook received' });
     
  }catch(err){

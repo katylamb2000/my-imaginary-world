@@ -90,11 +90,13 @@ function CharacterProfilePage({ hero }: Props) {
   const getHeroSeed = async() => {
     try {
       const data = JSON.stringify({
-        "reaction": "✉️",
+        "reaction": '✉️',
         "buttonMessageId": "your-button-message-id",
         "ref": { storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' },
 
       });
+
+      console.log('this is data', data)
       // const data = {
       //   buttonMessageId: myHero.buttonMessageId,
       //   reaction: JSON.stringify({"✉️"}),
