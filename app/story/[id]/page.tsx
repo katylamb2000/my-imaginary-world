@@ -38,6 +38,7 @@ interface Character {
   skinColor: string;
   userId: string;
   id: string;
+  heroImage: string;
 }
 
 function StoryPage() {
@@ -113,6 +114,7 @@ function StoryPage() {
     clothing: doc.data().clothing,
     eyeColor: doc.data().eyeColor,
     gender: doc.data().gender,
+    heroImage: doc.data().heroImage,
     hairColor: doc.data().hairColor,
     hairStyle: doc.data().hairStyle,
     imageChoices: doc.data().imageChoices,
