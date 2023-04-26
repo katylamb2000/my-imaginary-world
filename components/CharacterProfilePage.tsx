@@ -149,13 +149,6 @@ function CharacterProfilePage({ hero }: Props) {
     }
   }
 
-  // useEffect(() => {
-  //   if (!myHero) return;
-  //   if (!myHero.heroImage) return;
-  //   if (myHero.heroImage && !myHero.seed){
-  //     getHeroSeed()
-  //   }
-  // }, [myHero])
 
   const getHeroSeed = async() => {
     try {
@@ -250,7 +243,7 @@ axios(config)
            className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
          />
       )}
-      {buttons.length > 0 && !characterProfile.heroImage && (
+      {buttons.length > 0 && !characterProfile.imageChoices && (
         <div className='flex space-x-4'>
           {buttons.map(btn => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
@@ -258,7 +251,7 @@ axios(config)
         )}
       </div>
       ) }
-      <p>{myHero?.name}</p>
+      <p>{characterProfile?.name}</p>
       </div>
       <div className="col-span-3"> 
           <div className='mx-auto p-6 space-y-2'>
