@@ -229,7 +229,7 @@ axios(config)
       <div className="col-span-1 mx-auto text-center justify-center align-middle"> 
       
 
-        {characterProfile?.imageChoices && myHero && !myHero.heroImage ? (
+        {characterProfile?.imageChoices ? (
 
  
         <img src={characterProfile.imageChoices}                       
@@ -246,7 +246,8 @@ axios(config)
            className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
          />
       )}
-      {buttons.length > 0 && !characterProfile.imageChoices && (
+
+      {buttons.length > 0 && characterProfile.imageChoices && (
         <div className='flex space-x-4'>
           {buttons.map(btn => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
