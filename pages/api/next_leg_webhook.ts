@@ -62,14 +62,20 @@ console.log('BEFORE IF POST data:', req.body)
         });
        }
 
+    // if (action === 'createHero') {
+    //     const docRef = adminDb
+    //       .collection('users')
+    //       .doc(userId)
+    //       .collection('storys')
+    //       .doc(storyId)
+    //       .collection('hero')
+    //       .doc(heroId)
     if (action === 'createHero') {
-        const docRef = adminDb
-          .collection('users')
-          .doc(userId)
-          .collection('storys')
-          .doc(storyId)
-          .collection('hero')
-          .doc(heroId)
+      const docRef = adminDb
+        .collection('users')
+        .doc(userId)
+        .collection('characters')
+        .doc(heroId)
 
           await docRef.update({
             imageChoices: imageUrl,
@@ -84,9 +90,7 @@ console.log('BEFORE IF POST data:', req.body)
         const docRef = adminDb
           .collection('users')
           .doc(userId)
-          .collection('storys')
-          .doc(storyId)
-          .collection('hero')
+          .collection('characters')
           .doc(heroId)
 
           await docRef.update({

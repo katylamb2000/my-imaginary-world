@@ -78,7 +78,7 @@ const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
 const createNewStory = async() => {
   setLoading(true)
   try{
-   const doc = await addDoc(collection(db, "users", session?.user?.email!, 'storys', storyId!, 'hero' ), {
+   const doc = await addDoc(collection(db, "users", session?.user?.email!, 'characters' ), {
       userId: session?.user?.email!,
       createdAt: serverTimestamp(), 
       name: characterName, 
