@@ -229,13 +229,13 @@ axios(config)
 
       {buttons.length > 0 && characterProfile.imageChoices && characterProfile.buttons (
         <div className='flex space-x-4'>
-          {characterProfile.buttons.map(btn => (
+          {characterProfile.buttons.map((btn: string) => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
           )
         )}
       </div>
       ) }
-      
+
       <p>{characterProfile?.name}</p>
       </div>
       <div className="col-span-3"> 
