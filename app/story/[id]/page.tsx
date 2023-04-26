@@ -283,6 +283,8 @@ function StoryPage() {
       </div>
     )}
 
+
+
       {storyBuilderActive == 'create story outline' && (
          <CreateStoryOutline  hero={heroCharacter} />
       )}

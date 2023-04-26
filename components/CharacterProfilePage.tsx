@@ -37,26 +37,6 @@ function CharacterProfilePage({ hero }: Props) {
       };
     }, [characterId]);
 
-    // const getCharacter = async () => {
-    //   if (!session || !session.user || !session.user.email || !characterId) {
-    //     console.error("Session, user email, or characterId is missing");
-    //     return;
-    //   }
-    //   try {
-    //     const docRef = doc(collection(db, "users", session!.user?.email, "characters"), characterId);
-    //     const docSnap = await getDoc(docRef);
-    
-    //     if (docSnap.exists()) {
-    //       console.log("This is the character:", docSnap.data());
-    //       setCharacterProfile(docSnap.data())
-    //     } else {
-    //       console.log("No such document!");
-    //     }
-    //   } catch (err) {
-    //     console.log(err);
-    //   }
-    // };
-
 
     const getCharacter = () => {
       if (!session || !session.user || !session.user.email || !characterId) {
@@ -247,14 +227,15 @@ axios(config)
          />
       )}
 
-      {buttons.length > 0 && characterProfile.imageChoices && (
+      {buttons.length > 0 && characterProfile.imageChoices && characterProfile.buttons (
         <div className='flex space-x-4'>
-          {buttons.map(btn => (
+          {characterProfile.buttons.map(btn => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
           )
         )}
       </div>
       ) }
+      
       <p>{characterProfile?.name}</p>
       </div>
       <div className="col-span-3"> 
