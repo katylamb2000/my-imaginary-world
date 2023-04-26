@@ -30,14 +30,7 @@ function HomePage() {
       session && collection(db, 'users', session?.user?.email!, 'storys'),
     )
 
-    // const startAutomation = async () => {
-    //   try {
-    //     const response = await axios.post('/api/run_automation');
-    //     console.log('we are looking for AN response WHATSOEVER!', response.data);
-    //   } catch (error) {
-    //     console.error('Error starting automation:', error);
-    //   }
-    // };
+
 
 
   return (

@@ -17,10 +17,27 @@ import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector } from "react-redux"
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
+import CharacterScrollBar from "../../../components/CharacterScrollBar"
 
 interface PageData {
   id: string;
   data: any; // Replace 'any' with the appropriate type for your page data
+}
+
+interface Character {
+  buttonMessageId: string;
+  buttons: Array<any>;
+  clothing: string;
+  eyeColor: string;
+  gender: string;
+  hairColor: string;
+  hairStyle: string;
+  imageChoices: string;
+  imagePrompt: string;
+  name: string;
+  skinColor: string;
+  userId: string;
+  id: string;
 }
 
 function StoryPage() {
@@ -84,6 +101,28 @@ function StoryPage() {
   const [hero, heroloading, heroerror] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'hero') : null,
   );
+
+  const [charactersSnapshot, characterLoading, characterError] = useCollection(
+    session && collection(db, 'users', session?.user?.email!, 'characters'),
+  )
+  
+  const characters: Character[] = charactersSnapshot?.docs.map(doc => ({
+    ...doc.data(),
+    buttonMessageId: doc.data().buttonMessageId,
+    buttons: doc.data().buttons,
+    clothing: doc.data().clothing,
+    eyeColor: doc.data().eyeColor,
+    gender: doc.data().gender,
+    hairColor: doc.data().hairColor,
+    hairStyle: doc.data().hairStyle,
+    imageChoices: doc.data().imageChoices,
+    imagePrompt: doc.data().imagePrompt,
+    name: doc.data().name,
+    skinColor: doc.data().skinColor,
+    userId: doc.data().userId,
+    id: doc.id,
+})) ?? [];
+
 
   const [storyContent, storyContentloading, storyContenterror] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent') : null,
@@ -283,7 +322,9 @@ function StoryPage() {
       </div>
     )}
 
-
+      {storyBuilderActive == 'create story outline' && (
+        <CharacterScrollBar characters={characters} />
+      )}
 
       {storyBuilderActive == 'create story outline' && (
          <CreateStoryOutline  hero={heroCharacter} />

@@ -11,3 +11,18 @@ interface StoryOutline {
     thingsToInclude: string;
     storyStyle: string;
 }
+
+interface Character {
+    buttonMessageId: string;
+    buttons: array;
+    clothing: string;
+    eyeColor: string;
+    gender: string;
+    hairColor: string;
+    hairStyle: string;
+    imageChoices: string;
+    imagePrompt: string;
+    name: string;
+    skinColor: string;
+    userId: string
+}
