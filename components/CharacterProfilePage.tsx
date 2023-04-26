@@ -129,7 +129,6 @@ function CharacterProfilePage({ hero }: Props) {
     }
   }
 
-
   const getHeroSeed = async() => {
     try {
       const data = {
@@ -161,7 +160,7 @@ const huntingForSeed = async() => {
 const data = JSON.stringify({
   "reaction": "✉️",
   "buttonMessageId": myHero.buttonMessageId,
-   ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
+   ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: characterId, action: 'seed' }),
 });
 
 const config = {
