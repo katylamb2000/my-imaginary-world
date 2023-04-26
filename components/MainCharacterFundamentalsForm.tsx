@@ -93,10 +93,8 @@ const createNewStory = async() => {
   });
   setHeroCharacterId(doc.id)
   console.log('this is the hero id', doc.id)
-
-  
   dispatch(setCharacterId(doc.id))
-  generateCharacter()
+
 }catch(err){
   console.log(err)
 }}
@@ -110,7 +108,7 @@ useEffect(() => {
 
 const generateCharacter = async () => {
   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
-
+  console.log('this is heroId ======>', heroCharacterId)
   try {
     const data = {
       cmd: 'imagine',
