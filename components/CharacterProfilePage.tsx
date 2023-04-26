@@ -106,6 +106,8 @@ function CharacterProfilePage({ hero }: Props) {
       setButtons(myHero.buttons)
   }, [myHero])
 
+  
+
   useEffect(() => {
     console.log('the chosen one', hero?.docs[0]?.data())
     if (hero?.docs[0]?.data()){
@@ -147,13 +149,13 @@ function CharacterProfilePage({ hero }: Props) {
     }
   }
 
-  useEffect(() => {
-    if (!myHero) return;
-    if (!myHero.heroImage) return;
-    if (myHero.heroImage && !myHero.seed){
-      getHeroSeed()
-    }
-  }, [myHero])
+  // useEffect(() => {
+  //   if (!myHero) return;
+  //   if (!myHero.heroImage) return;
+  //   if (myHero.heroImage && !myHero.seed){
+  //     getHeroSeed()
+  //   }
+  // }, [myHero])
 
   const getHeroSeed = async() => {
     try {
