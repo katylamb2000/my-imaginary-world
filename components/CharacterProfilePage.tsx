@@ -106,8 +106,8 @@ function CharacterProfilePage({ hero }: Props) {
     try {
       const data = {
         button: btn,
-        buttonMessageId: myHero.buttonMessageId,
-        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'upscaleCharacter', heroId: heroId }),
+        buttonMessageId: characterProfile.buttonMessageId,
+        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'upscaleCharacter', heroId: characterId }),
         webhookOverride: ''
       };
   
