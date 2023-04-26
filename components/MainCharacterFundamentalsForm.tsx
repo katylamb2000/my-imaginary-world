@@ -11,6 +11,7 @@ import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
+import { setCharacterId } from '../app/GlobalRedux/Features/viewCharacterSlice'
 
 interface ImageOption {
   uri: string;
@@ -94,6 +95,7 @@ const createNewStory = async() => {
   console.log('this is the hero id', doc.id)
 
   dispatch(setName("hero"));
+  dispatch(setCharacterId(doc.id))
   // generateCharacter()
 }catch(err){
   console.log(err)

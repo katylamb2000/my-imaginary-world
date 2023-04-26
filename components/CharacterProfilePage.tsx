@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { db } from '../firebase'
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { RootState } from '../app/GlobalRedux/store'
+import { useSelector } from 'react-redux'
 import { usePathname } from 'next/navigation'
 import axios from 'axios'
 
@@ -18,6 +20,12 @@ function CharacterProfilePage({ hero }: Props) {
     const [heroId, setHeroId] = useState<null | string>(null)
     const { data: session } = useSession()
     const pathname = usePathname()
+    const characterId = useSelector((state: RootState) => state.viewCharacter.characterId);
+
+    useEffect(() => {
+      if (!characterId.length) return;
+      console.log(characterId)
+    }, [characterId])
 
   useEffect(() => {
     if (!pathname) return;
@@ -89,14 +97,6 @@ function CharacterProfilePage({ hero }: Props) {
 
   const getHeroSeed = async() => {
     try {
-      // const data = JSON.stringify({
-      //   "reaction": '✉️',
-      //   "buttonMessageId": myHero.buttonMessageId,
-      //   "ref": { storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' },
-
-      // });
-
-  
       const data = {
         buttonMessageId: myHero.buttonMessageId,
         reaction: "✉️",
