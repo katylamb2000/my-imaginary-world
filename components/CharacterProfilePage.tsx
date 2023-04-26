@@ -227,7 +227,7 @@ axios(config)
          />
       )}
 
-      {buttons.length > 0 && characterProfile.imageChoices && characterProfile.buttons (
+      {characterProfile.buttons.length > 0 && characterProfile.imageChoices && characterProfile.buttons (
         <div className='flex space-x-4'>
           {characterProfile.buttons.map((btn: string) => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
@@ -257,7 +257,7 @@ axios(config)
                   generate character seed
             </button>
                 )}
-      {buttons.length > 0 && characterProfile?.heroImage && (
+      {characterProfile.buttons.length > 0 && characterProfile?.heroImage && (
         <div className='flex space-x-4'>
           {buttons.map(btn => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
