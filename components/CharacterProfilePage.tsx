@@ -27,8 +27,15 @@ function CharacterProfilePage({ hero }: Props) {
       if (!characterId.length) return;
       if (characterId.length && !characterProfile)
       console.log(characterId)
-      getCharacter()
-    }, [characterId])
+      
+      // Save the cleanup function returned by getCharacter
+      const cleanup = getCharacter();
+    
+      // Call the cleanup function when the component is unmounted
+      return () => {
+        if (cleanup) cleanup();
+      };
+    }, [characterId]);
 
     // const getCharacter = async () => {
     //   if (!session || !session.user || !session.user.email || !characterId) {
@@ -51,26 +58,33 @@ function CharacterProfilePage({ hero }: Props) {
     // };
 
 
-
-    const getCharacter = async () => {
+    const getCharacter = () => {
       if (!session || !session.user || !session.user.email || !characterId) {
         console.error("Session, user email, or characterId is missing");
         return;
       }
       try {
         const docRef = doc(collection(db, "users", session!.user?.email, "characters"), characterId);
-        const docSnap = await getDoc(docRef);
     
-        if (docSnap.exists()) {
-          console.log("This is the character:", docSnap.data());
-          setCharacterProfile(docSnap.data())
-        } else {
-          console.log("No such document!");
-        }
+        // Listen for real-time updates
+        const unsubscribe = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            console.log("This is the character:", docSnap.data());
+            setCharacterProfile(docSnap.data());
+          } else {
+            console.log("No such document!");
+          }
+        });
+    
+        // Clean up the listener when the component is unmounted
+        return () => {
+          unsubscribe();
+        };
       } catch (err) {
         console.log(err);
       }
     };
+    
 
 
   useEffect(() => {
@@ -218,23 +232,23 @@ axios(config)
   return (
     <div className='mx-auto my-6 bg-white rounded-lg border border-gray-100 w-4/5 h-4/5 grid grid-cols-4'>
       <div className="col-span-1 mx-auto text-center justify-center align-middle"> 
-      {myHero?.imageChoices && !myHero.heroImage ? (
+      {characterProfile?.imageChoices && !myHero.heroImage ? (
  
-        <img src={myHero.imageChoices}                       
+        <img src={characterProfile.imageChoices}                       
           className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
         />
       ):
-      <img src={`https://ui-avatars.com/api/?name=${myHero?.name}`}                       
+      <img src={`https://ui-avatars.com/api/?name=${characterProfile?.name}`}                       
         className="h-48 w-48 rounded-full cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4"
        />
       }
 
-      {myHero?.heroImage && (
-           <img src={myHero.heroImage}                       
+      {characterProfile?.heroImage && (
+           <img src={characterProfile.heroImage}                       
            className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
          />
       )}
-      {buttons.length > 0 && !myHero.heroImage && (
+      {buttons.length > 0 && !characterProfile.heroImage && (
         <div className='flex space-x-4'>
           {buttons.map(btn => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
@@ -246,17 +260,17 @@ axios(config)
       </div>
       <div className="col-span-3"> 
           <div className='mx-auto p-6 space-y-2'>
-            <p>{myHero?.age}</p>
-            <p>{myHero?.gender}</p>
-            <p>{myHero?.hairColor}</p>
-            <p>{myHero?.hairStyle}</p>
-            <p>{myHero?.eyeColor}</p>
-            <p>{myHero?.skinColor}</p>
-            <p>{myHero?.clothing}</p>
+            <p>{characterProfile?.age}</p>
+            <p>{characterProfile?.gender}</p>
+            <p>{characterProfile?.hairColor}</p>
+            <p>{characterProfile?.hairStyle}</p>
+            <p>{characterProfile?.eyeColor}</p>
+            <p>{characterProfile?.skinColor}</p>
+            <p>{characterProfile?.clothing}</p>
           </div>
     
           <div className='w-full '>
-            {!myHero?.image && (
+            {!characterProfile?.image && (
             <button 
                 onClick={huntingForSeed}
                 className='bg-purple-400 p-4 mx-auto text-white rounded-lg cursor-pointer hover:opacity-50 hover:shadow-xl'>
