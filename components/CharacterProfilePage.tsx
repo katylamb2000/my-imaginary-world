@@ -227,7 +227,10 @@ axios(config)
   return (
     <div className='mx-auto my-6 bg-white rounded-lg border border-gray-100 w-4/5 h-4/5 grid grid-cols-4'>
       <div className="col-span-1 mx-auto text-center justify-center align-middle"> 
-      {characterProfile?.imageChoices && !myHero.heroImage ? (
+      
+
+        {characterProfile?.imageChoices && myHero && !myHero.heroImage ? (
+
  
         <img src={characterProfile.imageChoices}                       
           className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
@@ -272,7 +275,7 @@ axios(config)
                   generate character seed
             </button>
                 )}
-      {buttons.length > 0 && characterProfile.heroImage && (
+      {buttons.length > 0 && characterProfile?.heroImage && (
         <div className='flex space-x-4'>
           {buttons.map(btn => (
             <button onClick={() => upscaleChosenImage(btn)}>{btn}</button>
