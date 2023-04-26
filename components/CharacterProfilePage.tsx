@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { db } from '../firebase'
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore'
+import { addDoc, collection, serverTimestamp, doc, getDoc } from 'firebase/firestore'
 import { RootState } from '../app/GlobalRedux/store'
 import { useSelector } from 'react-redux'
 import { usePathname } from 'next/navigation'
@@ -15,6 +15,7 @@ type Props = {
 
 function CharacterProfilePage({ hero }: Props) {
     const [myHero, setMyHero] = useState<null | any>(null)
+    const [characterProfile, setCharacterProfile] = useState<null | any>(null)
     const [buttons, setButtons] = useState([])
     const [storyId, setStoryId] = useState<null | string>(null)
     const [heroId, setHeroId] = useState<null | string>(null)
@@ -24,8 +25,31 @@ function CharacterProfilePage({ hero }: Props) {
 
     useEffect(() => {
       if (!characterId.length) return;
+      if (characterId.length && !characterProfile)
       console.log(characterId)
+      getCharacter()
     }, [characterId])
+
+    const getCharacter = async () => {
+      if (!session || !session.user || !session.user.email || !characterId) {
+        console.error("Session, user email, or characterId is missing");
+        return;
+      }
+      try {
+        const docRef = doc(collection(db, "users", session!.user?.email, "characters"), characterId);
+        const docSnap = await getDoc(docRef);
+    
+        if (docSnap.exists()) {
+          console.log("This is the character:", docSnap.data());
+          setCharacterProfile(docSnap.data())
+        } else {
+          console.log("No such document!");
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
 
   useEffect(() => {
     if (!pathname) return;

@@ -94,9 +94,9 @@ const createNewStory = async() => {
   setHeroCharacterId(doc.id)
   console.log('this is the hero id', doc.id)
 
-  dispatch(setName("hero"));
+  
   dispatch(setCharacterId(doc.id))
-  // generateCharacter()
+  generateCharacter()
 }catch(err){
   console.log(err)
 }}
@@ -131,6 +131,7 @@ const generateCharacter = async () => {
 
     const response = await axios(config);
     console.log(JSON.stringify(response.data));
+    dispatch(setName("hero"));
   } catch (error) {
     console.log(error);
   }
