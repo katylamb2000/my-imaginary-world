@@ -160,7 +160,7 @@ const huntingForSeed = async() => {
 const data = JSON.stringify({
   "reaction": "✉️",
   "buttonMessageId": characterProfile.buttonMessageId,
-   ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: characterId, action: 'seed' }),
+   "ref": JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: characterId, action: 'seed' }),
 });
 
 const config = {
