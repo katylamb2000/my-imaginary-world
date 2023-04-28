@@ -12,13 +12,32 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import SyncLoader from "react-spinners/SyncLoader";
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
-import { setUncaughtExceptionCaptureCallback } from 'process';
+import { setCharacterImage, setCharacterImagePrompt } from '../app/GlobalRedux/Features/viewCharacterSlice';
 // import { toast } from "react-hot-toast";
 
 type SetBookInfo = (info: any) => void;
 
+
+interface Character {
+  buttonMessageId: string;
+  buttons: Array<any>;
+  clothing: string;
+  eyeColor: string;
+  gender: string;
+  hairColor: string;
+  hairStyle: string;
+  imageChoices: string;
+  imagePrompt: string;
+  name: string;
+  skinColor: string;
+  age: string;
+  userId: string;
+  id: string;
+  heroImage: string;
+}
+
 type Props = {
-    hero: any;
+    characters: Character[]
 };
 
 type Prompt = {
@@ -28,10 +47,12 @@ type Prompt = {
 };
 
 
-function CreateStoryOutline({ hero }: Props) {
+
+function CreateStoryOutline({ characters  }: Props) {
   const [storyContent, setStoryContent] = useState<null | string>(null)
   const [title, setTitle] = useState<null | string>(null)
-  const [heroCharacter, setHeroCharacter] = useState()
+  const [heroCharacterId, setHeroCharacterId] = useState<null | string>(null)
+  const [heroCharacter, setHeroCharacter] = useState<null | Character>(null)
   const [allHeros, setAllHeros] = useState([])
   const [secondaryHeros, setSecondaryHeros] = useState([])
   const [childsName, setChildsName] = useState('');
@@ -61,14 +82,37 @@ function CreateStoryOutline({ hero }: Props) {
   };
 
   useEffect(() => {
-    if (!hero) return;
-    if (hero.length == 0){
+    if (!heroCharacter) return;
+    if (heroCharacter == null){
       setHeroDescription('create your own hero character')
     }
-
-    const description = `a ${hero.gender} called ${hero.name} the character is ${hero.age} years old.`
+    const description = `a ${heroCharacter.age} years old ${heroCharacter.gender} called ${heroCharacter.name} .`
+    console.log(description)
     setHeroDescription(description)
-  }, [hero])
+  }, [heroCharacter])
+
+  // useEffect(() => {
+  //   if (heroCharacterId && characters) {
+  //     const selectedCharacter = characters.find((character: Character) => character.id === heroCharacterId);
+  //     console.log(selectedCharacter)
+  //     setHeroCharacter(selectedCharacter);
+  //     dispatch(setCharacterImage(selectedCharacter.heroImage))
+  //     dispatch(setCharacterImagePrompt(selectedCharacter.imagePrompt))
+  //   }
+  // }, [heroCharacterId, characters]);
+
+  useEffect(() => {
+    if (heroCharacterId && characters) {
+      const selectedCharacter = characters.find((character: Character) => character.id === heroCharacterId);
+      console.log(selectedCharacter);
+      setHeroCharacter(selectedCharacter ?? null);
+      if (selectedCharacter) {
+        dispatch(setCharacterImage(selectedCharacter.heroImage));
+        dispatch(setCharacterImagePrompt(selectedCharacter.imagePrompt));
+      }
+    }
+  }, [heroCharacterId, characters]);
+  
 
   useEffect(() => {
     if (!pathname) return;
@@ -139,7 +183,8 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
 
   
     Page 10:
-    {{page10}}    
+    {{page10}} 
+       
     `;
     
 
@@ -214,6 +259,18 @@ useEffect(() => {
             />
           </div>
         </div>
+        
+        <select
+            className="appearance-none rounded-none relative block w-full px-3 py-2 mt-1 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm border-gray-300"
+            onChange={(e) => setHeroCharacterId(e.target.value)}
+          >
+            <option value="">Select a hero character</option>
+            {characters && characters.map((character: Character) => (
+              <option key={character.id} value={character.id}>
+                {character.name}
+              </option>
+            ))}
+          </select>
 
         <div className="rounded-md shadow-sm -space-y-px">
           <div>

@@ -10,10 +10,10 @@ import axios from 'axios'
 
 type Props = {
   hero: any;
-  storyContent: any;
+  // storyContent: any;
 }
 
-function CharacterProfilePage({ hero }: Props) {
+function CharacterProfilePage() {
     const [myHero, setMyHero] = useState<null | any>(null)
     const [characterProfile, setCharacterProfile] = useState<null | any>(null)
     const [buttons, setButtons] = useState([])
@@ -88,18 +88,18 @@ function CharacterProfilePage({ hero }: Props) {
 
   
 
-  useEffect(() => {
-    console.log('the chosen one', hero?.docs[0]?.data())
-    if (hero?.docs[0]?.data()){
-      console.log('got a hero', hero?.docs[0]?.data())
-      setMyHero(hero?.docs[0]?.data())
-      setHeroId(hero?.docs[0]?.id)
-    }
-    else{
-      console.log('no hero')
-    }
+  // useEffect(() => {
+  //   console.log('the chosen one', hero?.docs[0]?.data())
+  //   if (hero?.docs[0]?.data()){
+  //     console.log('got a hero', hero?.docs[0]?.data())
+  //     setMyHero(hero?.docs[0]?.data())
+  //     setHeroId(hero?.docs[0]?.id)
+  //   }
+  //   else{
+  //     console.log('no hero')
+  //   }
   
-  }, [hero])
+  // }, [hero])
 
   const upscaleChosenImage = async(btn: string) => {
     console.log(btn)

@@ -105,6 +105,7 @@ export default async function createStoryImagePrompts(
     .doc(page);
 
   await docRef.update({
+    imagePromptCreated: true,
     imagePrompt: response
   });
 

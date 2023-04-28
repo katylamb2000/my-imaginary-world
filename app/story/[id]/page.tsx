@@ -9,7 +9,7 @@ import EditPageBar from "../../../components/EditPageBar"
 import Story from "../../../components/Story"
 import { useSession } from 'next-auth/react'
 import { usePathname } from "next/navigation"
-import { addDoc, collection, serverTimestamp, updateDoc, doc } from "firebase/firestore"
+import { addDoc, collection, serverTimestamp, updateDoc, doc, QueryDocumentSnapshot } from "firebase/firestore"
 import { db } from '../../../firebase'
 import { useState, useEffect } from 'react'
 import { useCollection } from 'react-firebase-hooks/firestore'
@@ -22,6 +22,7 @@ import CharacterScrollBar from "../../../components/CharacterScrollBar"
 interface PageData {
   id: string;
   data: any; // Replace 'any' with the appropriate type for your page data
+  imagePromptCreated: Boolean
 }
 
 interface Character {
@@ -39,6 +40,7 @@ interface Character {
   userId: string;
   id: string;
   heroImage: string;
+  age: string
 }
 
 function StoryPage() {
@@ -47,15 +49,18 @@ function StoryPage() {
   const [fullStory, setFullStory] = useState('')
   const [storyId, setStoryId] = useState<null | string>(null)
   const [heroCharacter, setHeroCharacter] = useState<null | any>(null)
-  const [imagePrompts, setImagePrompts] = useState<null | []>(null)
+  const [imagePrompts, setImagePrompts] = useState<any[]>([]);
   const [content, setContent] = useState<null | any>(null)
   const [sortedStoryContent, setSortedStoryContent] = useState<PageData[]>([]);
   const [storyContentId, setStoryContentId]= useState<null | string>(null)
   const [editStoryPage, setEditStoryPage] = useState(false)
+  const [pagesProcessed, setPagesProcessed] = useState<string[]>([]);
   const pathname = usePathname()
   const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name);
   const selectedPageId = useSelector((state: RootState) =>  state.pageToEdit.id);
   const selectedPageText = useSelector((state: RootState) =>  state.pageToEdit.text);
+  const heroImage = useSelector((state: RootState) => state.viewCharacter.characterImage)
+  const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
 
   const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for a children's book. 
 
@@ -88,20 +93,6 @@ function StoryPage() {
     }
   }, [pathname])
 
-  const createHero = async() => {
-    if (!storyId) return;
-    const doc = await addDoc(collection(db, "users", session?.user?.email!, 'storys', storyId!, 'hero'), {
-        userId: session?.user?.email!,
-        createdAt: serverTimestamp(), 
-        name: 'name',
-        age: 'age'
-
-    });
-  }
-
-  const [hero, heroloading, heroerror] = useCollection(
-    session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'hero') : null,
-  );
 
   const [charactersSnapshot, characterLoading, characterError] = useCollection(
     session && collection(db, 'users', session?.user?.email!, 'characters'),
@@ -122,6 +113,7 @@ function StoryPage() {
     name: doc.data().name,
     skinColor: doc.data().skinColor,
     userId: doc.data().userId,
+    age: doc.data().age,
     id: doc.id,
 })) ?? [];
 
@@ -131,34 +123,15 @@ function StoryPage() {
   );
 
   useEffect(() => {
-    if (!hero) return;
-    if (hero?.docs[0]?.data()){
-      setHeroCharacter(hero?.docs[0].data())
-    }
-  }, [hero])
-
-  useEffect(() => {
-    if (!storyContent) return;
-    
-    storyContent.docs.map(sc => {
-      if (sc.data().imagePrompt){
-        console.log('already got a prompt', sc.data().imagePrompt)
-      }
-      else {
-        createStoryImagePrompt(sc)
-      }
-
-    })
-    // console.log('STORY CONTENT CHECKING FOR IMAGE Prompts ~~~>', storyContent)
-
-  }, [storyContent])
-
-  useEffect(() => {
     if (!storyContent) return;
     const sortedPages = storyContent.docs
-      .map(doc => ({ id: doc.id, data: doc.data() }))
-      .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
-    setSortedStoryContent(sortedPages);
+    .map(doc => ({ 
+      id: doc.id, 
+      data: doc.data(),
+      imagePromptCreated: doc.data().imagePromptCreated // Add this line
+    }))
+    .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
+  setSortedStoryContent(sortedPages);
   }, [storyContent]);
 
   useEffect(() => {
@@ -169,10 +142,27 @@ function StoryPage() {
   }, [sortedStoryContent])
 
 
-  const createStoryImagePrompt = async(page: PageData) => {
-    console.log('creating IP for', page.data.page)
-    const pagePrompt = `${basePrompt} - the full story is ${fullStory}. The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a 4 year old girl. The media you should reference is disney and pixar. The hero character is ${heroCharacter}`
-    
+  useEffect(() => {
+    if (storyContent) {
+      storyContent.docs.map((sc) => {
+        createStoryImagePrompt(sc);
+      });
+    }
+  }, [storyContent]);
+
+  const createStoryImagePrompt = async (sc: QueryDocumentSnapshot) => {
+    const pageData: PageData = sc.data() as PageData;
+  
+    if (pageData.imagePromptCreated) return;
+  
+    const pageProcessing = pagesProcessed.find((pageId: string) => pageId === sc.id);
+    if (pageProcessing) return;
+
+    else if (sc.data().imagePromptCreated == false){
+      setPagesProcessed(pagesProcessed => [...pagesProcessed, sc.id])
+    // console.log('creating IP for', sc.id, sc.data().page)
+    const pagePrompt = `${basePrompt} - the full story is ${fullStory}. The page I want you to generate an ai art generator prompt for is ${sc.data().page}. This is a childrens story book for a 4 year old girl. The media you should reference is disney and pixar. The hero character is ${heroCharacter}`
+    // console.log('pagePrompt', pagePrompt)
     try{
      const response = await fetch('/api/createStoryImagePrompts', {
         method: 'POST', 
@@ -184,7 +174,7 @@ function StoryPage() {
           model: 'text-davinci-003', 
           session,
           storyId: storyId, 
-          page: page.id
+          page: sc.id
         }),
       });
       const data = await response.json();
@@ -192,7 +182,9 @@ function StoryPage() {
 
     }catch(err){
       console.log(err)
+
     }
+  }
   }
 
   const switchToEdit = () => {
@@ -273,7 +265,7 @@ function StoryPage() {
       {editStoryPage ? (
         <EditPageBar switchToEdit={() => setEditStoryPage(!editStoryPage)} updatePageText={updatePageText}  />
       ):
-        <SideBar hero={hero} storyContent={storyContent} switchToEdit={switchToEdit} />
+        <SideBar  storyContent={storyContent} switchToEdit={switchToEdit} />
       }
 
 
@@ -287,7 +279,7 @@ function StoryPage() {
       )}
 
       {storyBuilderActive == 'hero' && (
-         <CharacterProfilePage hero={hero} storyContent={storyContent} />
+         <CharacterProfilePage />
       )}
 
       {storyBuilderActive == 'add villain' && (
@@ -301,7 +293,7 @@ function StoryPage() {
       page={page}
       key={page.id}
       imagePrompts={imagePrompts}
-      // createStoryImagePrompt={() => createStoryImagePrompt(page)}
+
       storyId={storyId}
     />
   ) : null
@@ -329,7 +321,7 @@ function StoryPage() {
       )}
 
       {storyBuilderActive == 'create story outline' && (
-         <CreateStoryOutline  hero={heroCharacter} />
+         <CreateStoryOutline characters={characters} />
       )}
 
       </div>

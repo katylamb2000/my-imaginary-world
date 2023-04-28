@@ -5,11 +5,15 @@ import { createSlice } from "@reduxjs/toolkit";
 export interface ViewCharacterSlice {
     characterName: string,
     characterId: string,
+    characterImagePrompt: string,
+    characterImage: string
 }
 
 const initialState: ViewCharacterSlice = {
     characterName: '',
-    characterId: ''
+    characterId: '',
+    characterImagePrompt: '',
+    characterImage: ''
 }
 
 export const viewCharacterSlice = createSlice({
@@ -21,10 +25,16 @@ export const viewCharacterSlice = createSlice({
         }, 
         setCharacterId: (state, action) => {
             state.characterId = action.payload;
-        }
+        },
+        setCharacterImagePrompt: (state, action) => {
+            state.characterImagePrompt = action.payload;
+        },
+        setCharacterImage: (state, action) => {
+            state.characterImage = action.payload;
+        },
     }
 });
 
-export const { setCharacterName, setCharacterId } = viewCharacterSlice.actions;
+export const { setCharacterName, setCharacterId, setCharacterImagePrompt, setCharacterImage } = viewCharacterSlice.actions;
 
 export default viewCharacterSlice.reducer;

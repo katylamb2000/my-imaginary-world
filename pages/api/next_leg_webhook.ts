@@ -16,7 +16,6 @@ console.log('BEFORE IF POST data:', req.body)
      const { storyId, userId, page, action, heroId } = JSON.parse(ref);
  try{
      // Update the story data in Firestore
-
      if (action === 'seed') {
         const docRef = adminDb
           .collection('users')

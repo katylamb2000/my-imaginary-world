@@ -56,6 +56,7 @@ response.pages.forEach(async (page, index) => {
     ...storyRequest,
     page,
     pageNumber: index + 1,
+    imagePromptCreated: false
   };
   await adminDb
     .collection("users")
