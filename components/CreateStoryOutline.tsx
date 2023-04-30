@@ -91,15 +91,6 @@ function CreateStoryOutline({ characters  }: Props) {
     setHeroDescription(description)
   }, [heroCharacter])
 
-  // useEffect(() => {
-  //   if (heroCharacterId && characters) {
-  //     const selectedCharacter = characters.find((character: Character) => character.id === heroCharacterId);
-  //     console.log(selectedCharacter)
-  //     setHeroCharacter(selectedCharacter);
-  //     dispatch(setCharacterImage(selectedCharacter.heroImage))
-  //     dispatch(setCharacterImagePrompt(selectedCharacter.imagePrompt))
-  //   }
-  // }, [heroCharacterId, characters]);
 
   useEffect(() => {
     if (heroCharacterId && characters) {

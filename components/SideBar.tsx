@@ -48,6 +48,7 @@ function SideBar({ storyContent, switchToEdit }: Props) {
          } */}
 
         <SideBarRow name='add character' />
+        <SideBarRow name='view characters' />
         <SideBarRow name='add villain' />
 
         {content ? (

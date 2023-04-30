@@ -4,6 +4,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import storyBuilderActiveReducer from './Features/storyBuilderActiveSlice'
 import pageToEditReducer from './Features/pageToEditSlice';
 import viewCharacterReducer from './Features/viewCharacterSlice';
+import viewStoryReducer from './Features/viewStorySlice'
 
 
 
@@ -11,7 +12,8 @@ export const store  = configureStore({
     reducer: {
         storyBuilderActive: storyBuilderActiveReducer,
         pageToEdit: pageToEditReducer,
-        viewCharacter: viewCharacterReducer
+        viewCharacter: viewCharacterReducer, 
+        viewStory: viewStoryReducer
     }
 })
 

@@ -4,6 +4,7 @@ import SideBar from "../../../components/SideBar"
 import MainCharacterFundamentalsForm from "../../../components/MainCharacterFundamentalsForm"
 import CharacterProfilePage from "../../../components/CharacterProfilePage"
 import CreateStoryOutline from "../../../components/CreateStoryOutline"
+import AllCharacters from "../../../components/AllCharacters"
 import ViewStoryPage from "../../../components/ViewStoryPage"
 import EditPageBar from "../../../components/EditPageBar"
 import Story from "../../../components/Story"
@@ -59,6 +60,8 @@ function StoryPage() {
   const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name);
   const selectedPageId = useSelector((state: RootState) =>  state.pageToEdit.id);
   const selectedPageText = useSelector((state: RootState) =>  state.pageToEdit.text);
+  const baseStoryImagePrompt = useSelector((state: RootState) => state.viewStory.baseStoryImagePrompt)
+  const baseStoryImagePromptCreated = useSelector((state: RootState) => state.viewStory.baseStoryImagePromptCreated)
   const heroImage = useSelector((state: RootState) => state.viewCharacter.characterImage)
   const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
 
@@ -74,12 +77,26 @@ function StoryPage() {
   
   IMAGE_TYPE: Macro close-up | GENRE: Fantasy | EMOTION: Quirky | SCENE: A tiny fairy sitting on a mushroom in a magical forest, surrounded by glowing fireflies | ACTORS: Fairy | LOCATION TYPE: Magical forest | CAMERA MODEL: Fujifilm X-T4 | CAMERA LENSE: 100mm f/2.8 Macro | SPECIAL EFFECTS: Infrared photography | TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest — ar 16:9
   
-  
-  
 `
-// (content insert nouns here)(medium: insert artistic medium here)(style: insert references to genres, artists and popular culture here)(lighting: reference the lighting here)(colors: reference colors, styles and palettes here)(composition: reference cameras, specific lenses, shot types and positional elements here) 
+
+const wholeStoryBasePrompt = `I want you to act as a prompt engineer. You will help me write a base prompt for an ai art generator called midjourney. The base prompt should be describing the style of the images for a children's book. 
+
+I will provide you with a the full story and your job is to create a full, explicit, coherent prompt which i will use as the base for every image produced for this story. prompts involve describing the style of images in concise accurate language. It is useful to be explicit and use strong references to popular culture, artists and mediums so that the styling is consistent for every image produced using this base prompt. There should be very strong focus on the color pallette too.  
+
+
+Your focus needs to be on nouns and adjectives. 
+
+`
+
+useEffect(() => {
+  console.log('BSIP', baseStoryImagePrompt, baseStoryImagePromptCreated)
   
-//    when giving a prompt remove the brackets, speak in natural language and be more specific, use precise articulate language. 
+  if (baseStoryImagePromptCreated == false && baseStoryImagePrompt.length === 0 && sortedStoryContent && session){
+    // console.log('i have to create a baseStoryIMage Prompt after I have created a story of course, and before i create all the other images. ', sortedStoryContent)
+    createStoryBaseImagePrompt()
+  }
+}, [baseStoryImagePrompt, baseStoryImagePromptCreated, session])
+
   useEffect(() => {
     if (!pathname) return;
     const regex = /^\/story\/([a-zA-Z0-9]+)$/;
@@ -143,14 +160,43 @@ function StoryPage() {
 
 
   useEffect(() => {
-    if (storyContent) {
+    if (storyContent && baseStoryImagePromptCreated) {
       storyContent.docs.map((sc) => {
-        createStoryImagePrompt(sc);
+        console.log('this is a usefct that will create image prompt for all mapped content', sc)
+        // createPageImagePrompt(sc);
       });
     }
   }, [storyContent]);
 
-  const createStoryImagePrompt = async (sc: QueryDocumentSnapshot) => {
+  const createStoryBaseImagePrompt = async () => {
+
+    console.log('creating BASE!!!!!!')
+    const storyBasePrompt = `${wholeStoryBasePrompt} - the full story is ${fullStory}. The hero character is ${heroCharacter}`
+    console.log('storyBasePrompt', storyBasePrompt)
+  
+    try{
+     const response = await fetch('/api/createStoryBaseImagePrompt', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: storyBasePrompt, 
+          // model: 'text-davinci-003', 
+          session,
+          storyId: storyId, 
+  
+        }),
+      });
+      const data = await response.json();
+      console.log(data)
+
+    }catch(err){
+      console.log(err)
+    }
+  }
+
+  const createPageImagePrompt = async (sc: QueryDocumentSnapshot) => {
     const pageData: PageData = sc.data() as PageData;
   
     if (pageData.imagePromptCreated) return;
@@ -209,16 +255,16 @@ function StoryPage() {
     console.log(updatedPage);
   };
 
-  const startAutomation = async () => {
-      try {
-        const response = await axios.post('/api/run_automation', {
-          storyId: storyId
-        });
-        console.log('we are looking for AN response WHATSOEVER!', response.data);
-      } catch (error) {
-        console.error('Error starting automation:', error);
-      }
-    };
+  // const startAutomation = async () => {
+  //     try {
+  //       const response = await axios.post('/api/run_automation', {
+  //         storyId: storyId
+  //       });
+  //       console.log('we are looking for AN response WHATSOEVER!', response.data);
+  //     } catch (error) {
+  //       console.error('Error starting automation:', error);
+  //     }
+  //   };
 
     const sendStoryIdToAdmin = async() => {
       console.log('this is the story id i want to send to admin!', storyId)
@@ -282,6 +328,10 @@ function StoryPage() {
          <CharacterProfilePage />
       )}
 
+      {storyBuilderActive == 'view characters' && (
+         <AllCharacters characters={characters} />
+      )}
+
       {storyBuilderActive == 'add villain' && (
          <p>Add villain</p>
       )}
@@ -299,7 +349,7 @@ function StoryPage() {
   ) : null
 ))}
 
-    {storyBuilderActive == 'view story' && (
+    {/* {storyBuilderActive == 'view story' && (
       <div className="w-full h-24 items-center justify-center flex space-x-4">
         <button 
           className="bg-pink-500 text-white p-4 rounded-lg hover:bg-pink-300"
@@ -314,7 +364,7 @@ function StoryPage() {
           request images from admin
         </button>
       </div>
-    )}
+    )} */}
 
       {storyBuilderActive == 'create story outline' && (
         <CharacterScrollBar characters={characters} />

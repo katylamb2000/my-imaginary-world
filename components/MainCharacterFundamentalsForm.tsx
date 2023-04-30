@@ -106,34 +106,93 @@ useEffect(() => {
 
 
 
-const generateCharacter = async () => {
+// const generateCharacter = async () => {
+//   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
+//   console.log('this is heroId ======>', heroCharacterId)
+//   try {
+//     const data = {
+//       cmd: 'imagine',
+//       msg: `${prompt} --v 5 `,
+//       ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId }),
+//       webhookOverride: ''
+//     };
+
+//     const config = {
+//       method: 'post',
+//       url: 'https://api.thenextleg.io/api',
+//       headers: {
+//         Authorization: `Bearer ${process.env.next_leg_api_token}`,
+//         'Content-Type': 'application/json'
+//       },
+//       data: data,
+//     };
+
+//     const response = await axios(config);
+//     console.log(JSON.stringify(response.data));
+//     dispatch(setName("hero"));
+//   } catch (error) {
+//     console.log(error);
+//   }
+// };
+
+const generateCharacter = async() => {
   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
-  console.log('this is heroId ======>', heroCharacterId)
-  try {
-    const data = {
-      cmd: 'imagine',
-      msg: `${prompt} --v 5 `,
-      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId }),
-      webhookOverride: ''
-    };
-
-    const config = {
-      method: 'post',
-      url: 'https://api.thenextleg.io/api',
-      headers: {
-        Authorization: `Bearer ${process.env.next_leg_api_token}`,
-        'Content-Type': 'application/json'
-      },
-      data: data,
-    };
-
-    const response = await axios(config);
+  var data = JSON.stringify({
+    msg: prompt,
+    ref: { storyId: storyId, userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId },
+    webhookOverride: ""
+  });
+  
+  var config = {
+    method: 'post',
+    url: 'https://api.thenextleg.io/v2/imagine',
+    headers: { 
+      'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+      'Content-Type': 'application/json'
+    },
+    data : data
+  };
+  
+  axios(config)
+  .then(function (response) {
     console.log(JSON.stringify(response.data));
-    dispatch(setName("hero"));
-  } catch (error) {
+    if (response.data.success === true){ 
+
+      dispatch(setName("hero"));
+      dispatch(setCharacterId(heroCharacterId));
+    }
+    else{ 
+      console.log('not going to prograss!')
+      setLoading(false)
+    }
+  })
+  .catch(function (error) {
     console.log(error);
-  }
-};
+    setLoading(false)
+  });
+}
+
+const getProgress = async(messageId: string) => {
+  console.log('getting progress for', messageId)
+  var config = {
+    method: 'get',
+    url: `https://api.thenextleg.io/v2/message/${messageId}`,
+    headers: { 
+      'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+      'Content-Type': 'application/json'
+    },
+ 
+  };
+  
+  axios(config)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data));
+  })
+  .catch(function (error) {
+    console.log(error);
+  });
+  
+}
 
 return (
   <div className="bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4">

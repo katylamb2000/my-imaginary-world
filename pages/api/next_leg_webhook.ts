@@ -1,19 +1,20 @@
 // pages/api/webhook.ts
 import { adminDb } from '../../firebaseAdmin';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { setDefaultResultOrder } from 'dns';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-console.log('BEFORE IF POST data:', req.body)
+
   if (req.method === 'POST') {
     // Log the incoming data for debugging purposes
     console.log('ALL Webhook data:', req.body);
 
      // Extract the required data from the webhook response
      const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons, seed } = req.body;
-    console.log(seed)
+
      // Deserialize the ref field to extract storyId, userId, and page
-     const { storyId, userId, page, action, heroId } = JSON.parse(ref);
+     const { storyId, userId, page, action, heroId } = ref;
+     console.log('ACTION IS --', action)
+
  try{
      // Update the story data in Firestore
      if (action === 'seed') {
@@ -62,9 +63,9 @@ console.log('BEFORE IF POST data:', req.body)
     if (action === 'createHero') {
       const docRef = adminDb
         .collection('users')
-        .doc(userId)
+        .doc(ref.userId)
         .collection('characters')
-        .doc(heroId)
+        .doc(ref.heroId)
 
           await docRef.update({
             imageChoices: imageUrl,

@@ -9,6 +9,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setId, setText } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { addDoc, collection, serverTimestamp, doc, updateDoc } from "firebase/firestore"
 import { db } from '../firebase'
+import RequestQueue from '../lib/requestQueue'
 
 type Props = {
     page: any,
@@ -25,10 +26,14 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
   const [image, setImage] = useState<null | string>(null)
   const [finalImage, setFinalImage] = useState<null | string>(null)
   const [imageMask, setImageMask] = useState<null | string>(null)
+  const baseStoryImagePrompt = useSelector((state: RootState) => state.viewStory.baseStoryImagePrompt)
+  const baseStoryImagePromptCreated = useSelector((state: RootState) => state.viewStory.baseStoryImagePromptCreated)
   const selectedPageId = useSelector((state: RootState) =>  state.pageToEdit.id);
   const selectedPageTextColor = useSelector((state: RootState) =>  state.pageToEdit.textColor);
   const selectedPageTextSize = useSelector((state: RootState) =>  state.pageToEdit.textSize);
   const [buttons, setButtons] = useState([])
+  const [imageCommandSent, setImageCommandSent] = useState(false);
+  const requestQueue = new RequestQueue(3); // Initialize the request queue with 3 concurrent requests.
 
   // const [imagePrompt, imagePromptLoading, imagePromptError] = useCollection(
   //   session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent', page.id, 'imagePrompts') : null,
@@ -104,16 +109,21 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
 //  }, [page])
 
 
- useEffect(() => {
-  if (!page.data.imageChoices) return;
-  setImage(page.data.imageChoices)
- }, [page])
+useEffect(() => {
+  if (page.data.imageChoices && !page.data.finalImage) {
+    setImage(page.data.imageChoices);
+  } else if (page.data.finalImage) {
+    setImage(page.data.finalImage);
+  } else if (!page.data.imageChoices && !page.data.finalImage && page.data.imagePrompt && !imageCommandSent && !baseStoryImagePromptCreated ) {
+    createBasePrompt();
+  } else if (!page.data.imageChoices && !page.data.finalImage && page.data.imagePrompt && !imageCommandSent && baseStoryImagePromptCreated ) {
+    sendImagineCommand();
+  }
+}, [page, imageCommandSent]);
 
- useEffect(() => {
-  if (!page.data.finalImage) return;
-  setImage(page.data.finalImage)
- }, [page])
-
+const createBasePrompt = () => {
+  console.log("CREATE A BASE PROMPT!!!")
+}
 
  useEffect(() => {
   if (!page.data.buttons) return;
@@ -148,9 +158,6 @@ function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
 
  }
 
- 
-
-
 const sendImagineCommand = async () => {
   try {
     const data = {
@@ -170,8 +177,12 @@ const sendImagineCommand = async () => {
       data: data,
     };
 
-    const response = await axios(config);
+    // const response = await axios(config);
+    const response = await requestQueue.addToQueue(config);
+
     console.log(JSON.stringify(response.data));
+    setImageCommandSent(true);
+
   } catch (error) {
     console.log(error);
   }
