@@ -13,11 +13,13 @@ type Props = {
     story: any,
     storyId: string,
     storyContentId: string, 
-    imagePrompts: any
+    imagePrompts: any,
+    storyBaseImagePrompt: string; // Add this line
+
 
 };
 
-function Story({ story, storyId, storyContentId, imagePrompts }: Props) {
+function Story({ story, storyId, storyContentId, imagePrompts,   storyBaseImagePrompt }: Props) {
     const [title, setTitle] = useState('') 
     const [loading, setLoading] = useState(false)
     const [pages, setPages] = useState([])
@@ -153,7 +155,7 @@ const generatePrompts = async () => {
 
     <div className="overflow-x-scroll h-full w-full bg-pink-300 ">
         {pages.map((page, index) => (
-            <ViewStoryPage page={page} key={index} imagePrompts={imagePrompts} storyId={storyId} />
+            <ViewStoryPage page={page} key={index} imagePrompts={imagePrompts} storyId={storyId}   storyBaseImagePrompt={storyBaseImagePrompt} />
         ))}
         </div>
         <div className="w-1/4 h-4/5 m-6 bg-green-300 grid grid-cols-2">

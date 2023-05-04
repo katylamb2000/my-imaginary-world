@@ -157,7 +157,6 @@ const generateCharacter = async() => {
   .then(function (response) {
     console.log(JSON.stringify(response.data));
     if (response.data.success === true){ 
-
       dispatch(setName("hero"));
       dispatch(setCharacterId(heroCharacterId));
     }
