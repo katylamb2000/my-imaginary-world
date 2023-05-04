@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { db } from '../firebase'
-import { addDoc, collection, serverTimestamp, doc, getDoc, onSnapshot } from 'firebase/firestore'
+import { addDoc, collection, serverTimestamp, doc, getDoc, onSnapshot, updateDoc } from 'firebase/firestore'
 import { RootState } from '../app/GlobalRedux/store'
 import { useSelector } from 'react-redux'
 import { usePathname } from 'next/navigation'
@@ -16,6 +16,8 @@ type Props = {
 function CharacterProfilePage() {
     const [myHero, setMyHero] = useState<null | any>(null)
     const [characterProfile, setCharacterProfile] = useState<null | any>(null)
+    const [messageId, setMessageId] = useState<null | string>(null)
+    const [seed, setSeed] = useState<null | string>(null)
     const [buttons, setButtons] = useState([])
     const [storyId, setStoryId] = useState<null | string>(null)
     const [heroId, setHeroId] = useState<null | string>(null)
@@ -27,7 +29,6 @@ function CharacterProfilePage() {
       if (!characterId.length) return;
       if (characterId.length && !characterProfile)
       console.log(characterId)
-      
       // Save the cleanup function returned by getCharacter
       const cleanup = getCharacter();
     
@@ -35,8 +36,7 @@ function CharacterProfilePage() {
       return () => {
         if (cleanup) cleanup();
       };
-    }, [characterId]);
-
+    }, [characterId, messageId]);
 
     const getCharacter = () => {
       if (!session || !session.user || !session.user.email || !characterId) {
@@ -45,7 +45,6 @@ function CharacterProfilePage() {
       }
       try {
         const docRef = doc(collection(db, "users", session!.user?.email, "characters"), characterId);
-    
         // Listen for real-time updates
         const unsubscribe = onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
@@ -55,7 +54,6 @@ function CharacterProfilePage() {
             console.log("No such document!");
           }
         });
-    
         // Clean up the listener when the component is unmounted
         return () => {
           unsubscribe();
@@ -64,9 +62,42 @@ function CharacterProfilePage() {
         console.log(err);
       }
     };
+
+    useEffect(() => {
+      if (!messageId) return;
     
+      const updateCharacter = async () => {
+        try {
+          const docRef = doc(db, "users", session?.user?.email!, "characters", characterId);
+          const updatedCharacter = await updateDoc(docRef, {
+            messageId: messageId
+          });
+        } catch (err) {
+          console.log(err);
+        }
+      };
+    
+      updateCharacter();
+    }, [messageId]);
 
-
+    useEffect(() => {
+      if (!seed) return;
+    
+      const updateCharacterSeed = async () => {
+        try {
+          const docRef = doc(db, "users", session?.user?.email!, "characters", characterId);
+          const updatedCharacter = await updateDoc(docRef, {
+            seed: seed
+          });
+          console.log(updatedCharacter)
+        } catch (err) {
+          console.log(err);
+        }
+      };
+    
+      updateCharacterSeed();
+    }, [seed]);
+    
   useEffect(() => {
     if (!pathname) return;
     const regex = /^\/story\/([a-zA-Z0-9]+)$/;
@@ -86,101 +117,68 @@ function CharacterProfilePage() {
       setButtons(myHero.buttons)
   }, [myHero])
 
-  
-
-  // useEffect(() => {
-  //   console.log('the chosen one', hero?.docs[0]?.data())
-  //   if (hero?.docs[0]?.data()){
-  //     console.log('got a hero', hero?.docs[0]?.data())
-  //     setMyHero(hero?.docs[0]?.data())
-  //     setHeroId(hero?.docs[0]?.id)
-  //   }
-  //   else{
-  //     console.log('no hero')
-  //   }
-  
-  // }, [hero])
-
   const upscaleChosenImage = async(btn: string) => {
     console.log(btn)
-    try {
-      const data = {
-        button: btn,
-        buttonMessageId: characterProfile.buttonMessageId,
-        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , action: 'upscaleCharacter', heroId: characterId }),
-        webhookOverride: ''
-      };
-  
-      const config = {
-        method: 'post',
-        url: 'https://api.thenextleg.io/api',
-        headers: {
-          Authorization: `Bearer ${process.env.next_leg_api_token}`,
-          'Content-Type': 'application/json'
-        },
-        data: data,
-      };
-  
-      const response = await axios(config);
-      console.log(JSON.stringify(response.data));
-      // getHeroSeed()
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
-  const getHeroSeed = async() => {
-    try {
-      const data = {
-        buttonMessageId: myHero.buttonMessageId,
-        reaction: "✉️",
-        ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: heroId, action: 'seed' }),
-      };
-      console.log('this is data', data)
-  
-      const config = {
-        method: 'post',
-        url: 'https://api.thenextleg.io/api',
-        headers: {
-          Authorization: `Bearer ${process.env.next_leg_api_token}`,
-          'Content-Type': 'application/json'
-        },
-        data: data,
-      };
-  
-      const response = await axios(config);
-      console.log(JSON.stringify(response.data));
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
-const huntingForSeed = async() => {
-
-const data = JSON.stringify({
-  "reaction": "✉️",
-  "buttonMessageId": characterProfile.buttonMessageId,
-   "ref": JSON.stringify({ storyId: storyId, userId: session!.user!.email , heroId: characterId, action: 'seed' }),
+var data = JSON.stringify({
+  button: btn,
+  buttonMessageId: characterProfile.buttonMessageId,
+  ref: { storyId: storyId, userId: session!.user!.email, action: 'upscaleCharacter', heroId: characterId },
+  webhookOverride: ""
 });
 
-const config = {
+var config = {
   method: 'post',
-  url: 'https://api.thenextleg.io/api',
-  headers: {
-    'Authorization': `Bearer ${process.env.next_leg_api_token}`,
+  url: 'https://api.thenextleg.io/v2/button',
+  headers: { 
+    'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
     'Content-Type': 'application/json'
   },
-  data: data
+  data : data
 };
 
 axios(config)
-  .then(function (response) {
-    console.log(JSON.stringify(response.data));
-  })
-  .catch(function (error) {
-    console.log(error);
-  });
+.then(function (response) {
+  console.log(JSON.stringify(response.data));
+  console.log(JSON.stringify(response.data.messageId));
+  setMessageId(response.data.messageId)
+
+})
+.catch(function (error) {
+  console.log(error);
+}); 
 }
+
+  const getHeroSeed = async() => {
+    if (!characterProfile.messageId) return;
+    var data = JSON.stringify({
+      ref: { storyId: storyId, userId: session!.user!.email, action: 'seed', heroId: characterId },
+      webhookOverride: ""
+    });
+    var config = {
+      method: 'get',
+      url: `https://api.thenextleg.io/v2/seed/${characterProfile.messageId}`,
+      headers: { 
+        'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+        'Content-Type': 'application/json'
+      },
+      data : data
+    };
+    
+    axios(config)
+    .then(function (response) {
+      console.log(JSON.stringify(response.data));
+      setSeed(response.data.seed)
+      console.log(JSON.stringify(response.data.seed));
+      
+    })
+    .catch(function (error) {
+      console.log(error);
+    }); 
+    
+  }
+
 
 
   const generateCharacterImage = async () => {
@@ -206,11 +204,7 @@ axios(config)
   return (
     <div className='mx-auto my-6 bg-white rounded-lg border border-gray-100 w-4/5 h-4/5 grid grid-cols-4'>
       <div className="col-span-1 mx-auto text-center justify-center align-middle"> 
-      
-
-        {characterProfile?.imageChoices ? (
-
- 
+        {characterProfile?.imageChoices && !characterProfile.heroImage ? (
         <img src={characterProfile.imageChoices}                       
           className="h-48 w-48  cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4 "
         />
@@ -251,7 +245,7 @@ axios(config)
           <div className='w-full '>
             {!characterProfile?.image && (
             <button 
-                onClick={huntingForSeed}
+                onClick={getHeroSeed}
                 className='bg-purple-400 p-4 mx-auto text-white rounded-lg cursor-pointer hover:opacity-50 hover:shadow-xl'>
                   generate character seed
             </button>

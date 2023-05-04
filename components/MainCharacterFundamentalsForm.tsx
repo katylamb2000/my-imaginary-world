@@ -72,11 +72,11 @@ function MainCharacterFundamentalsForm() {
 const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
 
-  createNewStory()
+  createNewCharacter()
 };
 
 
-const createNewStory = async() => {
+const createNewCharacter = async() => {
   setLoading(true)
   try{
    const doc = await addDoc(collection(db, "users", session?.user?.email!, 'characters' ), {
@@ -104,39 +104,39 @@ useEffect(() => {
   generateCharacter()
 }, [heroCharacterId])
 
-
-
-// const generateCharacter = async () => {
+// const generateCharacter = async() => {
 //   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
-//   console.log('this is heroId ======>', heroCharacterId)
-//   try {
-//     const data = {
-//       cmd: 'imagine',
-//       msg: `${prompt} --v 5 `,
-//       ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId }),
-//       webhookOverride: ''
-//     };
 
-//     const config = {
-//       method: 'post',
-//       url: 'https://api.thenextleg.io/api',
-//       headers: {
-//         Authorization: `Bearer ${process.env.next_leg_api_token}`,
-//         'Content-Type': 'application/json'
-//       },
-//       data: data,
-//     };
+// var data = JSON.stringify({
+//   cmd: "imagine",
+//   msg: prompt,
+//   ref: { storyId: storyId, userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId },
+//   webhookOverride: ""
+// });
 
-//     const response = await axios(config);
-//     console.log(JSON.stringify(response.data));
-//     dispatch(setName("hero"));
-//   } catch (error) {
-//     console.log(error);
-//   }
+// var config = {
+//   method: 'post',
+//   url: 'https://api.thenextleg.io/api',
+//   headers: { 
+//     'Authorization': `Bearer ${process.env.next_leg_api_token}`,  
+//     'Content-Type': 'application/json'
+//   },
+//   data : data
 // };
+
+// axios(config)
+// .then(function (response) {
+//   console.log(JSON.stringify(response.data));
+// })
+// .catch(function (error) {
+//   console.log(error);
+// });
+// }             
+
 
 const generateCharacter = async() => {
   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
+  console.log(prompt)
   var data = JSON.stringify({
     msg: prompt,
     ref: { storyId: storyId, userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId },

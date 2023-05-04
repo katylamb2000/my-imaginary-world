@@ -27,12 +27,12 @@ function SideBar({ storyContent, switchToEdit }: Props) {
 
   useEffect(() => {
     if (storyContent?.docs[0]?.data()){
-      console.log('got story content', storyContent?.docs[0]?.data())
+      // console.log('got story content', storyContent?.docs[0]?.data())
       setContent(storyContent?.docs[0]?.data())
     }
-    else{
-      console.log('no story content')
-    }
+    // else{
+    //   // console.log('no story content')
+    // }
   
   }, [storyContent])
 

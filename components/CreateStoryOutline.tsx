@@ -17,8 +17,7 @@ import { setCharacterImage, setCharacterImagePrompt } from '../app/GlobalRedux/F
 
 type SetBookInfo = (info: any) => void;
 
-
-interface Character {
+export interface Character {
   buttonMessageId: string;
   buttons: Array<any>;
   clothing: string;
@@ -34,10 +33,11 @@ interface Character {
   userId: string;
   id: string;
   heroImage: string;
+  seed: string;
 }
 
 type Props = {
-    characters: Character[]
+    characters: Character[] 
 };
 
 type Prompt = {
@@ -45,8 +45,6 @@ type Prompt = {
   createdAt: ReturnType<typeof serverTimestamp>;
   user?: { name: string; email: string; image: string };
 };
-
-
 
 function CreateStoryOutline({ characters  }: Props) {
   const [storyContent, setStoryContent] = useState<null | string>(null)
@@ -91,12 +89,29 @@ function CreateStoryOutline({ characters  }: Props) {
     setHeroDescription(description)
   }, [heroCharacter])
 
-
   useEffect(() => {
     if (heroCharacterId && characters) {
       const selectedCharacter = characters.find((character: Character) => character.id === heroCharacterId);
-      console.log(selectedCharacter);
-      setHeroCharacter(selectedCharacter ?? null);
+      console.log('this is the selected character', selectedCharacter);
+      // const heroObject = {
+      //   ...selectedCharacter, // Spread the properties of selectedCharacter
+      //   name: selectedCharacter?.name ?? '',
+      //   imagePrompt: selectedCharacter?.imagePrompt ?? '',
+      //   url: selectedCharacter?.heroImage ?? '',
+      //   seed: selectedCharacter?.seed ?? '',
+      //   buttonMessageId: selectedCharacter?.buttonMessageId ?? '',
+      //   buttons: selectedCharacter?.buttons ?? [],
+      //   clothing: selectedCharacter?.clothing ?? '',
+      //   eyeColor: selectedCharacter?.eyeColor ?? '',
+      //   gender: selectedCharacter?.gender ?? '',
+      //   // add default values for the remaining properties as necessary
+      // };
+      // setHeroCharacter(heroObject);
+      // const heroObject = {name: selectedCharacter?.name, imagePrompt: selectedCharacter?.imagePrompt, url: selectedCharacter?.heroImage, seed: selectedCharacter?.seed}
+      // setHeroCharacter(heroObject ?? null)
+      console.log('this is the selected character', selectedCharacter);
+
+      // setHeroCharacter(selectedCharacter ?? null);
       if (selectedCharacter) {
         dispatch(setCharacterImage(selectedCharacter.heroImage));
         dispatch(setCharacterImagePrompt(selectedCharacter.imagePrompt));
@@ -104,7 +119,6 @@ function CreateStoryOutline({ characters  }: Props) {
     }
   }, [heroCharacterId, characters]);
   
-
   useEffect(() => {
     if (!pathname) return;
     const regex = /^\/story\/([a-zA-Z0-9]+)$/;
@@ -128,7 +142,8 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
             setting: setting,
             thingsToInclude: favouriteThings,
             storyStyle: genre,
-            style: style
+            style: style,
+            heroCharacter: heroCharacter
         }
     )
 

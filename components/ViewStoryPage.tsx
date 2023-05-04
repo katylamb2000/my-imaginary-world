@@ -15,13 +15,15 @@ type Props = {
     page: any,
     storyId: string;
     imagePrompts: any;
+    storyBaseImagePrompt: string;
     // createStoryImagePage: any;
 
 };
 
-function ViewStoryPage({ page, imagePrompts, storyId }: Props) {
+function ViewStoryPage({ page, imagePrompts, storyId, storyBaseImagePrompt }: Props) {
   const { data: session } = useSession()
   const dispatch = useDispatch()
+  const [loading, setLoading] = useState(false)
   const [thumbnailImage, setThumbnailImage] = useState<null | string>(null)
   const [image, setImage] = useState<null | string>(null)
   const [finalImage, setFinalImage] = useState<null | string>(null)
@@ -115,9 +117,14 @@ useEffect(() => {
   } else if (page.data.finalImage) {
     setImage(page.data.finalImage);
   } else if (!page.data.imageChoices && !page.data.finalImage && page.data.imagePrompt && !imageCommandSent && !baseStoryImagePromptCreated ) {
-    createBasePrompt();
+    // createBasePrompt();
+    console.log('got no base!')
   } else if (!page.data.imageChoices && !page.data.finalImage && page.data.imagePrompt && !imageCommandSent && baseStoryImagePromptCreated ) {
-    sendImagineCommand();
+    // sendImagineCommand();
+    console.log('SEND IMAGE COMMAND AND ADD PAGE TO AN ARRAY OF SOME SORT SODONT SEND MULITIPLT TIMES')
+  } else if (!page.data.imageChoices && !page.data.finalImage && !page.data.imagePrompt && !imageCommandSent && !baseStoryImagePromptCreated ) {
+    // sendImagineCommand();
+    console.log('this is the storyBaseImagePrompt', storyBaseImagePrompt)
   }
 }, [page, imageCommandSent]);
 
@@ -155,39 +162,36 @@ const createBasePrompt = () => {
   } catch (error) {
     console.log(error);
   }
-
  }
 
-const sendImagineCommand = async () => {
-  try {
-    const data = {
-      cmd: 'imagine',
-      msg: `${page.data.imagePrompt?.imagePrompt} --v 5 `,
-      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , page: page.id, action: 'imagine' }),
-      webhookOverride: ''
-    };
-
-    const config = {
-      method: 'post',
-      url: 'https://api.thenextleg.io/api',
-      headers: {
-        Authorization: `Bearer ${process.env.next_leg_api_token}`,
-        'Content-Type': 'application/json'
-      },
-      data: data,
-    };
-
-    // const response = await axios(config);
-    const response = await requestQueue.addToQueue(config);
-
+ const sendImagineCommand = async() => {
+  setLoading(true)
+  var data = JSON.stringify({
+    msg: ` ${page.data.imagePrompt?.imagePrompt} ${storyBaseImagePrompt} --v 5 `,
+    ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: page.id, },
+    webhookOverride: ""
+  });
+  
+  var config = {
+    method: 'post',
+    url: 'https://api.thenextleg.io/v2/imagine',
+    headers: { 
+      'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+      'Content-Type': 'application/json'
+    },
+    data : data
+  };
+  
+  axios(config)
+  .then(function (response) {
     console.log(JSON.stringify(response.data));
-    setImageCommandSent(true);
-
-  } catch (error) {
+    setLoading(false)
+  })
+  .catch(function (error) {
     console.log(error);
-  }
-};
-
+    setLoading(false)
+  });
+}
 
 const pageSelected = () => {
     dispatch(setId(page.id));
@@ -235,7 +239,7 @@ const editPageContent = () => {
 )}    */}
 
 
-<div className="bg-red-400 z-50"> 
+<div className="bg-red-100 z-50"> 
       {selectedPageId == page.id ? (
         <p className={`cursor-pointer ${selectedPageTextColor === '' ? 'text-purple-600' : `${selectedPageTextColor}` } text-2xl absolute bottom-10 p-4 z-50`}
             // onClick={() => editPageContent(page)}
@@ -247,7 +251,9 @@ const editPageContent = () => {
         </p>
       }
       <div className="grid grid-cols-4">
-      <p className='italic text-sm col-span-3'>{page.data.imagePrompt?.imagePrompt}</p>
+      <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p>
+
+      <p className='italic text-sm col-span-3 text-red-600'>{page.data.imagePrompt?.imagePrompt}</p>
       <button 
           className="bg-pink-600 text-white p-4 mx-2 rounded-lg col-span-1"
           onClick={sendImagineCommand}
@@ -262,7 +268,7 @@ const editPageContent = () => {
 {buttons.length > 0 && (
   <div className="flex bg-white w-2/5 border rounded-lg space-x-2 mx-auto justify-evenly ">
     {buttons.map(button => (
-  <button onClick={() => buttonClicked(button)} className="p-2 hover:bg-pink-400 rounded-full hover:text-white">{button}</button>
+  <button onClick={() => buttonClicked(button)} key={button} className="p-2 hover:bg-pink-400 rounded-full hover:text-white">{button}</button>
     ))}
   </div>
 )}
