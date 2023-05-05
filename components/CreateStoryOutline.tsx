@@ -92,29 +92,11 @@ function CreateStoryOutline({ characters  }: Props) {
   useEffect(() => {
     if (heroCharacterId && characters) {
       const selectedCharacter = characters.find((character: Character) => character.id === heroCharacterId);
-      console.log('this is the selected character', selectedCharacter);
-      // const heroObject = {
-      //   ...selectedCharacter, // Spread the properties of selectedCharacter
-      //   name: selectedCharacter?.name ?? '',
-      //   imagePrompt: selectedCharacter?.imagePrompt ?? '',
-      //   url: selectedCharacter?.heroImage ?? '',
-      //   seed: selectedCharacter?.seed ?? '',
-      //   buttonMessageId: selectedCharacter?.buttonMessageId ?? '',
-      //   buttons: selectedCharacter?.buttons ?? [],
-      //   clothing: selectedCharacter?.clothing ?? '',
-      //   eyeColor: selectedCharacter?.eyeColor ?? '',
-      //   gender: selectedCharacter?.gender ?? '',
-      //   // add default values for the remaining properties as necessary
-      // };
-      // setHeroCharacter(heroObject);
-      // const heroObject = {name: selectedCharacter?.name, imagePrompt: selectedCharacter?.imagePrompt, url: selectedCharacter?.heroImage, seed: selectedCharacter?.seed}
-      // setHeroCharacter(heroObject ?? null)
-      console.log('this is the selected character', selectedCharacter);
-
-      // setHeroCharacter(selectedCharacter ?? null);
       if (selectedCharacter) {
         dispatch(setCharacterImage(selectedCharacter.heroImage));
         dispatch(setCharacterImagePrompt(selectedCharacter.imagePrompt));
+        setHeroCharacter(selectedCharacter)
+
       }
     }
   }, [heroCharacterId, characters]);
@@ -134,7 +116,7 @@ function CreateStoryOutline({ characters  }: Props) {
 
 const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-
+    // console.log('story outline ==> ', 'readersAge:', age, 'setting', setting, 'things to include', favouriteThings, 'storyStyle', genre, 'style', style, 'heroCharacter', heroCharacter )
     setLoading(true)
     await addDoc(collection(db, 'users', session?.user?.email!, 'storys', storyId!, 'storyOutline'),
         {

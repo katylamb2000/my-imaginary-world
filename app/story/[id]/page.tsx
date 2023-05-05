@@ -73,11 +73,10 @@ function StoryPage() {
   const heroImage = useSelector((state: RootState) => state.viewCharacter.characterImage)
   const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
 
-  console.log('HERO CHARCTER ---> ', heroCharacter)
 
-  const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for a children's book. 
+  const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for an illustrated children's book. 
 
-  I will provide you with a the full story which will later be divided into pages. Your job is to create a  full, explicit, coherent prompt for the overarching theme, style and artistic atttributes of the book. This prompt will include a color theme and specific style of images in concise accurate language. Use highly specific and explicit references to popular culture, artists and mediums. 
+  I will provide you with a the full story which will later be divided into pages. Your job is to create a full, explicit, coherent prompt for the overarching theme, style and artistic atttributes of the book. This prompt will include a color theme and specific style of images in concise accurate language. Use highly specific and explicit references to popular culture, artists and mediums. 
 
   Your job is not to describe the images in any way just to create the base prompt for the overall style of the images. 
   
@@ -85,29 +84,29 @@ function StoryPage() {
   
   Here is a formula template for you to use: 
   
-  ARTIST: Adam Stower | AESTHETIC: kidcore| MEDIUM: cartoon | GENRE: Fantasy | EMOTION: Quirky and whimsical | COLOR PALLETE: bright vibrant colors | TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest — ar 16:9
+  ARTIST: Adam Stower | AESTHETIC: kidcore| MEDIUM: cartoon | GENRE: Fantasy | EMOTION: Quirky and whimsical | COLOR PALLETE: bright vibrant colors — ar 16:9
   
 `
 
 const pageBasePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for a children's book. 
 your job is to describe the scene which will be depicted in the story. 
 
-I will provide you with a the full story and then one specific section of the story and your job is to elaborate these into full, explicit, coherent prompts. 
+
+I will provide you with a base prompt which will reference the styling you must adhere to; the full story and then one specific section of the story. Your job is to use these bits of information to create one  full, explicit, coherent prompt for the specified section of the story. 
 
 I will also give you the character i want to use as the key actors in the scene. The character objects i give you will include a name, a seed reference number, a description and a url, you must use these exactly as they are when referencing the character. 
 
-Your focus needs to be on nouns and adjectives. Please define the exact shot that should be used. 
-
-Here is a formula template for you to use: 
-
-SCENE: A tiny fairy sitting on a mushroom in a magical forest, surrounded by glowing fireflies | ACTORS: Sophia, seed: 1232, description: a 3 year old cartoon girl with a pink dress, url: https://exampleImage.com | LOCATION TYPE: Magical forest |IMAGE_TYPE: Macro close-up |  TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest — ar 16:9
+Your focus needs to be on nouns and adjectives. Please define the exact shot that should be used . 
+The first part of your prompt should focus on describing the exact content of the image. you can then go on to describe the characters and styling. 
 
 `
+// Here is a formula template for you to use, please kee: 
+
+// SCENE: A tiny fairy sitting on a mushroom in a magical forest, surrounded by glowing fireflies | ACTORS: Sophia, seed: 1232, description: a 3 year old cartoon girl with a pink dress, url: https://exampleImage.com | LOCATION TYPE: Magical forest |IMAGE_TYPE: Macro close-up |  TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest — ar 16:9
 
 const wholeStoryBasePrompt = `I want you to act as a prompt engineer. You will help me write a base prompt for an ai art generator called midjourney. The base prompt should be describing the style of the images for a children's book. 
 
 I will provide you with a the full story and your job is to create a full, explicit, coherent prompt which i will use as the base for every image produced for this story. prompts involve describing the style of images in concise accurate language. It is useful to be explicit and use strong references to popular culture, artists and mediums so that the styling is consistent for every image produced using this base prompt. There should be very strong focus on the color pallette too.  
-
 
 Your focus needs to be on nouns and adjectives. 
 
@@ -200,9 +199,13 @@ const [singleDocument, singleDocumentLoading, singleDocumentError] = useDocument
 
 useEffect(() => {
   if (!singleDocument) return;
+  console.log(singleDocument.data())
   // setStoryDetails(singleDocument.data())
   setStyle(singleDocument.data()!.style)
   setReadersAge(singleDocument.data()!.readersAge)
+  const hc = ` ${singleDocument.data()!.heroCharacter.name} seed --${singleDocument.data()!.heroCharacter.seed} ${singleDocument.data()!.heroCharacter.heroImage
+  } ${singleDocument.data()!.heroCharacter.imagePrompt}`
+  setHeroCharacter(hc)
    console.log('singleDocument', singleDocument.data())
 }, [singleDocument])
 
@@ -229,6 +232,7 @@ useEffect(() => {
   }, [sortedStoryContent])
 
   useEffect(() => {
+    console.log(storyContent?.docs.length, storyBaseImagePrompt)
     if (!storyContent?.docs.length) return;
     if (!storyBaseImagePrompt) return;
     if (storyContent.docs.length && storyBaseImagePrompt ) {
@@ -280,6 +284,8 @@ useEffect(() => {
 
   const createPageImagePrompt = async (page: QueryDocumentSnapshot) => {
   console.log("IN CREATE PAGE IMAGE P~R~OMPTS")
+  console.log(`${pageBasePrompt} the full story is ${fullStory}. The styling must be consistent with ${storyBaseImagePrompt}. The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a ${readersAge} old child. The hero character is ${heroCharacter}`)
+  
   if (page.data().imagePromptCreated) return;
     // if (page!.imagePromptCreated) return;
   
@@ -289,10 +295,9 @@ useEffect(() => {
     else if (page.data().imagePromptCreated == false){
       setPagesProcessed(pagesProcessed => [...pagesProcessed, page.id])
     // console.log('creating IP for', sc.id, sc.data().page)
-    const pagePrompt = `${pageBasePrompt} 
-    the full story is ${fullStory}. The styling must be The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a ${readersAge} old child. The media you should reference is ${style}. The hero character is ${heroCharacter}`
+    const pagePrompt = `${pageBasePrompt} the full story is ${fullStory}. The styling must be consistent with ${storyBaseImagePrompt}. The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a ${readersAge} old child. The hero character is ${heroCharacter}`
     // console.log('pagePrompt', pagePrompt)
-        try{
+  try{
      const response = await fetch('/api/createStoryImagePrompts', {
         method: 'POST', 
         headers: {
@@ -309,7 +314,7 @@ useEffect(() => {
       const data = await response.json();
       console.log(data.answer)
 
-    }catch(err){
+  }catch(err){
       console.log(err)
 }}
 }

@@ -88,7 +88,8 @@ const createNewCharacter = async() => {
       hairStyle: hairStyle,
       eyeColor: eyeColor, 
       skinColor: skinColor, 
-      clothing: clothing
+      clothing: clothing,
+      age: age
 
   });
   setHeroCharacterId(doc.id)

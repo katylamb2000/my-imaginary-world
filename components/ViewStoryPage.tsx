@@ -167,7 +167,7 @@ const createBasePrompt = () => {
  const sendImagineCommand = async() => {
   setLoading(true)
   var data = JSON.stringify({
-    msg: ` ${page.data.imagePrompt?.imagePrompt} ${storyBaseImagePrompt} --v 5 `,
+    msg: ` ${page.data.imagePrompt?.imagePrompt} --v 5 `,
     ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: page.id, },
     webhookOverride: ""
   });
@@ -251,7 +251,7 @@ const editPageContent = () => {
         </p>
       }
       <div className="grid grid-cols-4">
-      <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p>
+      {/* <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p> */}
 
       <p className='italic text-sm col-span-3 text-red-600'>{page.data.imagePrompt?.imagePrompt}</p>
       <button 
