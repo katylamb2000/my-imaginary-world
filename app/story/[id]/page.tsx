@@ -96,7 +96,7 @@ The ai art generator will not have access to prompts for prior or subsequent ima
 I will also give you the hero character, if you choose to feature this character in the picture you must always also include the character description that I give you in the prompt in order to generate consistent characters throughout the story.
 You must nerver change or edit the chartacter desciption other than to dexcribe the characters pose or expressions etc.
 
-Structure your anser in the following way:
+Structure your answer in the following way:
 Title: {{imagePrompt}}
   
     Page 1:
@@ -197,9 +197,10 @@ const [story, storyLoading, storyError] = useDocument(
     }
     else if (!story.data()!.baseImagePrompt.imagePrompt && storyContent?.docs.length){
       console.log('NO base image prompt!!!!')
-      createStoryBaseImagePrompt()
+      // createStoryBaseImagePrompt()
+      createAllImagePromptsInOneFellSwoop()
     }
-  }, [story, storyContent])
+  }, [story, storyContent, style])
 
   const [storyOutline, storyOutlineLoading, storyOutlineError] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyOutline') : null,
@@ -230,6 +231,7 @@ useEffect(() => {
   setReadersAge(singleDocument.data()!.readersAge)
   const hc = `${singleDocument.data()!.heroCharacter.name}  ${singleDocument.data()!.heroCharacter.imagePrompt}`
   setHeroCharacter(hc)
+  
    console.log('singleDocument', singleDocument.data())
 }, [singleDocument])
 
@@ -272,6 +274,33 @@ useEffect(() => {
   useEffect(() => {
 
   }, [])
+
+  const createAllImagePromptsInOneFellSwoop = async() => {
+    console.log('dont create bsae or page prompts do all in one!', story?.data()?.story, allThePromptsFromOnePrompt, style )
+    const prompt = `${allThePromptsFromOnePrompt} - the full story is ${story?.data()?.story}. The style to be referenced is ${style}`
+  
+    try{
+     const response = await fetch('/api/createStoryImagePromptsFromSinglePrompt', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: prompt, 
+          session,
+          storyId: storyId, 
+  
+        }),
+      });
+      const data = await response.json();
+      console.log(data)
+      setGettingBasePrompt(false)
+      dispatch(setBaseStoryImagePromptCreated(true))
+    }catch(err){
+      console.log(err)
+      setGettingBasePrompt(false)
+    }
+  }
 
   const createStoryBaseImagePrompt = async () => {
 
