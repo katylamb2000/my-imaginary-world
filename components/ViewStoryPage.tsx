@@ -165,36 +165,38 @@ const createBasePrompt = () => {
  }
 
  const sendImagineCommand = async() => {
-  setLoading(true)
-  var data = JSON.stringify({
-    msg: ` ${page.data.imagePrompt?.imagePrompt} --v 5 `,
-    ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: page.id, },
-    webhookOverride: ""
-  });
+  console.log('sending this prompt => ', page.data.imagePrompt?.imagePrompt, storyBaseImagePrompt)
+  // setLoading(true)
+  // var data = JSON.stringify({
+  //   msg: `${page.data.imagePrompt?.imagePrompt} ${storyBaseImagePrompt} --v 5`,
+  //   ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: page.id, },
+  //   webhookOverride: ""
+  // });
   
-  var config = {
-    method: 'post',
-    url: 'https://api.thenextleg.io/v2/imagine',
-    headers: { 
-      'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
-      'Content-Type': 'application/json'
-    },
-    data : data
-  };
+  // var config = {
+  //   method: 'post',
+  //   url: 'https://api.thenextleg.io/v2/imagine',
+  //   headers: { 
+  //     'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+  //     'Content-Type': 'application/json'
+  //   },
+  //   data : data
+  // };
   
-  axios(config)
-  .then(function (response) {
-    console.log(JSON.stringify(response.data));
-    setLoading(false)
-  })
-  .catch(function (error) {
-    console.log(error);
-    setLoading(false)
-  });
+  // axios(config)
+  // .then(function (response) {
+  //   console.log(JSON.stringify(response.data));
+  //   setLoading(false)
+  // })
+  // .catch(function (error) {
+  //   console.log(error);
+  //   setLoading(false)
+  // });
 }
 
 const pageSelected = () => {
-    dispatch(setId(page.id));
+  console.log('page selected', page.id)
+    // dispatch(setId(page.id));
   }
 
 const editPageContent = () => {
@@ -254,6 +256,7 @@ const editPageContent = () => {
       {/* <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p> */}
 
       <p className='italic text-sm col-span-3 text-red-600'>{page.data.imagePrompt?.imagePrompt}</p>
+      <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p>
       <button 
           className="bg-pink-600 text-white p-4 mx-2 rounded-lg col-span-1"
           onClick={sendImagineCommand}

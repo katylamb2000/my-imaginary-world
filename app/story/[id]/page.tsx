@@ -28,23 +28,6 @@ interface PageData {
   imagePromptCreated: boolean
 }
 
-// export interface Character {
-//   buttonMessageId: string;
-//   buttons: Array<any>;
-//   clothing: string;
-//   eyeColor: string;
-//   gender: string;
-//   hairColor: string;
-//   hairStyle: string;
-//   imageChoices: string;
-//   imagePrompt: string;
-//   name: string;
-//   skinColor: string;
-//   userId: string;
-//   id: string;
-//   heroImage: string;
-//   age: string
-// }
 
 function StoryPage() {
   const dispatch = useDispatch()
@@ -76,7 +59,10 @@ function StoryPage() {
 
   const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for an illustrated children's book. 
 
-  I will provide you with a the full story which will later be divided into pages. Your job is to create a full, explicit, coherent prompt for the overarching theme, style and artistic atttributes of the book. This prompt will include a color theme and specific style of images in concise accurate language. Use highly specific and explicit references to popular culture, artists and mediums. 
+  I will provide you with a the full story which will later be divided into pages. Your job is to create a full, explicit, coherent prompt for the overarching theme, style and artistic atttributes of the book. This prompt will include a color theme and specific style of images in concise accurate language.
+   Use highly specific and explicit references to popular culture, artists and mediums. 
+
+   The prompt should be a single paragraph which uses natural descriptive language. Do not need to start the prompt with Prompt:, just write it as a regular paragraph
 
   Your job is not to describe the images in any way just to create the base prompt for the overall style of the images. 
   
@@ -88,28 +74,67 @@ function StoryPage() {
   
 `
 
-const pageBasePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for a children's book. 
-your job is to describe the scene which will be depicted in the story. 
+const pageBasePrompt = 
+`I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney.
+The image should be for a children's book. 
+your job is to describe the a picture which will best fit that page of the story. 
+I will also give you the hero character, if you choose to feature this character in the picture you must always also give the character description that I give you.
+You must nerver change or edit the chartacter desciption other than to dexcribe the characters pose or expressions etc.  
+The prompt should be a single paragraph which uses natural descriptive language. Do not need to start the prompt with Prompt:, just write it as a regular paragraph
 
-
-I will provide you with a base prompt which will reference the styling you must adhere to; the full story and then one specific section of the story. Your job is to use these bits of information to create one  full, explicit, coherent prompt for the specified section of the story. 
-
-I will also give you the character i want to use as the key actors in the scene. The character objects i give you will include a name, a seed reference number, a description and a url, you must use these exactly as they are when referencing the character. 
-
-Your focus needs to be on nouns and adjectives. Please define the exact shot that should be used . 
-The first part of your prompt should focus on describing the exact content of the image. you can then go on to describe the characters and styling. 
 
 `
-// Here is a formula template for you to use, please kee: 
 
-// SCENE: A tiny fairy sitting on a mushroom in a magical forest, surrounded by glowing fireflies | ACTORS: Sophia, seed: 1232, description: a 3 year old cartoon girl with a pink dress, url: https://exampleImage.com | LOCATION TYPE: Magical forest |IMAGE_TYPE: Macro close-up |  TAGS: macro, fantasy, whimsical, fairy, glowing fireflies, magical atmosphere, mushroom, enchanted forest — ar 16:9
+const allThePromptsFromOnePrompt = 
+`I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney.
+The image should be for an illustrated children's book. 
+I will give you each page of the story and your job is to describe the a picture which will go with that page of the story. 
+Each prompt must be a single paragraph which uses natural descriptive language. Do not need to start the prompt with Prompt:, just write it as a regular paragraph.
+Each prompt must first describne the content of the image and then describe the aesthetics and styling. 
+The style choices should reference specific media, artists and color palletes. 
+The ai art generator will not have access to prompts for prior or subsequent images so you must clearly descrivbe the style and artists to be referenced in each prompt so that the styling is consistent through the whole story. 
+I will also give you the hero character, if you choose to feature this character in the picture you must always also include the character description that I give you in the prompt in order to generate consistent characters throughout the story.
+You must nerver change or edit the chartacter desciption other than to dexcribe the characters pose or expressions etc.
 
-const wholeStoryBasePrompt = `I want you to act as a prompt engineer. You will help me write a base prompt for an ai art generator called midjourney. The base prompt should be describing the style of the images for a children's book. 
+Structure your anser in the following way:
+Title: {{imagePrompt}}
+  
+    Page 1:
+    {{imagePrompt}}
+ 
+    Page 2:
+    {{imagePrompt}}
+   
+    Page 3:
+    {{imagePrompt}}
 
-I will provide you with a the full story and your job is to create a full, explicit, coherent prompt which i will use as the base for every image produced for this story. prompts involve describing the style of images in concise accurate language. It is useful to be explicit and use strong references to popular culture, artists and mediums so that the styling is consistent for every image produced using this base prompt. There should be very strong focus on the color pallette too.  
+  
+    Page 4:
+    {{imagePrompt}}
 
-Your focus needs to be on nouns and adjectives. 
+  
+    Page 5:
+    {{imagePrompt}}
 
+  
+    Page 6:
+    {{imagePrompt}}
+
+  
+    Page 7:
+    {{imagePrompt}}
+
+  
+    Page 8:
+    {{imagePrompt}}
+
+  
+    Page 9:
+    {{imagePrompt}}
+
+  
+    Page 10:
+    {{imagePrompt}} 
 `
 
   useEffect(() => {
@@ -203,15 +228,13 @@ useEffect(() => {
   // setStoryDetails(singleDocument.data())
   setStyle(singleDocument.data()!.style)
   setReadersAge(singleDocument.data()!.readersAge)
-  const hc = ` ${singleDocument.data()!.heroCharacter.name} seed --${singleDocument.data()!.heroCharacter.seed} ${singleDocument.data()!.heroCharacter.heroImage
-  } ${singleDocument.data()!.heroCharacter.imagePrompt}`
+  const hc = `${singleDocument.data()!.heroCharacter.name}  ${singleDocument.data()!.heroCharacter.imagePrompt}`
   setHeroCharacter(hc)
    console.log('singleDocument', singleDocument.data())
 }, [singleDocument])
 
  
-
-  useEffect(() => {
+useEffect(() => {
     if (!storyContent) return;
     const sortedPages = storyContent.docs
       .map(doc => ({
@@ -284,7 +307,7 @@ useEffect(() => {
 
   const createPageImagePrompt = async (page: QueryDocumentSnapshot) => {
   console.log("IN CREATE PAGE IMAGE P~R~OMPTS")
-  console.log(`${pageBasePrompt} the full story is ${fullStory}. The styling must be consistent with ${storyBaseImagePrompt}. The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a ${readersAge} old child. The hero character is ${heroCharacter}`)
+  console.log(`${pageBasePrompt} the full story is ${fullStory}.  The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a ${readersAge} old child. The hero character is ${heroCharacter}`)
   
   if (page.data().imagePromptCreated) return;
     // if (page!.imagePromptCreated) return;
