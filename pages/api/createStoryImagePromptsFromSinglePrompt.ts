@@ -21,7 +21,7 @@ export default async function createStory(
 
   const {   session, storyId, prompt } = req.body
 
-  console.log( session, storyId, prompt )
+  console.log( 'this is the req body ssizzle', session, storyId, prompt )
 
   if (!prompt) {
     res.status(400).json({ answer: { message: 'i dont have a prompt' } });
