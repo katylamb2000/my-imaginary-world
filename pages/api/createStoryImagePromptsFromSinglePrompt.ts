@@ -10,18 +10,18 @@ type Data = {
   storyId: string;
 };
 
-function hasPages(response: any): response is { title: string; pages: string[]; story: string } {
+function hasPages(response: any): response is { title: string; pagesImagesPrompts: string[]; story: string } {
   return 'pages' in response;
 }
 export default async function createStory(
   req: NextApiRequest,
-  res: NextApiResponse<{ answer: { title: string; pages: string[]; story: string; } | { message: string } }>
+  res: NextApiResponse<{ answer: { title: string; pagesImagesPrompts: string[]; story: string; } | { message: string } }>
 ) {
 
 
   const {   session, storyId, prompt } = req.body
 
-  console.log( 'this is the req body ssizzle', session, storyId, prompt )
+  console.log( 'this is the req body shizzle', session, storyId, prompt )
 
   if (!prompt) {
     res.status(400).json({ answer: { message: 'i dont have a prompt' } });
@@ -51,10 +51,10 @@ const storyRequest = {
 
 // Create a separate document for each page
 if (hasPages(response)) {
-response.pages.forEach(async (page, index) => {
+response.pagesImagesPrompts.forEach(async (pagesImagesPrompts, index) => {
   const pageRequest = {
     ...storyRequest,
-    page,
+    pagesImagesPrompts,
     pageNumber: index + 1,
     imagePromptCreated: false
   };
@@ -69,15 +69,15 @@ response.pages.forEach(async (page, index) => {
         imagePrompt: pageRequest
     });
 });
-await adminDb
-.collection("users")
-.doc(session.user.email)
-.collection("storys")
-.doc(storyId)
-.update({
-  title: response.pages[1],
-  story: response.story
-});
+// await adminDb
+// .collection("users")
+// .doc(session.user.email)
+// .collection("storys")
+// .doc(storyId)
+// .update({
+//   title: response.pages[1],
+//   story: response.story
+// });
 }
 else{
   return;

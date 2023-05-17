@@ -42,7 +42,7 @@ const imagePromptCreator = async (prompt: string) => {
         // Remove the title from the pages array
         const pagesWithoutTitle = pages.slice(1);
   
-        return { title, pages: pagesWithoutTitle, story };
+        return { title, pagesImagesPrompts: pagesWithoutTitle, story };
       })
       .catch((err) => ({ message: `Oh GOSH the Story Wizard has writers block right now ! (Error: ${err.message} ${prompt})` }));  
     return res;
