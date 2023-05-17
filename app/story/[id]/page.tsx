@@ -28,7 +28,6 @@ interface PageData {
   imagePromptCreated: boolean
 }
 
-
 function StoryPage() {
   const dispatch = useDispatch()
   const { data: session } = useSession()
@@ -57,7 +56,7 @@ function StoryPage() {
   const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
 
 
-  const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for an illustrated children's book. 
+const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for an illustrated children's book. 
 
   I will provide you with a the full story which will later be divided into pages. Your job is to create a full, explicit, coherent prompt for the overarching theme, style and artistic atttributes of the book. This prompt will include a color theme and specific style of images in concise accurate language.
    Use highly specific and explicit references to popular culture, artists and mediums. 
@@ -70,34 +69,30 @@ function StoryPage() {
   
   Here is a formula template for you to use: 
   
-  ARTIST: Adam Stower | AESTHETIC: kidcore| MEDIUM: cartoon | GENRE: Fantasy | EMOTION: Quirky and whimsical | COLOR PALLETE: bright vibrant colors — ar 16:9
-  
-`
-
+  ARTIST: Adam Stower | AESTHETIC: kidcore| MEDIUM: cartoon | GENRE: Fantasy | EMOTION: Quirky and whimsical | COLOR PALLETE: bright vibrant colors — ar 16:9`
 const pageBasePrompt = 
 `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney.
 The image should be for a children's book. 
-your job is to describe the a picture which will best fit that page of the story. 
+your job is to describe a picture which will best fit that page of the story. 
 I will also give you the hero character, if you choose to feature this character in the picture you must always also give the character description that I give you.
 You must nerver change or edit the chartacter desciption other than to dexcribe the characters pose or expressions etc.  
 The prompt should be a single paragraph which uses natural descriptive language. Do not need to start the prompt with Prompt:, just write it as a regular paragraph
-
-
 `
 
 const allThePromptsFromOnePrompt = 
-`I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney.
-The image should be for an illustrated children's book. 
-I will give you each page of the story and your job is to describe the a picture which will go with that page of the story. 
-Each prompt must be a single paragraph which uses natural descriptive language. Do not need to start the prompt with Prompt:, just write it as a regular paragraph.
-Each prompt must first describne the content of the image and then describe the aesthetics and styling. 
-The style choices should reference specific media, artists and color palletes. 
-The ai art generator will not have access to prompts for prior or subsequent images so you must clearly descrivbe the style and artists to be referenced in each prompt so that the styling is consistent through the whole story. 
-I will also give you the hero character, if you choose to feature this character in the picture you must always also include the character description that I give you in the prompt in order to generate consistent characters throughout the story.
-You must nerver change or edit the chartacter desciption other than to dexcribe the characters pose or expressions etc.
+`I want you to act as a prompt engineer. You will help me write prompts for an AI art generator called Midjourney.
+The image you are producing the prompt for is for an illustrated children's book. 
+I will give you each page of the story, and your job is to describe a picture that will go with that page of the story. 
+Each image prompt you create must be complete in isolation, as Midjourney does not have access to prompts for prior or subsequent pages. You must clearly describe the style and artists to be referenced, as well as give the full character description for each page image prompt. This is vitally important to have consistent images throughout the story!
 
+Each prompt must be a single paragraph that uses natural descriptive language. Do not start the prompt with "Prompt:", just write it as a regular paragraph.
+Each prompt must first describe the content of the image and then describe the aesthetics and styling. The aesthetic and style choices must be consistent throughout the whole story, so they must be described fully in each prompt.  
+The style choices should reference specific media, artists, and color palettes. 
+
+I will also give you the hero character. If you choose to feature this character in the picture, you must always include the character description I provide you in the prompt to generate consistent characters throughout the story. You must never change or edit the character description other than to describe the character's pose, expressions, etc.
+Each image prompt should follow this structure: "in the style of {{style}} with {{color palette}} illustrate {{hero character description}} {{scene content}}.
 Structure your answer in the following way:
-Title: {{imagePrompt}}
+Title Page: {{imagePrompt}}
   
     Page 1:
     {{imagePrompt}}
@@ -108,33 +103,27 @@ Title: {{imagePrompt}}
     Page 3:
     {{imagePrompt}}
 
-  
     Page 4:
     {{imagePrompt}}
 
-  
     Page 5:
     {{imagePrompt}}
 
-  
     Page 6:
     {{imagePrompt}}
 
-  
     Page 7:
     {{imagePrompt}}
 
-  
     Page 8:
     {{imagePrompt}}
 
-  
     Page 9:
     {{imagePrompt}}
 
-  
     Page 10:
-    {{imagePrompt}} 
+    {{imagePrompt}}
+
 `
 
   useEffect(() => {
@@ -276,8 +265,8 @@ useEffect(() => {
   }, [])
 
   const createAllImagePromptsInOneFellSwoop = async() => {
-    console.log('dont create bsae or page prompts do all in one!', story?.data()?.story, allThePromptsFromOnePrompt, style )
-    const prompt = `${allThePromptsFromOnePrompt} - the full story is ${story?.data()?.story}. The style to be referenced is ${style}`
+    console.log('dont create bsae or page prompts do all in one!', story?.data()?.story )
+    const prompt = `${allThePromptsFromOnePrompt} - the full story is ${story?.data()?.story}. The hero character is ${heroCharacter} The style to be referenced is ${style} `
   
     try{
      const response = await fetch('/api/createStoryImagePromptsFromSinglePrompt', {
