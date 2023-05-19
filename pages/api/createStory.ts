@@ -75,6 +75,7 @@ await adminDb
 .update({
   title: response.pages[1],
   story: response.story
+
 });
 }
 else{

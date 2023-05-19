@@ -116,7 +116,7 @@ function CreateStoryOutline({ characters  }: Props) {
 
 const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // console.log('story outline ==> ', 'readersAge:', age, 'setting', setting, 'things to include', favouriteThings, 'storyStyle', genre, 'style', style, 'heroCharacter', heroCharacter )
+    console.log('story outline ==> ', 'readersAge:', age, 'setting', setting, 'things to include', favouriteThings, 'storyStyle', genre, 'style', style, 'heroCharacter' )
     setLoading(true)
     await addDoc(collection(db, 'users', session?.user?.email!, 'storys', storyId!, 'storyOutline'),
         {
@@ -129,10 +129,10 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         }
     )
 
-    const notification = toast.loading('Your story is being created')
+    const notification = toast.loading('Hang tight! Your story is being whipped up!')
     
     const storyPrompt = `Generate a structured ${genre} story appropriate for ${age} years old in the style of ${style}. The story should be set in ${setting} and feature ${favouriteThings} as key elements.
-    The hero character is ${heroDescription}. 
+    The hero character is ${heroDescription}. The story must have a title and be only 2 pages long. 
   
     Title: {{title}}
   
@@ -142,38 +142,40 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     Page 2:
     {{page2}}
    
-    Page 3:
-    {{page3}}
 
-  
-    Page 4:
-    {{page4}}
-
-  
-    Page 5:
-    {{page5}}
-
-  
-    Page 6:
-    {{page6}}
-
-  
-    Page 7:
-    {{page7}}
-
-  
-    Page 8:
-    {{page8}}
-
-  
-    Page 9:
-    {{page9}}
-
-  
-    Page 10:
-    {{page10}} 
        
     `;
+
+    // Page 3:
+    // {{page3}}
+
+  
+    // Page 4:
+    // {{page4}}
+
+  
+    // Page 5:
+    // {{page5}}
+
+  
+    // Page 6:
+    // {{page6}}
+
+  
+    // Page 7:
+    // {{page7}}
+
+  
+    // Page 8:
+    // {{page8}}
+
+  
+    // Page 9:
+    // {{page9}}
+
+  
+    // Page 10:
+    // {{page10}} 
     
 
     try{

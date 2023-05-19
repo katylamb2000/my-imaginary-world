@@ -24,8 +24,8 @@ import CharacterScrollBar from "../../../components/CharacterScrollBar"
 interface PageData {
   id: string;
   data: any; // Replace 'any' with the appropriate type for your page data
-  baseImagePromptCreated: Boolean
-  imagePromptCreated: boolean
+  // baseImagePromptCreated: Boolean
+  // imagePromptCreated: boolean
 }
 
 function StoryPage() {
@@ -89,42 +89,42 @@ Each prompt must be a single paragraph that uses natural descriptive language. D
 Each prompt must first describe the content of the image and then describe the aesthetics and styling. The aesthetic and style choices must be consistent throughout the whole story, so they must be described fully in each prompt.  
 The style choices should reference specific media, artists, and color palettes. 
 
-I will also give you the hero character. If you choose to feature this character in the picture, you must always include the character description I provide you in the prompt to generate consistent characters throughout the story. You must never change or edit the character description other than to describe the character's pose, expressions, etc.
-Each image prompt should follow this structure: "in the style of {{style}} with {{color palette}} illustrate {{hero character description}} {{scene content}}.
+I will also give you the hero character. If you choose to feature this character in the picture, you must always include the character description I provide you in the prompt to generate consistent characters throughout the story. You may change the character description to make sure it clearly fits within the style of the book. You must also be sure to create a consistent outfit for the character to be wearing, the outfit must stay the same in each image unless it makes sense in the story for the outfit to change.You must describe the character's pose, actions, facial expressions and any props that they have.
+Each image prompt should follow this structure: "Illustrate {{character description}} {{scene content}}in the style of {{style}} using {{color palette}}.
 Structure your answer in the following way:
-Title Page: {{imagePrompt}}
+
+    Title Page: {{imagePrompt}}
   
     Page 1:
     {{imagePrompt}}
  
     Page 2:
     {{imagePrompt}}
-   
-    Page 3:
-    {{imagePrompt}}
-
-    Page 4:
-    {{imagePrompt}}
-
-    Page 5:
-    {{imagePrompt}}
-
-    Page 6:
-    {{imagePrompt}}
-
-    Page 7:
-    {{imagePrompt}}
-
-    Page 8:
-    {{imagePrompt}}
-
-    Page 9:
-    {{imagePrompt}}
-
-    Page 10:
-    {{imagePrompt}}
-
 `
+
+// Page 3:
+// {{imagePrompt}}
+
+// Page 4:
+// {{imagePrompt}}
+
+// Page 5:
+// {{imagePrompt}}
+
+// Page 6:
+// {{imagePrompt}}
+
+// Page 7:
+// {{imagePrompt}}
+
+// Page 8:
+// {{imagePrompt}}
+
+// Page 9:
+// {{imagePrompt}}
+
+// Page 10:
+// {{imagePrompt}}
 
   useEffect(() => {
     if (!pathname) return;
@@ -176,18 +176,13 @@ const [story, storyLoading, storyError] = useDocument(
   );
 
   useEffect(() => {
-    if (!story) return;
+    if (!story || !storyContent || !storyContent.docs.length) return;
 
-    console.log('storyContent', storyContent?.docs.length) 
-    if (!storyContent?.docs.length) return;
-      else if (story.data()?.baseImagePrompt?.imagePrompt){
-      console.log('got a story base image prompt')
-      setStoryBaseImagePrompt(story.data()?.baseImagePrompt.imagePrompt)
-    }
-    else if (!story.data()!.baseImagePrompt.imagePrompt && storyContent?.docs.length){
-      console.log('NO base image prompt!!!!')
-      // createStoryBaseImagePrompt()
-      createAllImagePromptsInOneFellSwoop()
+    // console.log('story ====>', story.data()) 
+    console.log('fullImage prompt ====>', story.data()?.fullImagePrompt) 
+    if (story.data()?.fullImagePrompt) return;
+    else if (!story.data()?.fullImagePrompt){
+        createAllImagePromptsInOneFellSwoop()
     }
   }, [story, storyContent, style])
 

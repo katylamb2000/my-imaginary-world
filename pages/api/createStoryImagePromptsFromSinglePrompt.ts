@@ -69,15 +69,14 @@ response.pagesImagesPrompts.forEach(async (pagesImagesPrompts, index) => {
         imagePrompt: pageRequest
     });
 });
-// await adminDb
-// .collection("users")
-// .doc(session.user.email)
-// .collection("storys")
-// .doc(storyId)
-// .update({
-//   title: response.pages[1],
-//   story: response.story
-// });
+await adminDb
+.collection("users")
+.doc(session.user.email)
+.collection("storys")
+.doc(storyId)
+.update({
+  fullImagePrompt: response.story
+});
 }
 else{
   return;

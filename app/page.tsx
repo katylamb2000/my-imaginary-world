@@ -30,8 +30,7 @@ function HomePage() {
       const doc = await addDoc(collection(db, "users", session?.user?.email!, 'storys'), {
           userId: session?.user?.email!,
           createdAt: serverTimestamp(), 
-          baseImagePromptCreated: false,
-          baseImagePrompt: ''
+          fullImagePrompt: null
       });
       router.push(`/story/${doc.id}`)
     }
