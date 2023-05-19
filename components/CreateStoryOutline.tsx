@@ -132,7 +132,7 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     const notification = toast.loading('Hang tight! Your story is being whipped up!')
     
     const storyPrompt = `Generate a structured ${genre} story appropriate for ${age} years old in the style of ${style}. The story should be set in ${setting} and feature ${favouriteThings} as key elements.
-    The hero character is ${heroDescription}. The story must have a title and be only 2 pages long. 
+    The hero character is ${heroDescription}. 
   
     Title: {{title}}
   
@@ -141,13 +141,14 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
  
     Page 2:
     {{page2}}
-   
+
+    Page 3:
+    {{page3}}
 
        
     `;
 
-    // Page 3:
-    // {{page3}}
+  
 
   
     // Page 4:
@@ -190,7 +191,7 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
             storyId: storyId
         }),
     })
-    const data = await response.json();
+    // const data = await response.json();
 
     setLoading(false)
     toast.success('Your story has been created', {

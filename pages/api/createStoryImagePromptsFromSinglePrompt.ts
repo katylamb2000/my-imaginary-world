@@ -75,7 +75,7 @@ await adminDb
 .collection("storys")
 .doc(storyId)
 .update({
-  fullImagePrompt: response.story
+  fullImagePrompt: response
 });
 }
 else{

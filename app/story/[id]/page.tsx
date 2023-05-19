@@ -182,6 +182,7 @@ const [story, storyLoading, storyError] = useDocument(
     console.log('fullImage prompt ====>', story.data()?.fullImagePrompt) 
     if (story.data()?.fullImagePrompt) return;
     else if (!story.data()?.fullImagePrompt){
+        console.log('creating image prompts')
         createAllImagePromptsInOneFellSwoop()
     }
   }, [story, storyContent, style])
@@ -277,9 +278,10 @@ useEffect(() => {
         }),
       });
       const data = await response.json();
-      console.log(data)
-      setGettingBasePrompt(false)
-      dispatch(setBaseStoryImagePromptCreated(true))
+      console.log('this iss the DATA =>', data)
+      console.log('if we have prmpts but no images create images next!')
+      // setGettingBasePrompt(false)
+      // dispatch(setBaseStoryImagePromptCreated(true))
     }catch(err){
       console.log(err)
       setGettingBasePrompt(false)
