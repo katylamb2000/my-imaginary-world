@@ -11,8 +11,11 @@ type Data = {
 };
 
 function hasPages(response: any): response is { title: string; pagesImagesPrompts: string[]; story: string } {
+  console.log('response:', response);
+  console.log("'pages' in response:", 'pages' in response);
   return 'pages' in response;
 }
+
 export default async function createStory(
   req: NextApiRequest,
   res: NextApiResponse<{ answer: { title: string; pagesImagesPrompts: string[]; story: string; } | { message: string } }>
@@ -51,10 +54,11 @@ const storyRequest = {
 
 // Create a separate document for each page
 if (hasPages(response)) {
-response.pagesImagesPrompts.forEach(async (pagesImagesPrompts, index) => {
+response.pagesImagesPrompts.forEach(async (prompt, index) => {
   const pageRequest = {
     ...storyRequest,
-    pagesImagesPrompts,
+    prompt,
+    // pagesImagesPrompts,
     pageNumber: index + 1,
     imagePromptCreated: false
   };
@@ -79,6 +83,7 @@ await adminDb
 });
 }
 else{
+  console.log('we have response but not hasPages', response)
   return;
 }
 
