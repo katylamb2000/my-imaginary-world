@@ -37,80 +37,6 @@ function ViewStoryPage({ page, imagePrompts, storyId, storyBaseImagePrompt }: Pr
   const [imageCommandSent, setImageCommandSent] = useState(false);
   const requestQueue = new RequestQueue(3); // Initialize the request queue with 3 concurrent requests.
 
-  // const [imagePrompt, imagePromptLoading, imagePromptError] = useCollection(
-  //   session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent', page.id, 'imagePrompts') : null,
-  // );
-
-  // const [images, imagesLoading, imagesError] = useCollection(
-  //   session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent', page.id, 'images') : null,
-  // );
-
-  // useEffect(() => {
-  //   if (!imagePrompt) return;
-  //   if (!imagePrompt?.docs[0]?.data()){
-  //     createStoryImagePrompt(page)
-  //   }
-  //   else{
-  //     checkForImageUri()
-  //   }
-  // }, [imagePrompt])
-
-  // const checkForImageUri = () => {
-  //   if (!images) return;
-  //   if (!images?.docs[0]?.data()){
-  //     createImage()
-  //   }
-  //   if (images?.docs[0]?.data().data.images[0].uri){
-  //     setImage(images?.docs[0]?.data().data.images[0].uri)
-  //   }
-  //   if (images?.docs[0]?.data().data.images[0].maskUri){
-  //     setImageMask(images?.docs[0]?.data().data.images[0].maskUri)
-  //   }
-  // }
-
-  // const createImage = async() => {
-  //   const prompt = imagePrompts?.docs[0].data().imagePrompt
-  //   try{
-
-  //     const response = await fetch('/api/leapImage', {
-  //        method: 'POST', 
-  //        headers: {
-  //          'Content-Type': 'application/json'
-  //        },
-  //        body: JSON.stringify({
-  //          prompt: prompt,
-  //          session,
-  //          storyId: storyId,
-  //          page: page.id
-  //        }),
-  //      });
-  //      const data = await response.json();
-  //      console.log('THIs is the URI from leAp', data.answer.images[0].uri)
-
-  //    }catch(err){
-  //      alert(err)
-  //    }
-  // }
-
-
-//   const updateStoryThumbnailImage = async(uri: string) => {
-//     try{
-//         if (!storyId) return;
-//         const story =  await updateDoc(doc(db, 'users', session?.user?.email, 'storys', storyId ), {
-//             image: thumbnailImage
-//         })
-//         console.log(story)
-//     } catch(err){
-//         console.log(err)
-//     }
-// }
-
-// useEffect(() => {
-//   if (page.data.imageChoices) return;
-//   sendImagineCommand()
-//  }, [page])
-
-
 useEffect(() => {
   if (page.data.imageChoices && !page.data.finalImage) {
     setImage(page.data.imageChoices);
@@ -138,14 +64,14 @@ const createBasePrompt = () => {
  }, [page])
 
  const buttonClicked = async(button: string) => {
-  console.log(button, page.data.buttonMessageId)
+  console.log('button clicked', button, page.data.buttonMessageId)
   try {
-    const data = {
+    var data = JSON.stringify({
       button: button,
       buttonMessageId: page.data.buttonMessageId,
-      ref: JSON.stringify({ storyId: storyId, userId: session!.user!.email , page: page.id, action: 'button' }),
-      webhookOverride: ''
-    };
+      ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: page.id, },
+      webhookOverride: ""
+    });
 
     const config = {
       method: 'post',
@@ -165,33 +91,33 @@ const createBasePrompt = () => {
  }
 
  const sendImagineCommand = async() => {
-  console.log('sending this prompt => ', page.data.imagePrompt?.imagePrompt, storyBaseImagePrompt)
-  // setLoading(true)
-  // var data = JSON.stringify({
-  //   msg: `${page.data.imagePrompt?.imagePrompt} ${storyBaseImagePrompt} --v 5`,
-  //   ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: page.id, },
-  //   webhookOverride: ""
-  // });
+  console.log('sending this prompt => ', page.data.imagePrompt)
+  setLoading(true)
+  var data = JSON.stringify({
+    msg: `${page.data.imagePrompt} `,
+    ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: page.id, },
+    webhookOverride: ""
+  });
   
-  // var config = {
-  //   method: 'post',
-  //   url: 'https://api.thenextleg.io/v2/imagine',
-  //   headers: { 
-  //     'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
-  //     'Content-Type': 'application/json'
-  //   },
-  //   data : data
-  // };
+  var config = {
+    method: 'post',
+    url: 'https://api.thenextleg.io/v2/imagine',
+    headers: { 
+      'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+      'Content-Type': 'application/json'
+    },
+    data : data
+  };
   
-  // axios(config)
-  // .then(function (response) {
-  //   console.log(JSON.stringify(response.data));
-  //   setLoading(false)
-  // })
-  // .catch(function (error) {
-  //   console.log(error);
-  //   setLoading(false)
-  // });
+  axios(config)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data));
+    setLoading(false)
+  })
+  .catch(function (error) {
+    console.log(error);
+    setLoading(false)
+  });
 }
 
 const pageSelected = () => {
@@ -205,7 +131,26 @@ const editPageContent = () => {
 }
 
   return (
-  <div className="h-full w-full bg-gray-100">
+  <div className="h-full w-full bg-gray-100 flex" >
+    <div className="flex-col w-1/6 h-full p-3 mx-auto ">
+      <div className="w-full h-1/3 mt-10  items-center justify-evenly space-y-2">
+        <button className= "bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl p-3 hover:text-purple-500 text-purple-300"
+            onClick={() => buttonClicked('U1')}
+        >
+          Use this image
+        </button>
+        <button className="bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl  p-3 hover:text-purple-500 text-purple-300"
+            onClick={() => buttonClicked('V1')}
+        >
+            Edit this image
+        </button>
+      </div>
+      <div className="w-full h-1/3 mt-20  items-center justify-evenly space-y-2">
+        <button className= "bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl p-3 hover:text-purple-500 text-purple-300">Use this image</button>
+        <button className="bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl  p-3 hover:text-purple-500 text-purple-300">Edit this image</button>
+      </div>
+    </div>
+
     <div 
         className={`w-3/5 h-4/5 bg-white rounded-lg border ${page.id === selectedPageId ? 'border-purple-500' : 'border-gray-100'}  shadow-xl mx-auto my-8 text-center relative`} 
         onClick={pageSelected}
@@ -255,8 +200,8 @@ const editPageContent = () => {
       <div className="grid grid-cols-4">
       {/* <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p> */}
 
-      <p className='italic text-sm col-span-3 text-red-600'>{page.data.imagePrompt?.imagePrompt}</p>
-      <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p>
+      <p className='italic text-sm col-span-3 text-red-600'>{page.data.imagePrompt}</p>
+      {/* <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p> */}
       <button 
           className="bg-pink-600 text-white p-4 mx-2 rounded-lg col-span-1"
           onClick={sendImagineCommand}
@@ -267,14 +212,14 @@ const editPageContent = () => {
 </div>
 
 </div>
-
-{buttons.length > 0 && (
+<div className="w-1/5 h-3/5 bg-green-300"></div>
+{/* {buttons.length > 0 && (
   <div className="flex bg-white w-2/5 border rounded-lg space-x-2 mx-auto justify-evenly ">
     {buttons.map(button => (
   <button onClick={() => buttonClicked(button)} key={button} className="p-2 hover:bg-pink-400 rounded-full hover:text-white">{button}</button>
     ))}
   </div>
-)}
+)} */}
 </div>
   )
 }

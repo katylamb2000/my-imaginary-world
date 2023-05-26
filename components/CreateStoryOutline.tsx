@@ -188,7 +188,9 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         body: JSON.stringify({
             prompt: storyPrompt, 
             session: session,
-            storyId: storyId
+            storyId: storyId, 
+            hero: heroDescription,
+            style: style
         }),
     })
     // const data = await response.json();

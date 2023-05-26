@@ -56,76 +56,6 @@ function StoryPage() {
   const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
 
 
-const basePrompt = `I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney. The image should be for an illustrated children's book. 
-
-  I will provide you with a the full story which will later be divided into pages. Your job is to create a full, explicit, coherent prompt for the overarching theme, style and artistic atttributes of the book. This prompt will include a color theme and specific style of images in concise accurate language.
-   Use highly specific and explicit references to popular culture, artists and mediums. 
-
-   The prompt should be a single paragraph which uses natural descriptive language. Do not need to start the prompt with Prompt:, just write it as a regular paragraph
-
-  Your job is not to describe the images in any way just to create the base prompt for the overall style of the images. 
-  
-  Your focus needs to be on nouns and adjectives. 
-  
-  Here is a formula template for you to use: 
-  
-  ARTIST: Adam Stower | AESTHETIC: kidcore| MEDIUM: cartoon | GENRE: Fantasy | EMOTION: Quirky and whimsical | COLOR PALLETE: bright vibrant colors — ar 16:9`
-const pageBasePrompt = 
-`I want you to act as a prompt engineer. You will help me write prompts for an ai art generator called midjourney.
-The image should be for a children's book. 
-your job is to describe a picture which will best fit that page of the story. 
-I will also give you the hero character, if you choose to feature this character in the picture you must always also give the character description that I give you.
-You must nerver change or edit the chartacter desciption other than to dexcribe the characters pose or expressions etc.  
-The prompt should be a single paragraph which uses natural descriptive language. Do not need to start the prompt with Prompt:, just write it as a regular paragraph
-`
-
-const allThePromptsFromOnePrompt = 
-`I want you to act as a prompt engineer. You will help me write prompts for an AI art generator called Midjourney.
-The image you are producing the prompt for is for an illustrated children's book. 
-I will give you each page of the story, and your job is to describe a picture that will go with that page of the story. 
-Each image prompt you create must be complete in isolation, as Midjourney does not have access to prompts for prior or subsequent pages. You must clearly describe the style and artists to be referenced, as well as give the full character description for each page image prompt. This is vitally important to have consistent images throughout the story!
-
-Each prompt must be a single paragraph that uses natural descriptive language. Do not start the prompt with "Prompt:", just write it as a regular paragraph.
-Each prompt must first describe the content of the image and then describe the aesthetics and styling. The aesthetic and style choices must be consistent throughout the whole story, so they must be described fully in each prompt.  
-The style choices should reference specific media, artists, and color palettes. 
-
-I will also give you the hero character. If you choose to feature this character in the picture, you must always include the character description I provide you in the prompt to generate consistent characters throughout the story. You may change the character description to make sure it clearly fits within the style of the book. You must also be sure to create a consistent outfit for the character to be wearing, the outfit must stay the same in each image unless it makes sense in the story for the outfit to change.You must describe the character's pose, actions, facial expressions and any props that they have.
-Each image prompt should follow this structure: "Illustrate {{character description}} {{scene content}}in the style of {{style}} using {{color palette}}.
-Structure your answer in the following way:
-
-    Title Page: {{imagePrompt}}
-  
-    Page 1:
-    {{imagePrompt}}
- 
-    Page 2:
-    {{imagePrompt}}
-`
-
-// Page 3:
-// {{imagePrompt}}
-
-// Page 4:
-// {{imagePrompt}}
-
-// Page 5:
-// {{imagePrompt}}
-
-// Page 6:
-// {{imagePrompt}}
-
-// Page 7:
-// {{imagePrompt}}
-
-// Page 8:
-// {{imagePrompt}}
-
-// Page 9:
-// {{imagePrompt}}
-
-// Page 10:
-// {{imagePrompt}}
-
   useEffect(() => {
     if (!pathname) return;
     const regex = /^\/story\/([a-zA-Z0-9]+)$/;
@@ -175,17 +105,6 @@ const [story, storyLoading, storyError] = useDocument(
     session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent') : null,
   );
 
-  useEffect(() => {
-    if (!story || !storyContent || !storyContent.docs.length) return;
-
-    // console.log('story ====>', story.data()) 
-    console.log('fullImage prompt ====>', story.data()?.fullImagePrompt) 
-    if (story.data()?.fullImagePrompt) return;
-    else if (!story.data()?.fullImagePrompt){
-        console.log('creating image prompts')
-        createAllImagePromptsInOneFellSwoop()
-    }
-  }, [story, storyContent, style])
 
   const [storyOutline, storyOutlineLoading, storyOutlineError] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyOutline') : null,
@@ -227,8 +146,8 @@ useEffect(() => {
       .map(doc => ({
         id: doc.id,
         data: doc.data(),
-        imagePromptCreated: doc.data().imagePromptCreated,
-        baseImagePromptCreated: doc.data().baseImagePromptCreated // Add this line
+        // imagePromptCreated: doc.data().imagePromptCreated,
+        // baseImagePromptCreated: doc.data().baseImagePromptCreated // Add this line
       }))
       .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
     setSortedStoryContent(sortedPages);
@@ -241,121 +160,39 @@ useEffect(() => {
     setFullStory(storyText)
   }, [sortedStoryContent])
 
-  useEffect(() => {
-    console.log(storyContent?.docs.length, storyBaseImagePrompt)
-    if (!storyContent?.docs.length) return;
-    if (!storyBaseImagePrompt) return;
-    if (storyContent.docs.length && storyBaseImagePrompt ) {
-      storyContent.docs.map((page) => {
-        // console.log('this is a usefct that will create image prompt for all mapped content', page.data().imagePromptCreated)
-        if ( page.data().imagePromptCreated == false){
-            createPageImagePrompt(page);
-        }
 
-      });
-    }
-  }, [storyContent, storyBaseImagePrompt]);
 
   useEffect(() => {
 
   }, [])
 
-  const createAllImagePromptsInOneFellSwoop = async() => {
-    console.log('dont create bsae or page prompts do all in one!', story?.data()?.story )
-    const prompt = `${allThePromptsFromOnePrompt} - the full story is ${story?.data()?.story}. The hero character is ${heroCharacter} The style to be referenced is ${style} `
+  // const createAllImagePromptsInOneFellSwoop = async() => {
+  //   console.log('dont create bsae or page prompts do all in one!', story?.data()?.story )
+  //   const prompt = `${allThePromptsFromOnePrompt} - the full story is ${story?.data()?.story}. The hero character is ${heroCharacter} The style to be referenced is ${style} `
   
-    try{
-     const response = await fetch('/api/createStoryImagePromptsFromSinglePrompt', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt: prompt, 
-          session,
-          storyId: storyId, 
+  //   try{
+  //    const response = await fetch('/api/createStoryImagePromptsFromSinglePrompt', {
+  //       method: 'POST', 
+  //       headers: {
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({
+  //         prompt: prompt, 
+  //         session,
+  //         storyId: storyId, 
   
-        }),
-      });
-      const data = await response.json();
-      console.log('this iss the DATA =>', data)
-      console.log('if we have prmpts but no images create images next!')
-      // setGettingBasePrompt(false)
-      // dispatch(setBaseStoryImagePromptCreated(true))
-    }catch(err){
-      console.log(err)
-      setGettingBasePrompt(false)
-    }
-  }
+  //       }),
+  //     });
+  //     const data = await response.json();
+  //     console.log('this iss the DATA =>', data)
+  //     console.log('if we have prmpts but no images create images next!')
+   
+  //   }catch(err){
+  //     console.log(err)
+  //     setGettingBasePrompt(false)
+  //   }
+  // }
 
-  const createStoryBaseImagePrompt = async () => {
-
-    console.log('creating BASE!!!!!!')
-    if (gettingBasePrompt) return;
-
-    setGettingBasePrompt(true)
-    const storyBasePrompt = `${basePrompt} - the full story is ${fullStory}.`
-  
-    try{
-     const response = await fetch('/api/createStoryBaseImagePrompt', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt: storyBasePrompt, 
-          // model: 'text-davinci-003', 
-          session,
-          storyId: storyId, 
-  
-        }),
-      });
-      const data = await response.json();
-      console.log(data)
-      setGettingBasePrompt(false)
-      dispatch(setBaseStoryImagePromptCreated(true))
-    }catch(err){
-      console.log(err)
-      setGettingBasePrompt(false)
-    }
-  }
-
-  const createPageImagePrompt = async (page: QueryDocumentSnapshot) => {
-  console.log("IN CREATE PAGE IMAGE P~R~OMPTS")
-  console.log(`${pageBasePrompt} the full story is ${fullStory}.  The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a ${readersAge} old child. The hero character is ${heroCharacter}`)
-  
-  if (page.data().imagePromptCreated) return;
-    // if (page!.imagePromptCreated) return;
-  
-    const pageProcessing = pagesProcessed.find((pageId: string) => pageId === page.id);
-    if (pageProcessing) return;
-
-    else if (page.data().imagePromptCreated == false){
-      setPagesProcessed(pagesProcessed => [...pagesProcessed, page.id])
-    // console.log('creating IP for', sc.id, sc.data().page)
-    const pagePrompt = `${pageBasePrompt} the full story is ${fullStory}. The styling must be consistent with ${storyBaseImagePrompt}. The page I want you to generate an ai art generator prompt for is ${page.data().page}. This is a childrens story book for a ${readersAge} old child. The hero character is ${heroCharacter}`
-    // console.log('pagePrompt', pagePrompt)
-  try{
-     const response = await fetch('/api/createStoryImagePrompts', {
-        method: 'POST', 
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          prompt: pagePrompt, 
-          model: 'text-davinci-003', 
-          session,
-          storyId: storyId, 
-          page: page.id
-        }),
-      });
-      const data = await response.json();
-      console.log(data.answer)
-
-  }catch(err){
-      console.log(err)
-}}
-}
 
   const switchToEdit = () => {
     console.log("IN SWITCH", editStoryPage)
