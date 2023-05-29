@@ -34,29 +34,21 @@ function ViewStoryPage({ page, imagePrompts, storyId, storyBaseImagePrompt }: Pr
   const selectedPageTextColor = useSelector((state: RootState) =>  state.pageToEdit.textColor);
   const selectedPageTextSize = useSelector((state: RootState) =>  state.pageToEdit.textSize);
   const [buttons, setButtons] = useState([])
+  const [showChoiceButtons, setShowChoiceButtons] = useState<boolean>(false)
   const [imageCommandSent, setImageCommandSent] = useState(false);
   const requestQueue = new RequestQueue(3); // Initialize the request queue with 3 concurrent requests.
 
 useEffect(() => {
-  if (page.data.imageChoices && !page.data.finalImage) {
+  if (page.data.imageChoices && page.data.buttons[0] == 'U1') {
+    console.log('we have image choices')
+   
+    setShowChoiceButtons(true)
+  } else if (page.data.imageChoices && page.data.buttons[0] !== 'U1') {
     setImage(page.data.imageChoices);
-  } else if (page.data.finalImage) {
-    setImage(page.data.finalImage);
-  } else if (!page.data.imageChoices && !page.data.finalImage && page.data.imagePrompt && !imageCommandSent && !baseStoryImagePromptCreated ) {
-    // createBasePrompt();
-    console.log('got no base!')
-  } else if (!page.data.imageChoices && !page.data.finalImage && page.data.imagePrompt && !imageCommandSent && baseStoryImagePromptCreated ) {
-    // sendImagineCommand();
-    console.log('SEND IMAGE COMMAND AND ADD PAGE TO AN ARRAY OF SOME SORT SODONT SEND MULITIPLT TIMES')
-  } else if (!page.data.imageChoices && !page.data.finalImage && !page.data.imagePrompt && !imageCommandSent && !baseStoryImagePromptCreated ) {
-    // sendImagineCommand();
-    console.log('this is the storyBaseImagePrompt', storyBaseImagePrompt)
+    setShowChoiceButtons(false)
+    console.log('we have a final image')
   }
 }, [page, imageCommandSent]);
-
-const createBasePrompt = () => {
-  console.log("CREATE A BASE PROMPT!!!")
-}
 
  useEffect(() => {
   if (!page.data.buttons) return;
@@ -134,21 +126,31 @@ const editPageContent = () => {
   <div className="h-full w-full bg-gray-100 flex" >
     <div className="flex-col w-1/6 h-full p-3 mx-auto ">
       <div className="w-full h-1/3 mt-10  items-center justify-evenly space-y-2">
+      {showChoiceButtons && (
         <button className= "bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl p-3 hover:text-purple-500 text-purple-300"
             onClick={() => buttonClicked('U1')}
         >
           Use this image
         </button>
-        <button className="bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl  p-3 hover:text-purple-500 text-purple-300"
+      )}
+        {/* <button className="bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl  p-3 hover:text-purple-500 text-purple-300"
             onClick={() => buttonClicked('V1')}
         >
             Edit this image
-        </button>
+        </button> */}
       </div>
-      <div className="w-full h-1/3 mt-20  items-center justify-evenly space-y-2">
-        <button className= "bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl p-3 hover:text-purple-500 text-purple-300">Use this image</button>
-        <button className="bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl  p-3 hover:text-purple-500 text-purple-300">Edit this image</button>
-      </div>
+      {showChoiceButtons && (
+          <div className="w-full h-1/3 mt-20  items-center justify-evenly space-y-2">
+          <button 
+              className= "bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl p-3 hover:text-purple-500 text-purple-300"
+              onClick={() => buttonClicked('U3')}
+          >
+              Use this image
+          </button>
+          {/* <button className="bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl  p-3 hover:text-purple-500 text-purple-300">Edit this image</button> */}
+        </div>
+      )}
+ 
     </div>
 
     <div 
@@ -165,7 +167,7 @@ const editPageContent = () => {
         /> 
 )}
 
-{finalImage &&  (
+{/* {finalImage &&  (
   <Image src={finalImage} 
                     layout="fill"
                     objectFit="cover"
@@ -173,7 +175,7 @@ const editPageContent = () => {
                     className="rounded-lg z-10"
         /> 
 )}
-
+ */}
 
 
 {/* {imageMask && (
@@ -212,14 +214,37 @@ const editPageContent = () => {
 </div>
 
 </div>
-<div className="w-1/5 h-3/5 bg-green-300"></div>
-{/* {buttons.length > 0 && (
-  <div className="flex bg-white w-2/5 border rounded-lg space-x-2 mx-auto justify-evenly ">
-    {buttons.map(button => (
-  <button onClick={() => buttonClicked(button)} key={button} className="p-2 hover:bg-pink-400 rounded-full hover:text-white">{button}</button>
-    ))}
-  </div>
-)} */}
+<div className="flex-col w-1/6 h-full p-3 mx-auto ">
+      <div className="w-full h-1/3 mt-10  items-center justify-evenly space-y-2">
+        <button 
+            className= "bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl p-3 hover:text-purple-500 text-purple-300"
+            onClick={() => buttonClicked('U2')}
+        >
+          Use this image
+        </button>
+        {/* <button 
+            className="bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl  p-3 hover:text-purple-500 text-purple-300"
+            onClick={() => buttonClicked('V2')}
+        >
+            Edit this image
+        </button> */}
+      </div>
+      <div className="w-full h-1/3 mt-20  items-center justify-evenly space-y-2">
+        <button 
+            className= "bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl p-3 hover:text-purple-500 text-purple-300"
+            onClick={() => buttonClicked('U4')}
+            >
+              Use this image
+            </button>
+        {/* <button 
+          className="bg-white border-purple-300 rounded-lg hover:purple-500 hover:shadow-xl  p-3 hover:text-purple-500 text-purple-300"
+          onClick={() => buttonClicked('V4')}
+          >
+            Edit this image
+          </button> */}
+      </div>
+    </div>
+
 </div>
   )
 }

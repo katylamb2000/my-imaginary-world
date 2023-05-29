@@ -58,6 +58,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         await docRef.update({
           finalImage: imageUrl,
         });
+        if (page == 'page_1'){
+          const docRef = adminDb
+          .collection('users')
+          .doc(userId)
+          .collection('storys')
+          .doc(storyId)
+         
+    
+        await docRef.update({
+          thumbNail: imageUrl,
+        });
+        }
        }
 
     if (action === 'createHero') {
