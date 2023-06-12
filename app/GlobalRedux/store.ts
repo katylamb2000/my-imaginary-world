@@ -5,6 +5,7 @@ import storyBuilderActiveReducer from './Features/storyBuilderActiveSlice'
 import pageToEditReducer from './Features/pageToEditSlice';
 import viewCharacterReducer from './Features/viewCharacterSlice';
 import viewStoryReducer from './Features/viewStorySlice'
+import addTextBoxReducer from './Features/addTextBoxSlice'
 
 
 
@@ -13,7 +14,8 @@ export const store  = configureStore({
         storyBuilderActive: storyBuilderActiveReducer,
         pageToEdit: pageToEditReducer,
         viewCharacter: viewCharacterReducer, 
-        viewStory: viewStoryReducer
+        viewStory: viewStoryReducer,
+        addTextBox: addTextBoxReducer
     }
 })
 

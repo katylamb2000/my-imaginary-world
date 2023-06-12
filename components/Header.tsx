@@ -2,11 +2,13 @@
 
 import Image from "next/image"
 import { db } from '../firebase'
-import { useCollection } from 'react-firebase-hooks/firestore'
-import { collection, query, where } from "firebase/firestore";
+import { useCollection, useDocument, } from 'react-firebase-hooks/firestore'
+import { collection, query, where, doc } from "firebase/firestore";
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
+import { usePathname } from "next/navigation"
 import { HomeIcon, MapIcon, BriefcaseIcon, MagnifyingGlassCircleIcon, StarIcon  } from "@heroicons/react/24/solid";
-import { useSession } from "next-auth/react";
+
 import { signOut } from 'next-auth/react'
 import { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
@@ -15,11 +17,14 @@ import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import axios from "axios";
 const stripePromise = loadStripe(process.env.stripe_public_key || '');
 
-function Header(){
+function Header(){ 
     const { data: session} = useSession()
     const dispatch = useDispatch()
     const router = useRouter()
+    const pathname = usePathname()
     const [admin, setAdmin] = useState <null | any>(null)
+    const [storyId, setStoryId] = useState<null | string>(null)
+    const [pdf, setPdf] = useState<null | string>(null)
 
     const userEmail = session?.user?.email;
     const adminCollectionRef = userEmail ? collection(db, "users", userEmail, "Admin") : null;
@@ -42,6 +47,31 @@ function Header(){
         console.log('')
         router.push(`/admin/${admin.id}`)
     }
+        useEffect(() => {
+          if (!pathname) return;
+          const regex = /^\/story\/([a-zA-Z0-9]+)$/;
+          const id = regex.exec(pathname);
+        
+          if (id) {
+            const identifier = id[1];
+            setStoryId(identifier);  
+          } else {
+            console.log("No match");
+          }
+        }, [pathname])
+
+        const [story, storyLoading, storyError] = useDocument(
+          session?.user?.email && storyId
+            ? doc(db, 'users', session.user.email, 'storys', storyId)
+            : null
+        );
+    
+
+        useEffect(() => {
+          if (!story?.data()?.pdf) return;
+          // console.log('story', story.data())
+          setPdf(story!.data()!.pdf)
+        }, [story])
 
     const createCheckoutSession = async() => {
          const stripe = await stripePromise; 
@@ -82,6 +112,7 @@ return(
 <h1 className="text-2xl font-bold text-purple-600 text-center">My Imaginary World</h1>
 
 <div className="flex space-x-3">
+{pdf && (
 <button 
   role='link'
   disabled={!session}
@@ -90,7 +121,7 @@ return(
 
     Checkout
   </button>
-
+)}
 {admin && (
             <img src={`https://ui-avatars.com/api/?name=ADMIN`}
               onClick={() => goToAdminPage()}                            

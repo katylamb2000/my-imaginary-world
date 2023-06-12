@@ -1,6 +1,7 @@
 'use client'
 
 import SideBar from "../../../components/SideBar"
+import CreatePDF from "../../../components/CreatePDF"
 import MainCharacterFundamentalsForm from "../../../components/MainCharacterFundamentalsForm"
 import CharacterProfilePage from "../../../components/CharacterProfilePage"
 import CreateStoryOutline, { Character } from '../../../components/CreateStoryOutline';
@@ -16,13 +17,29 @@ import { useState, useEffect } from 'react'
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
 import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector, useDispatch } from "react-redux"
-import { setBaseStoryImagePromptCreated } from "../../GlobalRedux/Features/viewStorySlice"
+import { setBaseStoryImagePromptCreated, setTitle } from "../../GlobalRedux/Features/viewStorySlice"
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
 import CharacterScrollBar from "../../../components/CharacterScrollBar"
+import BookLayoutScrollBar from "../../../components/BookLayoutScrollBar"
+import BookLayoutBuilder from "../../../components/BookLayoutBuilder"
+import InsideOne from "../../../components/InsideOne"
+import Inside3 from "../../../components/Inside3"
+import Inside12 from "../../../components/Inside12"
+import Inside2 from "../../../components/Inside2"
+import Inside4 from "../../../components/Inside4"
+import Inside5 from "../../../components/Inside5"
+import Inside6 from "../../../components/Inside6"
+import Inside7 from "../../../components/Inside7"
+import Inside8 from "../../../components/Inside8"
+import Inside9 from "../../../components/Inside9"
+import Inside10 from "../../../components/Inside10"
+import Inside11 from "../../../components/Inside11"
+import Inside13 from "../../../components/Inside13"
+import Inside14 from "../../../components/Inside14"
 
 interface PageData {
-  id: string;
+  id: string | null;
   data: any; // Replace 'any' with the appropriate type for your page data
   // baseImagePromptCreated: Boolean
   // imagePromptCreated: boolean
@@ -54,7 +71,7 @@ function StoryPage() {
   const baseStoryImagePromptCreated = useSelector((state: RootState) => state.viewStory.baseStoryImagePromptCreated)
   const heroImage = useSelector((state: RootState) => state.viewCharacter.characterImage)
   const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
-
+  const [pageSelected, setPageSelected] = useState<string | null>(null)
 
   useEffect(() => {
     if (!pathname) return;
@@ -101,6 +118,11 @@ const [story, storyLoading, storyError] = useDocument(
     : null
 );
 
+// useEffect(() => {
+
+//   setTitle(story?.data()?.title)
+// }, [story])
+
   const [storyContent, storyContentloading, storyContenterror] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent') : null,
   );
@@ -133,7 +155,7 @@ useEffect(() => {
   // setStoryDetails(singleDocument.data())
   setStyle(singleDocument.data()!.style)
   setReadersAge(singleDocument.data()!.readersAge)
-  const hc = `${singleDocument.data()!.heroCharacter.name}  ${singleDocument.data()!.heroCharacter.imagePrompt}`
+  const hc = `${singleDocument.data()!.heroCharacter.name} - ${singleDocument.data()!.heroCharacter.imagePrompt}`
   setHeroCharacter(hc)
   
    console.log('singleDocument', singleDocument.data())
@@ -151,7 +173,10 @@ useEffect(() => {
       }))
       .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
     setSortedStoryContent(sortedPages);
+    console.log('this is sorted pages', sortedPages)
   }, [storyContent]);
+
+
 
   useEffect(() => {
     const storyText = sortedStoryContent.reduce((text, page) => {
@@ -160,11 +185,18 @@ useEffect(() => {
     setFullStory(storyText)
   }, [sortedStoryContent])
 
-
-
   useEffect(() => {
+    console.log('=====>>', storyBuilderActive)
+  }, [storyBuilderActive])
 
-  }, [])
+
+
+  // useEffect(() => {
+  //   console.log(storyBuilderActive)
+  //     if (storyBuilderActive === 'Cover Page') {
+  //       setPageSelected('coverPage')
+  //     }
+  // }, [storyBuilderActive])
 
   // const createAllImagePromptsInOneFellSwoop = async() => {
   //   console.log('dont create bsae or page prompts do all in one!', story?.data()?.story )
@@ -216,8 +248,6 @@ useEffect(() => {
     console.log(updatedPage);
   };
 
-
-
     // const sendSms = async () => {
     //   console.log('trying to send sms')
     //   const phoneNumber = '+447309693489'
@@ -244,15 +274,17 @@ useEffect(() => {
 
   return (
     <div className="flex w-screen bg-gray-50">
-
+{/* 
       {editStoryPage ? (
         <EditPageBar switchToEdit={() => setEditStoryPage(!editStoryPage)} updatePageText={updatePageText}  />
       ):
         <SideBar  storyContent={storyContent} switchToEdit={switchToEdit} />
-      }
+      } */}
+
+      <EditPageBar switchToEdit={() => setEditStoryPage(!editStoryPage)} updatePageText={updatePageText}  />
 
 
-    <div className='w-4/5 h-screen overflow-y-scroll'>
+    <div className='w-full h-screen overflow-y-scroll'>
       {storyBuilderActive == 'add character' && (
           <MainCharacterFundamentalsForm />
       )}
@@ -274,7 +306,7 @@ useEffect(() => {
       )}
 
 
-{storyBuilderActive == 'view story' && sortedStoryContent.map(page => (
+{/* {storyBuilderActive == 'view story' && sortedStoryContent.map(page => (
   storyId ? (
     <ViewStoryPage
       page={page}
@@ -284,7 +316,15 @@ useEffect(() => {
       storyBaseImagePrompt={storyBaseImagePrompt || ''}
       />
   ) : null
-))}
+))} */}
+
+{/* {storyBuilderActive == 'view story' && storyId && (
+
+    <CreatePDF story={sortedStoryContent} storyId={storyId} fontColor="0,0,0" fontSizeSize={12}/>
+
+)}  */}
+
+<BookLayoutScrollBar />
 
     {/* {storyBuilderActive == 'view story' && (
       <div className="w-full h-24 items-center justify-center flex space-x-4">
@@ -309,6 +349,68 @@ useEffect(() => {
 
       {storyBuilderActive == 'create story outline' && (
          <CreateStoryOutline characters={characters || []} />
+      )}
+
+      {storyBuilderActive === 'Cover Page' && (
+        <BookLayoutBuilder title={story?.data()?.title} coverImage={story?.data()?.coverImage} story={story?.data()?.story} storyId={storyId} heroDescription={heroCharacter} style={style}  />
+      )}
+
+      {storyBuilderActive == "Inside 1" && (
+        <InsideOne sortedStoryContent={sortedStoryContent} />
+      )}
+
+      {storyBuilderActive == "Inside 2" && (
+        <Inside2 sortedStoryContent={sortedStoryContent} />
+      )}
+
+      {storyBuilderActive == "Inside 3" && (
+        <Inside3 sortedStoryContent={sortedStoryContent} />
+      )}
+
+      {/* {storyBuilderActive == "Inside 4" && (
+        <Inside4 sortedStoryContent={sortedStoryContent} />
+      )}
+
+      {storyBuilderActive == "Inside 5" && (
+        <Inside5 sortedStoryContent={sortedStoryContent} />
+      )}
+
+{storyBuilderActive == "Inside 6" && (
+        <Inside6 sortedStoryContent={sortedStoryContent} />
+      )}
+
+{storyBuilderActive == "Inside 7" && (
+        <Inside7 sortedStoryContent={sortedStoryContent} />
+      )}
+
+{storyBuilderActive == "Inside 8" && (
+        <Inside8 sortedStoryContent={sortedStoryContent} />
+      )} */}
+
+{storyBuilderActive == "Inside 9" && (
+        <Inside9 />
+      )}
+
+{storyBuilderActive == "Inside 10" && (
+        <Inside10 />
+      )}
+
+{storyBuilderActive == "Inside 11" && (
+        <Inside11 />
+      )}
+
+
+{storyBuilderActive == "Inside 12" && (
+        <Inside12 />
+      )}
+
+
+{storyBuilderActive == "Inside 13" && (
+        <Inside13 />
+      )}
+
+{storyBuilderActive == "Inside 14" && (
+        <Inside14 />
       )}
 
       </div>

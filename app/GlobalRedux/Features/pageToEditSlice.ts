@@ -12,7 +12,7 @@ export interface PageToEditSlice {
 const initialState: PageToEditSlice = {
     id: '',
     text: '', 
-    textColor: '',
+    textColor: 'white',
     textSize: 'text-xl'
 }
 

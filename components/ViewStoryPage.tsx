@@ -6,10 +6,13 @@ import { useSession } from 'next-auth/react'
 import axios from "axios";
 import type { RootState } from '../app/GlobalRedux/store';
 import { useSelector, useDispatch } from 'react-redux';
-import { setId, setText } from '../app/GlobalRedux/Features/pageToEditSlice'
+import { setId, setText, setTextColor, setTextSize } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { addDoc, collection, serverTimestamp, doc, updateDoc } from "firebase/firestore"
 import { db } from '../firebase'
 import RequestQueue from '../lib/requestQueue'
+import Draggable from 'react-draggable';
+
+
 
 type Props = {
     page: any,
@@ -24,6 +27,7 @@ function ViewStoryPage({ page, imagePrompts, storyId, storyBaseImagePrompt }: Pr
   const { data: session } = useSession()
   const dispatch = useDispatch()
   const [loading, setLoading] = useState(false)
+  const [editPage, setEditPage] = useState(false)
   const [thumbnailImage, setThumbnailImage] = useState<null | string>(null)
   const [image, setImage] = useState<null | string>(null)
   const [finalImage, setFinalImage] = useState<null | string>(null)
@@ -36,12 +40,13 @@ function ViewStoryPage({ page, imagePrompts, storyId, storyBaseImagePrompt }: Pr
   const [buttons, setButtons] = useState([])
   const [showChoiceButtons, setShowChoiceButtons] = useState<boolean>(false)
   const [imageCommandSent, setImageCommandSent] = useState(false);
+  const [color, setColor] = useState('white')
   const requestQueue = new RequestQueue(3); // Initialize the request queue with 3 concurrent requests.
 
 useEffect(() => {
   if (page.data.imageChoices && page.data.buttons[0] == 'U1') {
     console.log('we have image choices')
-   
+    setImage(page.data.imageChoices);
     setShowChoiceButtons(true)
   } else if (page.data.imageChoices && page.data.buttons[0] !== 'U1') {
     setImage(page.data.imageChoices);
@@ -117,10 +122,28 @@ const pageSelected = () => {
     // dispatch(setId(page.id));
   }
 
-const editPageContent = () => {
-  console.log(page.data.page)
+
+const editPageText = () => {
+  setEditPage(!editPage)
   dispatch(setText(page.data.page));
+  dispatch(setId(page.id));
+  if (!page.textColor){
+    console.log('NO TEXT COLOR YET')
+    dispatch(setTextColor('text-white'))
+  }
+  if (page.textColor){
+    console.log('GOT A  TEXT COLOR ')
+    dispatch(setTextColor(page.textColor))
+  }
+
 }
+
+useEffect(() => {
+  console.log('selected color', selectedPageTextColor)
+  setColor(selectedPageTextColor)
+}, [selectedPageTextColor])
+
+
 
   return (
   <div className="h-full w-full bg-gray-100 flex" >
@@ -167,38 +190,16 @@ const editPageContent = () => {
         /> 
 )}
 
-{/* {finalImage &&  (
-  <Image src={finalImage} 
-                    layout="fill"
-                    objectFit="cover"
-                    alt=''
-                    className="rounded-lg z-10"
-        /> 
-)}
- */}
+
+        <Draggable bounds='parent'>
+          <button 
+              onClick={editPageText}
+              className={`text-${color} absolute bottom-10 text-2xl p-4 z-50  hover:scale-110 cursor-text `}  >
+              {page.data.page}
+          </button>
+        </Draggable>
 
 
-{/* {imageMask && (
-  <Image src={'https://firebasestorage.googleapis.com/v0/b/my-imaginary-world-b5705.appspot.com/o/whiteBottomCloudBorder.png?alt=media&token=97b97e01-2f13-4f28-b758-0d6d3f304372'} 
-                    layout="fill"
-                    objectFit="cover"
-                    alt=''
-                    className="rounded-lg z-10 blur-sm "
-        /> 
-)}    */}
-
-
-<div className="bg-red-100 z-50"> 
-      {selectedPageId == page.id ? (
-        <p className={`cursor-pointer ${selectedPageTextColor === '' ? 'text-purple-600' : `${selectedPageTextColor}` } text-2xl absolute bottom-10 p-4 z-50`}
-            // onClick={() => editPageContent(page)}
-          >{page.data.page}
-        </p>
-        ): 
-        <p  className=" text-purple-400 absolute bottom-10 text-2xl p-4 z-50  " >
-            {page.data.page}
-        </p>
-      }
       <div className="grid grid-cols-4">
       {/* <p className='italic text-sm col-span-3 text-blue-600'>{storyBaseImagePrompt}</p> */}
 
@@ -211,7 +212,7 @@ const editPageContent = () => {
         send prompt to midjounrey api
       </button>
       </div>
-</div>
+{/* </div> */}
 
 </div>
 <div className="flex-col w-1/6 h-full p-3 mx-auto ">
@@ -244,6 +245,8 @@ const editPageContent = () => {
           </button> */}
       </div>
     </div>
+
+
 
 </div>
   )

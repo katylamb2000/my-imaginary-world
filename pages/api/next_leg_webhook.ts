@@ -46,6 +46,21 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      });
     }
 
+    if (action === 'imagineCoverImage') {
+      const docRef = adminDb
+        .collection('users')
+        .doc(userId)
+        .collection('storys')
+        .doc(storyId)
+  
+      await docRef.update({
+        coverImage: imageUrl,
+        imagePromptContent: content,
+        buttonMessageId,
+        buttons
+      });
+     }
+
     if (action === 'button') {
         const docRef = adminDb
           .collection('users')

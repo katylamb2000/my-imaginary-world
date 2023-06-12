@@ -43,7 +43,7 @@ function HomePage() {
   return (
     
   
-    <div className="bg-purple-300 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 min-h-screen overflow-y-scroll justify-center py-12 px-4 mx-auto text-white text-center flex-col w-full"> 
+    <div className="bg-purple-300 grid grid-cols-2 md:grid-cols-3  min-h-screen overflow-y-scroll justify-center py-12 px-4 mx-auto text-white text-center flex-col w-full"> 
         {storys?.docs.map(story => {
             const storyData = story.data();
             const mappedStory: Story = {
