@@ -4,6 +4,8 @@ import Link from "next/link"
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, usePathname } from 'next/navigation'
+import { useDispatch } from "react-redux" 
+import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import StoryThumbnail from '../components/StoryThumbnail'
 import { addDoc, collection, serverTimestamp, orderBy } from "firebase/firestore"
 import { db } from "../firebase"
@@ -23,6 +25,7 @@ function HomePage() {
     const [storyId, setStoryId] = useState<null | string>(null);
     const pathname = usePathname()
     const router = useRouter()
+    const dispatch = useDispatch()
     const { data: session } = useSession()
 
 
@@ -32,6 +35,8 @@ function HomePage() {
           createdAt: serverTimestamp(), 
           fullImagePrompt: null
       });
+      dispatch(setName('create story outline'))
+  
       router.push(`/story/${doc.id}`)
     }
 
@@ -39,10 +44,8 @@ function HomePage() {
       session && collection(db, 'users', session?.user?.email!, 'storys'),
     )
 
-
   return (
     
-  
     <div className="bg-purple-300 grid grid-cols-2 md:grid-cols-3  min-h-screen overflow-y-scroll justify-center py-12 px-4 mx-auto text-white text-center flex-col w-full"> 
         {storys?.docs.map(story => {
             const storyData = story.data();
@@ -54,12 +57,9 @@ function HomePage() {
               baseImagePromptCreated: storyData.baseImagePromptCreated || false,
             };
           
-
             return <StoryThumbnail key={story.id} id={story.id} story={mappedStory} />;
         
           })}     
-
-  
 
           <button
             className='w-48 h-48 rounded-lg bg-pink-600 text-center items-center justify-center align-center'

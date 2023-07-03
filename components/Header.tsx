@@ -18,7 +18,7 @@ import axios from "axios";
 const stripePromise = loadStripe(process.env.stripe_public_key || '');
 
 function Header(){ 
-    const { data: session} = useSession()
+    const { data: session } = useSession()
     const dispatch = useDispatch()
     const router = useRouter()
     const pathname = usePathname()
@@ -32,6 +32,20 @@ function Header(){
     const adminQuery = adminCollectionRef ? query(adminCollectionRef) : null;
 
     const [adminDocs, adminLoading, adminError] = useCollection(adminQuery);
+    console.log("session", session)
+
+    const [user, loading, error] = useDocument(
+      session?.user?.email
+        ? doc(db, 'users', session.user.email)
+        : null
+    );
+
+    useEffect(() => {
+    
+      if (user?.data()?.isAdmin){
+        setAdmin(true)
+      }
+    }, [user, session, loading])
 
     useEffect(() => {
         if (!adminLoading && adminDocs && adminDocs.docs.length > 0) {
@@ -45,7 +59,7 @@ function Header(){
 
     const goToAdminPage = () => {
         console.log('')
-        router.push(`/admin/${admin.id}`)
+        router.push(`/admin/${userEmail}`)
     }
         useEffect(() => {
           if (!pathname) return;
@@ -94,7 +108,7 @@ function Header(){
         }
 
   const goHome = () => {
-      dispatch(setName('view story'))
+      dispatch(setName(''))
       router.push('/')
     }
 

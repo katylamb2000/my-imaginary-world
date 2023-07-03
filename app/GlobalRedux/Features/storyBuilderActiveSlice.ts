@@ -7,7 +7,7 @@ export interface StoryBuilderActiveSlice {
 }
 
 const initialState: StoryBuilderActiveSlice = {
-    name: 'Cover Page'
+    name: ''
    
 }
 

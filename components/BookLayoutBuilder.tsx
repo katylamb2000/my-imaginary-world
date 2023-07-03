@@ -24,7 +24,7 @@ function BookLayoutBuilder({ title, coverImage, story, heroDescription, style, s
 
   const getCoverImagePrompt = async() => {
     console.log('get the story and ask for a cover image prompt', story )
-    const prompt = `Create a prompt for a story image generator - the full story is ${story}. The hero character is ${heroDescription} The style to be referenced is ${style} `
+    const prompt = `Create a prompt for a story image generator - the full story is ${story}. The hero character is ${heroDescription} The style to be referenced is ${style}. You do not need to give the characters name in the prompt only a description of the story. Also do no start the prompt with "Prompt:" you can just write as a natural sentence. Please make clear the style of illustration to use with reference to a specific illustrator.  `
   
     try{
      const response = await fetch('/api/createCoverImagePrompt', {
@@ -53,10 +53,38 @@ function BookLayoutBuilder({ title, coverImage, story, heroDescription, style, s
   }
 
   useEffect(() => {
-    createCoverImage()
+    // createCoverImage()
+
+    // sendSmsWithCoverImageDetails()
+    console.log("will send sms")
   }, [coverImagePrompt])
 
+      const sendSmsWithCoverImageDetails = async () => {
+      console.log('trying to send sms')
+      const phoneNumber = '+447309693489'
+      const message = `you have a new request for a cover Image!: ${coverImagePrompt}. User: ${session!.user!.email}. StoryID: ${storyId}. `
+      const toEmail = 'katylamb2000@gmail.com'
+      try {
+        const response = await fetch("/api/sendSms", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ toPhoneNumber: phoneNumber, message, toEmail }),
+        });
+  
+        if (response.ok) {
+          console.log("SMS and email sent successfully!");
+        } else {
+          console.error("Error sending SMS or email");
+        }
+      } catch (error) {
+        console.error("Error sending SMS or email:", error);
+      }
+    };
+
   const createCoverImage = async() => {
+    if (!session || !storyId || !coverImagePrompt) return;
     console.log('this is the cover image prompt from sate', coverImagePrompt)
       // setLoading(true)
       var data = JSON.stringify({

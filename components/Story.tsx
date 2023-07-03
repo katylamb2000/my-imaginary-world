@@ -72,62 +72,62 @@ useEffect(() => {
 }, [pages])
 
 const generatePrompts = async () => {
-      const imagePromptsPrompt = `create ${pages.length} ai art generator promps for this story. they should all have the same style and characters throughout: ${story.story}
-  Your response should be structured in this way
-  Title: {{title}}
+  //     const imagePromptsPrompt = `create ${pages.length} ai art generator promps for this story: ${story}. The story is for a ${age} year old ${gender}. Once you select the style of the image this should be explicity mentioned on the prompt for each page. Once you have decided how to describe the character  the character hey should all have the same style and characters throughout: ${story.story}
+  // Your response should be structured in this way
+  // Title: {{title}}
   
-  Page 1:
-  {{page1 image prompt}}
+  // Page 1:
+  // {{page1 image prompt}}
 
-  Page 2:
-  {{page2 image prompt}}
+  // Page 2:
+  // {{page2 image prompt}}
  
-  Page 3:
-  {{page3 image prompt}}
+  // Page 3:
+  // {{page3 image prompt}}
 
-  Page 4:
-  {{page4 image prompt}}
+  // Page 4:
+  // {{page4 image prompt}}
 
-  Page 5:
-  {{page5 image prompt}}
+  // Page 5:
+  // {{page5 image prompt}}
 
-  Page 6:
-  {{page6 image prompt}}
+  // Page 6:
+  // {{page6 image prompt}}
 
-  Page 7:
-  {{page7 image prompt}}
+  // Page 7:
+  // {{page7 image prompt}}
 
-  Page 8:
-  {{page8 image prompt}}
+  // Page 8:
+  // {{page8 image prompt}}
 
-  Page 9:
-  {{page9 image prompt}}
+  // Page 9:
+  // {{page9 image prompt}}
 
-  Page 10:
-  {{page10 image prompt}}   `
+  // Page 10:
+  // {{page10 image prompt}}   `
       
-          try{
-            setLoading(true)
-           const response = await fetch('/api/createStoryImagePrompts', {
-              method: 'POST', 
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({
-                prompt: imagePromptsPrompt, 
-                model: 'text-davinci-003', 
-                session,
-                storyId: storyId
-              }),
-            });
-            const data = await response.json();
-            console.log('this is the story, need to save title to story', data.answer)
-            setLoading(false)
-          }catch(err){
-            console.log(err)
-            setLoading(false)
-          }
-    }
+  //         try{
+  //           setLoading(true)
+  //          const response = await fetch('/api/createStoryImagePrompts', {
+  //             method: 'POST', 
+  //             headers: {
+  //               'Content-Type': 'application/json'
+  //             },
+  //             body: JSON.stringify({
+  //               prompt: imagePromptsPrompt, 
+  //               model: 'text-davinci-003', 
+  //               session,
+  //               storyId: storyId
+  //             }),
+  //           });
+  //           const data = await response.json();
+  //           console.log('this is the story, need to save title to story', data.answer)
+  //           setLoading(false)
+    //       }catch(err){
+    //         console.log(err)
+    //         setLoading(false)
+    //       }
+     }
           
   const editPageContent = (page: string, index: number) => {
     console.log('this is page', page, index)

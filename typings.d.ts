@@ -26,3 +26,12 @@ interface Character {
     skinColor: string;
     userId: string
 }
+
+interface PageProps {
+    sortedStoryContent: PageData[];
+    storyId: string | null;
+    pageId: string;
+    email: string | null | undefined;
+    story?: YourStoryType; // make optional with ?
+    imagePrompt?: YourImagePromptType; // make optional with ?
+  }

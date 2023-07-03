@@ -47,7 +47,7 @@ type Prompt = {
 };
 
 function CreateStoryOutline({ characters  }: Props) {
-  const [storyContent, setStoryContent] = useState<null | string>(null)
+  // const [storyContent, setStoryContent] = useState<null | string>(null)
   const [title, setTitle] = useState<null | string>(null)
   const [heroCharacterId, setHeroCharacterId] = useState<null | string>(null)
   const [heroCharacter, setHeroCharacter] = useState<null | Character>(null)
@@ -96,10 +96,20 @@ function CreateStoryOutline({ characters  }: Props) {
         dispatch(setCharacterImage(selectedCharacter.heroImage));
         dispatch(setCharacterImagePrompt(selectedCharacter.imagePrompt));
         setHeroCharacter(selectedCharacter)
-
       }
     }
   }, [heroCharacterId, characters]);
+
+  const [storyContent, storyContentloading, storyContenterror] = useCollection(
+    session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent') : null,
+  );
+
+  useEffect(() => {
+    if (!storyContent) return;
+    if (storyContent.docs){
+      console.log('this is storyContent ==========> ', storyContent.docs)
+    }
+  }, [storyContent])
   
   useEffect(() => {
     if (!pathname) return;
@@ -129,57 +139,25 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         }
     )
 
-    const notification = toast.loading('Hang tight! Your story is being whipped up!')
+const notification = toast.loading('Hang tight! Your story is being whipped up!')
+
+const storyPrompt = `Create an adventurous and humorous ${genre} story that will captivate a ${age} years old child. The story should embody the whimsical nature of ${style}, be set in the fantastic world of ${setting}, and incorporate ${favouriteThings} as key elements to generate fun and laughter.
+
+Our hero is ${heroDescription} - a character with a quirky twist that makes them unique and entertaining.
+
+The story must be structured into exactly 14 pages and a title page. The structure should be as follows:
+
+Title: 
+
+Page 1: 
+
+Page 2: 
+
+etc
+`;
+
     
-    const storyPrompt = `Generate a structured ${genre} story appropriate for ${age} years old in the style of ${style}. The story should be set in ${setting} and feature ${favouriteThings} as key elements.
-    The hero character is ${heroDescription}. 
-  
-    Title: {{title}}
-  
-    Page 1:
-    {{page1}}
- 
-    Page 2:
-    {{page2}}
-
-    Page 3:
-    {{page3}}
-
-       
-    `;
-
-  
-
-  
-    // Page 4:
-    // {{page4}}
-
-  
-    // Page 5:
-    // {{page5}}
-
-  
-    // Page 6:
-    // {{page6}}
-
-  
-    // Page 7:
-    // {{page7}}
-
-  
-    // Page 8:
-    // {{page8}}
-
-  
-    // Page 9:
-    // {{page9}}
-
-  
-    // Page 10:
-    // {{page10}} 
-    
-
-    try{
+try{
     const response = await fetch('/api/createStory', {
         method: 'POST', 
         headers: {
@@ -189,18 +167,16 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
             prompt: storyPrompt, 
             session: session,
             storyId: storyId, 
-            hero: heroDescription,
-            style: style
         }),
     })
-    // const data = await response.json();
-
+console.log('response from api', response)
     setLoading(false)
     toast.success('Your story has been created', {
             id: notification
         })
-
-        dispatch(setName('view story'))
+// if (response)
+// dispatch(setName('view story'))
+getImagePrompts()
 }catch(err){
   toast.error('FAIL', {
     id: notification
@@ -211,6 +187,64 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
 }
 }
 
+const getImagePrompts = async() => {
+    const imagePromptsPrompt = `create 14 ai art generator promps for this story: ${storyContent?.docs}. The story is for a ${age} year old ${gender}. Once you select the style of the image this should be explicity mentioned on the prompt for each page. Once you have decided how to describe the character  the character hey should all have the same style and characters throughout.
+    Your response should be structured in this way
+    Title: {{title}}
+    
+    Page 1:
+    {{page1 image prompt}}
+  
+    Page 2:
+    {{page2 image prompt}}
+   
+    Page 3:
+    {{page3 image prompt}}
+  
+    Page 4:
+    {{page4 image prompt}}
+  
+    Page 5:
+    {{page5 image prompt}}
+  
+    Page 6:
+    {{page6 image prompt}}
+  
+    Page 7:
+    {{page7 image prompt}}
+  
+    Page 8:
+    {{page8 image prompt}}
+  
+    Page 9:
+    {{page9 image prompt}}
+  
+    Page 10:
+    {{page10 image prompt}}   `
+        
+            try{
+              setLoading(true)
+             const response = await fetch('/api/createStoryImagePrompts', {
+                method: 'POST', 
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  prompt: imagePromptsPrompt, 
+                  model: 'text-davinci-003', 
+                  session,
+                  storyId: storyId
+                }),
+              });
+              const data = await response.json();
+              console.log('this is the story, need to save title to story', data.answer)
+              setLoading(false)
+              dispatch(setName('view story'))
+  }catch(err){
+    console.log(err)
+  }
+}
+
 useEffect(() => {
   if (!title) return;
   // updateStoryTitle()
@@ -218,14 +252,13 @@ useEffect(() => {
 
   return (
     <div className="bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4">
-    {storyContent ? (
-        
-    <div className='bg-white rounded-lg p-4 border border-gray-100'>
-      
+    {
+    storyContent &&
+    storyContent!.docs.length > 0 ? (
+      <div className='bg-white rounded-lg p-4 border border-gray-100'>
         <p className='p-4'>Got a  STORY</p>
-    </div>
-        
-        ): 
+      </div>
+          ): 
 
     <div className="max-w-md w-full space-y-8">
       <div>

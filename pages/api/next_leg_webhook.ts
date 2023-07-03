@@ -61,7 +61,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       });
      }
 
-    if (action === 'button') {
+    if (action === 'upscale') {
         const docRef = adminDb
           .collection('users')
           .doc(userId)

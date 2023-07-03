@@ -6,14 +6,20 @@ export interface PageToEditSlice {
     id: string,
     text: string,
     textColor: string,
-    textSize: string
+    textSize: string, 
+    imageUrl: string,
+    editText: string,
+    buttonId: String
 }
 
 const initialState: PageToEditSlice = {
     id: '',
     text: '', 
     textColor: 'white',
-    textSize: 'text-xl'
+    textSize: 'text-xl', 
+    imageUrl: '',
+    editText: 'wft is going on????',
+    buttonId: ''
 }
 
 export const PageToEditSlice = createSlice({
@@ -32,10 +38,19 @@ export const PageToEditSlice = createSlice({
         setTextSize: (state, action) => {
             state.textSize = action.payload;
         },
+        setImageUrl: (state, action) => {
+            state.imageUrl = action.payload;
+        },
+        setEditText: (state, action) => {
+            state.editText = action.payload;
+        },
+        setButtonId: (state, action) => {
+            state.buttonId = action.payload;
+        },
 
     }
 });
 
-export const { setId, setText, setTextColor, setTextSize } = PageToEditSlice.actions;
+export const { setId, setText, setTextColor, setTextSize, setImageUrl, setEditText, setButtonId } = PageToEditSlice.actions;
 
 export default PageToEditSlice.reducer;

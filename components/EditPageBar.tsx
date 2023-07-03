@@ -2,7 +2,7 @@ import type { RootState } from '../app/GlobalRedux/store';
 import {useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { useSession } from 'next-auth/react';
-import { setId, setText, setTextColor } from '../app/GlobalRedux/Features/pageToEditSlice'
+import { setId, setText, setTextColor, setEditText } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setAddTextBox } from '../app/GlobalRedux/Features/addTextBoxSlice';
 import { usePathname } from "next/navigation"
 import { ArrowDownCircleIcon, ArrowUpCircleIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/solid';
@@ -14,11 +14,13 @@ import { SketchPicker } from 'react-color'
 type Props = {
     updatePageText: any;
     switchToEdit: any;
-  
+
   }
+
 function EditPageBar({switchToEdit, updatePageText}: Props) {
     
     const selectedPageId = useSelector((state: RootState) =>  state.pageToEdit.id);
+    const editTextSelected = useSelector((state: RootState) =>  state.pageToEdit.editText);
     const selectedPageText = useSelector((state: RootState) =>  state.pageToEdit.text);
     const selectedPageTextColor = useSelector((state: RootState) =>  state.pageToEdit.textColor);
     const [storyId, setStoryId] = useState<string | null>(null)
@@ -81,9 +83,21 @@ const addText = () => {
 }
 
 const expandEditText = () => {
-    console.log(storyBuilderActive)
-    setOpenTextEditor(!openTextEditor)
+    console.log('ETS', editTextSelected)
+    // if (!selectedPageId.length) return;
+    console.log('i want to get the pageID', selectedPageId)
+    dispatch(setEditText(selectedPageId))
+
+    // setOpenTextEditor(!openTextEditor)
 }
+
+useEffect(() => {
+
+}, [])
+
+useEffect(() => {
+    console.log('EDIT TEXT SLEc', editTextSelected)
+}, [editTextSelected])
 
 useEffect(() => {
     updateFontSize()
@@ -110,11 +124,15 @@ const updateFontSize = async() => {
         console.log(err)
     }
 }
+
+    const getImages = () => {
+        console.log("Get images", storyId)
+    }
   return (
     <div className="flex">
         <div className="bg-white w-32 h-screen">
     
-        {selectedPageText !== '' && (
+        {/* {selectedPageText !== '' && (
             <div className='w-full'> 
                 <input value={selectedPageText} onChange={(e) => dispatch(setText(e.target.value))}
                         className='w-full p-4 m-4'
@@ -134,21 +152,8 @@ const updateFontSize = async() => {
                             DONE
                         </button>
                 </div>
-{/* 
-                <div className='grid grid-cols-3 bg-white w-2/3 space-4 mx-auto'>
-
-                    <div className='h-8 w-8 rounded-full bg-white border hover:shadow-2xl' onClick={() => dispatch(setTextColor('text-white'))} />
-                    <div className='h-8 w-8 rounded-full bg-black  hover:scale:110' onClick={() => dispatch(setTextColor('text-black'))} />
-                    <div className='h-8 w-8 rounded-full bg-red-500  hover:scale:110' onClick={() => dispatch(setTextColor('text-red-500'))} />
-
-                    <div className='h-8 w-8 rounded-full bg-purple-500  hover:scale:110' onClick={() => dispatch(setTextColor('text-purple-500'))} />
-                    <div className='h-8 w-8 rounded-full bg-green-500  hover:scale:110' onClick={() => dispatch(setTextColor('text-green-500'))} />
-                    <div className='h-8 w-8 rounded-full bg-blue-500  hover:scale:110' onClick={() => dispatch(setTextColor('text-blue-500'))} />
-
-                </div> */}
            
            <SketchPicker onChange={(e) => dispatch(setTextColor(`[${e.hex}]`))}/>
-           {/* <SketchPicker onChange={(e) => dispatch(setTextColor("text-[#0055D1]"))}/> */}
 
 
             <div className='flex bg-white'> 
@@ -157,9 +162,9 @@ const updateFontSize = async() => {
                 <ArrowUpCircleIcon className='h-14 w-14 text-purple-600 hover:opacity-50 hover:shadow-xl' onClick={increaseTextSize} />
 
             </div>
-    </div>
+    </div> */}
 
-        )}
+        {/* )} */}
 
         <div className='space-y-6 w-full my-12 '>
             <div className='w-full text-center group'>
@@ -167,9 +172,9 @@ const updateFontSize = async() => {
                 <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Add a layer</p>
             </div>
             
-            <div className='w-full text-center group'>
+            <div className='w-full text-center group' onClick={getImages}>
                 <PhotoIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
-                <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Edit Image</p>
+                <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Get Images</p>
             </div>
 
             <div className='w-full text-center group' onClick={addText}>

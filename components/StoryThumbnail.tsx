@@ -2,11 +2,13 @@
 
 import Image from "next/image"
 import { ChangeEvent, FormEvent, useState } from 'react'
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import type { RootState } from '../app/GlobalRedux/store';
 import { useSession } from "next-auth/react";
 import { useSelector, useDispatch } from 'react-redux';
 import { setBaseStoryImagePrompt, setBaseStoryImagePromptCreated } from '../app/GlobalRedux/Features/viewStorySlice'
+import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { XCircleIcon } from "@heroicons/react/24/solid";
@@ -26,13 +28,18 @@ type Props = {
   
 function StoryThumbnail({ id, story }: Props) {
   const dispatch = useDispatch()
+  const router = useRouter()
   const { data: session } = useSession()
   const [addTitle, setAddTitle] = useState<boolean>(false)
   const [titleInput, setTitleInput] = useState<string>('')
 
   const addStoryDetailsToRedux = () => {
-    dispatch(setBaseStoryImagePrompt(story.baseImagePrompt))
-    dispatch(setBaseStoryImagePromptCreated(story.baseImagePromptCreated))
+
+    // dispatch(setBaseStoryImagePrompt(story.baseImagePrompt))
+    // dispatch(setBaseStoryImagePromptCreated(story.baseImagePromptCreated))
+    dispatch(setName('view story'))
+    console.log('this is the function to dispatch setName')
+    router.push(`/story/${id}`)
   }
 
   const addNewTitle = () => {
@@ -66,11 +73,10 @@ function StoryThumbnail({ id, story }: Props) {
 
   return (
     <div>
-    <Link
+    <button
       onClick={addStoryDetailsToRedux}
-      href={`/story/${id}`}
       >
-        {story.image ? (
+      {story.image ? (
           <img src={story.image}         
           className="h-48 w-48 rounded-lg cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4" />
         ):
@@ -90,7 +96,7 @@ function StoryThumbnail({ id, story }: Props) {
               />
     </div>
 }
-         </Link>
+         </button>
 
 
       <div className=" flex mx-24 text-center justify-between">
