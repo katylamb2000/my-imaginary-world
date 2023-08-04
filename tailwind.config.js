@@ -1,27 +1,26 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: [
-    './pages/**/*.{js,ts,jsx,tsx}',
-    './components/**/*.{js,ts,jsx,tsx}',
-    './app/**/*.{js,ts,jsx,tsx}',
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
-      width: {
-        '120': '30rem',
-      },
-      height: {
-        '120': '30rem',
-      },
-      fontSize: {
-        '24': '24px',
-        '25': '25px',
-        '26': '26px',
-        '27': '27px',
-        '28': '28px',
-        '30': '30px',
-        // Add as many as you need
-      },
+      
+      // fontFamily: {
+      //   roboto: ['var(--font-roboto)'],
+      //   caesar: ['var(--font-caesar)'],
+      //   mystery: ['var(--font-mystery)'],
+      //   quicksand: ["var(--font-quicksand" ],
+      //   indieFlower: ["var(--font-indieFlower"],
+      //   amatic: ["var(--font-amatic"],
+      //   patrickHand:  ["var(--font-patrickHand"],
+      //   handlee:  ["var(--font-handlee"]
+      
+      // },
+    
     },
   },
   plugins: [],

@@ -139,9 +139,9 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         }
     )
 
-const notification = toast.loading('Hang tight! Your story is being whipped up!')
+const notification = toast.loading('Hang tight! Your story is being written!')
 
-const storyPrompt = `Create an adventurous and humorous ${genre} story that will captivate a ${age} years old child. The story should embody the whimsical nature of ${style}, be set in the fantastic world of ${setting}, and incorporate ${favouriteThings} as key elements to generate fun and laughter.
+const storyPrompt = `Create a 14 page adventurous and humorous ${genre} story that will captivate a ${age} years old child. The story should embody the whimsical nature of ${style}, be set in the fantastic world of ${setting}, and incorporate ${favouriteThings} as key elements to generate fun and laughter.
 
 Our hero is ${heroDescription} - a character with a quirky twist that makes them unique and entertaining.
 
@@ -167,6 +167,7 @@ try{
             prompt: storyPrompt, 
             session: session,
             storyId: storyId, 
+            hero: heroCharacter?.name
         }),
     })
 console.log('response from api', response)
@@ -176,7 +177,7 @@ console.log('response from api', response)
         })
 // if (response)
 // dispatch(setName('view story'))
-getImagePrompts()
+// getImagePrompts()
 }catch(err){
   toast.error('FAIL', {
     id: notification

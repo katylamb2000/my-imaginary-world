@@ -12,7 +12,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      const { imageUrl, originatingMessageId, content, ref, buttonMessageId, buttons, seed } = req.body;
 
      // Deserialize the ref field to extract storyId, userId, and page
-     const { storyId, userId, page, action, heroId } = ref;
+     const { storyId, userId, page, action, heroId, type } = ref;
      console.log('ACTION IS --', action)
 
  try{
@@ -29,22 +29,27 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         
           });
         }
-     if (action === 'imagine') {
-     const docRef = adminDb
-       .collection('users')
-       .doc(userId)
-       .collection('storys')
-       .doc(storyId)
-       .collection('storyContent')
-       .doc(page);
- 
-     await docRef.update({
-       imageChoices: imageUrl,
-       imagePromptContent: content,
-       buttonMessageId,
-       buttons
-     });
-    }
+   
+
+    if (action === 'imagine') {
+      const docRef = adminDb
+        .collection('users')
+        .doc(userId)
+        .collection('storys')
+        .doc(storyId)
+        .collection('storyContent')
+        .doc(page);
+
+        const imagePromptKey = `imagePrompt_${type}`; // Create the dynamic key
+
+  
+      await docRef.update({
+        imagePromptKey: imageUrl,
+        imagePromptContent: content,
+        buttonMessageId,
+        buttons
+      });
+     }
 
     if (action === 'imagineCoverImage') {
       const docRef = adminDb

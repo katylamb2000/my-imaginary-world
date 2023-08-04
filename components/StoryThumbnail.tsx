@@ -7,7 +7,7 @@ import Link from "next/link"
 import type { RootState } from '../app/GlobalRedux/store';
 import { useSession } from "next-auth/react";
 import { useSelector, useDispatch } from 'react-redux';
-import { setBaseStoryImagePrompt, setBaseStoryImagePromptCreated } from '../app/GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setStoryId } from '../app/GlobalRedux/Features/viewStorySlice'
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -38,6 +38,7 @@ function StoryThumbnail({ id, story }: Props) {
     // dispatch(setBaseStoryImagePrompt(story.baseImagePrompt))
     // dispatch(setBaseStoryImagePromptCreated(story.baseImagePromptCreated))
     dispatch(setName('view story'))
+    dispatch(setStoryId(id))
     console.log('this is the function to dispatch setName')
     router.push(`/story/${id}`)
   }
@@ -72,51 +73,64 @@ function StoryThumbnail({ id, story }: Props) {
   }
 
   return (
-    <div>
-    <button
-      onClick={addStoryDetailsToRedux}
-      >
-      {story.image ? (
-          <img src={story.image}         
-          className="h-48 w-48 rounded-lg cursor-pointer mb-2 hover:opactiy-50 mx-auto p-4" />
-        ):
-        // <div 
-        //   className='w-48 h-48 rounded-lg bg-pink-400 text-center items-center justify-center align-center'>
-        //     <p>{id}</p>
-        // </div>
-         
-    <div className="h-48 w-48 rounded-md cursor-pointer mb-2 hover:opacity-50 mx-auto p-4">
+<div className="flex flex-col items-center shadow-md mx-3 mt-6 rounded-sm overflow-hidden hover:scale-105 transition-transform duration-200 ease-in-out bg-white">
+  <button onClick={addStoryDetailsToRedux}>
+    {story.image ? (
+      <img
+        src={story.image}
+        className="w-full object-cover h-64"
+      />
+    ) : (
+      
+      <Image 
+        width={60}
+        height={60}
+        alt='/thumbnail'
+        className="w-full object-fit fill"
+        src={'https://cdn.discordapp.com/attachments/1103367080088191017/1112776230886965340/JimJ.Martin_Illustrate_Title_Sophia_and_the_Super_Sharky_Mermai_be2f358b-48c8-4fcb-b634-051fc8294d17.png'}
+      />
+    )}
+  </button>
 
-        <Image 
-              width={250}
-              height={250}
-              className="rounded-md"
-              alt='/thumbnail'
-              src={'https://cdn.discordapp.com/attachments/1103367080088191017/1112776230886965340/JimJ.Martin_Illustrate_Title_Sophia_and_the_Super_Sharky_Mermai_be2f358b-48c8-4fcb-b634-051fc8294d17.png'}
-              />
-    </div>
-}
-         </button>
-
-
-      <div className=" flex mx-24 text-center justify-between">
-      {story.title ? (
-          <p>{story.title}</p>
-        ):
-        addTitle ? (
+  <div className="p-4">
+    {story.title ? (
+      <div>
+        <p className="text-sm text-purple-600">{id}</p>
+        <h3 className="text-lg font-bold text-purple-700">{story.title}</h3>
+      </div>
+    ) : addTitle ? (
+      <div>
+        <p className="text-sm">{id}</p>
         <form onSubmit={handleSubmit}>
-          <input type='text' placeholder='story title' onChange={e => setTitleInput(e.target.value)} value={titleInput} className='text-gray-800' />
+          <input 
+            type='text' 
+            placeholder='story title' 
+            onChange={e => setTitleInput(e.target.value)} 
+            value={titleInput} 
+            className='w-full bg-transparent border-b border-gray-500 text-purple-700 py-2 mb-3 pl-2'
+          />
         </form>
-         )
-        : <button onClick={addNewTitle}>Add a story title</button>
-}
-  <div>
-  <XCircleIcon className="h-4 w-4 flex-end absolute text-green-300 hover:text-red-600 hover:scale-125" onClick={deleteStory} />
-  </div>
-  </div>
+      </div>
+    ) : (
+      <div>
+        <p className="text-sm">{id}</p>
+        <button 
+          className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded" 
+          onClick={addNewTitle}
+        >
+          Add a story title
+        </button>
+      </div>
+    )}
 
-</div> 
-
+    <div className="absolute top-0 right-0 p-2">
+      <XCircleIcon 
+        className="text-black hover:text-gray-600 h-5 w-5 cursor-pointer" 
+        onClick={deleteStory} 
+      />
+    </div>
+  </div>
+</div>
   )
 }
 

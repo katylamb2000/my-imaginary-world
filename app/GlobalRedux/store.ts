@@ -6,8 +6,15 @@ import pageToEditReducer from './Features/pageToEditSlice';
 import viewCharacterReducer from './Features/viewCharacterSlice';
 import viewStoryReducer from './Features/viewStorySlice'
 import addTextBoxReducer from './Features/addTextBoxSlice'
-
-
+import characterReducer from './Features/characterSlice';
+import improveImagesModalReducer from './Features/improveImagesModalSlice';
+import dragableFontEditorReducer from './Features/dragableFontEditorSlice';
+import getImagesModalReducer from './Features/getImagesModalSlice'
+import addTextModalReducer from './Features/addTextModalSlice';
+import editTextModalReducer from './Features/editTextModalSlice';
+import improveStoryModalReducer from './Features/improveStoryModalSlice'
+import userDetailsReducer from './Features/userDetailsSlice';
+import getPageImageModalReducer from './Features/getPageImageModal';
 
 export const store  = configureStore({
     reducer: {
@@ -15,7 +22,16 @@ export const store  = configureStore({
         pageToEdit: pageToEditReducer,
         viewCharacter: viewCharacterReducer, 
         viewStory: viewStoryReducer,
-        addTextBox: addTextBoxReducer
+        addTextBox: addTextBoxReducer,
+        characters: characterReducer,
+        improveImagesModal: improveImagesModalReducer,
+        imporoveStoryModal: improveStoryModalReducer,
+        fontEditor: dragableFontEditorReducer,
+        getImagesModal: getImagesModalReducer,
+        getPageImageModal: getPageImageModalReducer,
+        addTextModal: addTextModalReducer,
+        editTextModal: editTextModalReducer,
+        userDetails: userDetailsReducer
     }
 })
 

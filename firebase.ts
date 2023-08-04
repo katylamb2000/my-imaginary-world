@@ -27,5 +27,4 @@ const db = getFirestore(app)
 const storage = getStorage();
 const storageRef = ref(storage, 'some-child');
 
-console.log("STORAGE --> ", storage, storageRef)
 export { db, storage, ref, uploadBytes, getDownloadURL  }

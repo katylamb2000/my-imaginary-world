@@ -1,100 +1,177 @@
+
+
+import { adminDb, firebaseStorage } from "../../firebaseAdmin";
 import type { NextApiRequest, NextApiResponse } from "next";
+import openai from '../../lib/chatgpt';
 import query from "../../lib/createStoryApi";
-import admin from "firebase-admin";
-import { adminDb } from "../../firebaseAdmin";
-
-type Data = {
-  answer: string;
-  storyId: string;
-};
-
-// Type guard to check if the response has pages
-function hasPages(response: any): response is { title: string; pages: string[]; story: string } {
-  return 'pages' in response && 'title' in response && 'story' in response;
-}
+import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 
 export default async function createStory(
   req: NextApiRequest,
-  res: NextApiResponse<{ answer: { title: string; pages: string[]; story: string; } | { message: string } }>
+  res: NextApiResponse<{ answer: { message: string } | { data: { title: string | undefined; pages: string[]; story: string; } } }>
 ) {
-  const { session, storyId, prompt } = req.body
-  console.log(session, storyId, prompt )
-  // if (!prompt) {
-  //   res.status(400).json({ answer: { message: 'Missing prompt' } });
-  //   return;
-  // }
+  const { session, storyId, prompt, hero } = req.body;
 
-  // if (!session) {
-  //   res.status(400).json({ answer: { message: 'Missing session' }});
-  //   return;
-  // }
+  console.log('this is the req body', session, storyId, prompt, hero)
 
-  // if (!storyId) {
-  //   res.status(400).json({ answer: { message: 'Missing storyId' } });
-  //   return;
-  // }
-
-  // ChatGPT query
-  const response = await query(prompt);
-  console.log('this is reposnse in create story =====>', response)
-
-  // Save the story data to Firestore
-  if (hasPages(response)) {
-    try {
-      for (let i = 0; i < response.pages.length; i++) {
-        let sceneDescription = response.pages[i];
-        let artInstruction = '';
-        let colorPalette = 'vibrant warm colors'
-
-        // Create a separate document for each page
-        const pageRequest = {
-          page: sceneDescription,
-          pageNumber: i + 1,
-          // imagePrompt: imagePrompt,
-          fontSize: 24,
-          fontColor: 'black'
-        };
-      
-        await adminDb
-              .collection("users")
-              .doc(session.user.email)
-              .collection('storys')
-              .doc(storyId)
-              .collection('storyContent')
-              .doc(`page_${i + 1}`)
-              .set(pageRequest);
-     }
-
-      await adminDb
-      .collection("users")
-      .doc(session.user.email)
-      .collection('storys')
-      .doc(storyId)
-      .collection('storyContent')
-      .doc(`full story`)
-      .set(response);
-
-
-      // Save the story title and story
-      // await adminDb
-      //   .collection("users")
-      //   .doc(session.user.email)
-      //   .collection("storys")
-      //   .doc(storyId)
-      //   .update({
-      //     title: response.title,
-      //     story: response.story
-      //   });
-
-    } catch (error) {
-      console.error('Error writing to Firestore:', error);
-      res.status(500).json({ answer: { message: 'Error occurred while saving to the database.' }});
-      return;
-    }
-  } else {
-    res.status(500).json({ answer: { message: 'Failed to create pages' }});
+  if (!prompt || !session || !storyId) {
+    res.status(400).json({ answer: { message: "Incomplete request data." } });
     return;
   }
 
-  res.status(200).json({ answer: response });
+  // ChatGPT query
+  const response = await query(prompt);
+  console.log('this is the story response', response)
+  if (!response.success) {
+    console.error(response.message);
+    res.status(500).json({ answer: { message: response.message ?? "An unknown error occurred." } });
+    return;
+  }
+
+  if (!response.data) {
+    console.error("Response data is undefined.");
+    res.status(500).json({ answer: { message: "Response data is undefined." } });
+    return;
+  }
+
+  // Save the story data to Firestore
+  const { pages, title, story } = response.data;
+
+  const batch = adminDb.batch();
+  for (let index = 0; index < pages.length; index++) {
+    const page = pages[index];
+
+    const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/21m00Tcm4TlvDq8ikWAM`, {
+      method: "POST",
+      headers: {
+        accept: "audio/mpeg",
+        "Content-Type": "application/json", 
+        "xi-api-key": 'b13a263b2185593267797af406d1be8f'
+      }, 
+      body: JSON.stringify({
+        text: page, 
+        voice_settings: {
+          stability: 0.2, 
+          similarity_boost: 0
+        }
+      })
+    });
+
+    if (!ttsResponse.ok) {
+      throw new Error("Something went wrong with the TTS API");
+    }
+
+    // Convert the received audio data to a buffer
+    const audioData = await ttsResponse.arrayBuffer();
+    const audioBuffer = Buffer.from(audioData);
+    const audioFileName = `${Date.now()}.mp3`;
+    const audioFile = firebaseStorage.file(`audioFiles/${audioFileName}`);
+
+    const blobStream = audioFile.createWriteStream();
+
+    let signedUrl = "";
+
+    await new Promise<void>((resolve, reject) => {
+      blobStream.on('error', (err) => {
+        console.error(err);
+        reject(err);
+      });
+    
+      blobStream.on('finish', async () => {
+        // const bucketName = firebaseStorage.bucket().name;
+        const fileName = audioFile.name;
+    
+        const publicUrl = `https://storage.googleapis.com/audioFiles/${fileName}`;
+        console.log(`The file is now publicly available at ${publicUrl}`);
+    
+        const [url] = await audioFile.getSignedUrl({
+          action: 'read',
+          expires: '03-17-2025'
+        });
+    
+        signedUrl = url;
+        console.log('Signed URL: ' + signedUrl);
+        resolve();
+      });
+    
+      // Now we're ready to write the file
+      blobStream.end(audioBuffer);
+    });
+    
+
+    const pageRequest = {
+        text: page,
+        pageNumber: index + 1,
+        audioUrl: signedUrl,
+    };
+
+    const pageRef = adminDb
+      .collection("users")
+      .doc(session.user.email)
+      .collection("storys")
+      .doc(storyId)
+      .collection("storyContent")
+      .doc(`page_${index + 1}`);
+      
+    batch.set(pageRef, pageRequest); // Set the pageRequest directly
+  }
+
+  const storyRef = adminDb
+    .collection("users")
+    .doc(session.user.email)
+    .collection("storys")
+    .doc(storyId);
+
+  batch.update(storyRef, {
+    fullImagePrompt: response.data,
+  });
+
+  await batch.commit();
+
+  // Generate character descriptions
+  const characterDescriptionPrompt = `This is a story: ${story}. Based on this story, could you provide a detailed physical description of each of the characters, excluding ${hero}, in the format: Character: {character name}, Description: {description}?`;
+  
+  let characterDescriptionResponse;
+  try {
+    characterDescriptionResponse = await openai.createCompletion({
+      model: "text-davinci-003",
+      prompt: characterDescriptionPrompt,
+      temperature: 0.9,
+      top_p: 1,
+      max_tokens: 1800,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+    });
+  } catch (error) {
+    console.error("Error with OpenAI API request:", error);
+    res.status(500).json({ answer: { message: "Error occurred while interacting with the OpenAI API." } });
+    return;
+  }
+
+  const characterDescriptions = characterDescriptionResponse?.data?.choices?.[0]?.text
+    ?.split('Character:')
+    ?.map(part => part.trim())
+    ?.filter(part => part.length > 0) 
+    ?.map(part => {
+        const [name, ...descriptionParts] = part.split('Description:');
+        return {
+          name: name.trim(),
+          description: descriptionParts.join('Description:').trim(),
+        };
+    }) ?? [];
+
+  // Save each character description to Firestore
+  for (let character of characterDescriptions) {
+    const characterRef = adminDb
+      .collection("users")
+      .doc(session.user.email)
+      .collection("storys")
+      .doc(storyId)
+      .collection("characters")
+      .doc(character.name);  // The document ID is now the character's name
+
+    await characterRef.set(character);
+  }
+
+  res.status(200).json({ answer: { data: response.data } });
 }

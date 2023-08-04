@@ -1,86 +1,15 @@
-// import type { NextApiRequest, NextApiResponse } from "next";
-// import imagePromtQuery from "../../lib/storyImagePrompts";
-// import admin from "firebase-admin";
-// import { adminDb } from "../../firebaseAdmin";
-
-// type Data = {
-//   answer: string;
-//   storyId: string;
-// };
-
-
-// export default async function createStoryImagePrompts(
-//   req: NextApiRequest,
-//   res: NextApiResponse<{ answer: string }>
-// ) {
-
-//   console.log(req.body);
-//   const { session, prompt, storyId, page } = req.body
-
-//   if (!page) {
-//     res.status(400).json({ answer: 'i dont have a page',  });
-//     return;
-//   }
-
-//   if (!prompt) {
-//     res.status(400).json({ answer: 'i dont have a prompt',  });
-//     return;
-//   }
-
-//   if (!session) {
-//     res.status(400).json({ answer: 'i dont have a session',  });
-//     return;
-//   }
-
-//   // ChatGPT query
-//   const response = await imagePromtQuery(prompt);
-
-//   // Update the story data in Firestore
-//   const docRef = adminDb
-//     .collection("users")
-//     .doc(session.user.email)
-//     .collection('storys')
-//     .doc(storyId)
-//     .collection('storyContent')
-//     .doc(page);
-
-//   await docRef.update({
-//     imagePrompt: response
-//   });
-
-//   res.status(200).json({ answer: response });
-// }
-
 import type { NextApiRequest, NextApiResponse } from "next";
-import imagePromtQuery from "../../lib/storyImagePrompts";
+// import query from "../../lib/createStoryApi";
+import imageQuery from "../../lib/storyImagePrompts";
 import admin from "firebase-admin";
 import { adminDb } from "../../firebaseAdmin";
 
-type Data = {
-  answer: string;
-  storyId: string;
-};
-
-
-type ResponseObject =
-  | string
-  | { title: string; pages: string[]; story: string }
-  | { message: string }
-  | { imagePrompt: string | undefined };
-
 export default async function createStoryImagePrompts(
   req: NextApiRequest,
-  res: NextApiResponse<{ answer: ResponseObject }>
-  ) {
-
+  res: NextApiResponse<{ answer: { message: string } | { data: { generalStyle: string | undefined; pages: { pageNumber: string, backgroundImage: string, characterCloseUp: string, object: string, wildCardImage: string }[] } } }>
+) {
   console.log(req.body);
-  const { session, prompt, storyId, page } = req.body
-
-
-  if (!page) {
-    res.status(400).json({ answer: { message: 'i dont have a page' } });
-    return;
-  }
+  const { session, prompt, storyId } = req.body
 
   if (!prompt) {
     res.status(400).json({ answer: { message: 'i dont have a prompt' } });
@@ -92,23 +21,54 @@ export default async function createStoryImagePrompts(
     return;
   }
 
-  // ChatGPT query
-  const response = await imagePromtQuery(prompt);
+  const response = await imageQuery(prompt);
+  console.log('this is the response', response.data)
 
-  // Update the story data in Firestore
-  const docRef = adminDb
-    .collection("users")
-    .doc(session.user.email)
-    .collection('storys')
-    .doc(storyId)
-    .collection('storyContent')
-    .doc(page);
+  const pages = response?.data?.pages;
 
-  await docRef.update({
-    imagePromptCreated: true,
-    imagePrompt: response
-  });
+  if (!pages) {
+    console.error("Pages data is undefined.");
+    res.status(500).json({ answer: { message: "Pages data is undefined." } });
+    return;
+  }
 
-  res.status(200).json({ answer: response });
+  try {
+    const batch = adminDb.batch();
+
+    for (let i = 0; i < pages.length; i++) {
+      try {
+        const cleanedPageString = pages[i].replace('undefined ', '');
+        const page: { pageNumber: string, backgroundImage: string, characterCloseUp: string, object: string, wildCardImage: string } = JSON.parse(cleanedPageString);
+
+        console.log("PAGE ~~~~~>>>", page)
+
+        const pageRef = adminDb
+            .collection("users")
+            .doc(session.user.email)
+            .collection("storys")
+            .doc(storyId)
+            .collection("images")
+            .doc(`page_${page.pageNumber}`);
+
+        batch.set(pageRef, {
+            'backgroundImage': page.backgroundImage,
+            'characterCloseUp': page.characterCloseUp,
+            'objectImage': page.object,
+            'wildcardImage': page.wildCardImage,
+            'pageNumber': page.pageNumber
+        });
+
+
+      } catch (error) {
+        console.error("Error while processing page: ", error);
+      }
+
+    }
+    await batch.commit();
+    res.status(200).json({ answer: { message:  "Data successfully saved." } });
+  
+} catch (error) {
+    console.error("Error while saving data: ", error);
+    res.status(500).json({ answer: { message: "An error occurred while saving data." } });
 }
-
+}

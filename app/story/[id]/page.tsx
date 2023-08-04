@@ -1,4 +1,5 @@
-'use client'
+'use client' 
+
 
 import SideBar from "../../../components/SideBar"
 import CreatePDF from "../../../components/CreatePDF"
@@ -11,24 +12,40 @@ import EditPageBar from "../../../components/EditPageBar"
 import Story from "../../../components/Story"
 import { useSession } from 'next-auth/react'
 import { usePathname } from "next/navigation"
-import { addDoc, collection, serverTimestamp, updateDoc, doc, QueryDocumentSnapshot } from "firebase/firestore"
+import { addDoc, collection, serverTimestamp, updateDoc, doc, QueryDocumentSnapshot, DocumentData, QuerySnapshot, getDocs } from "firebase/firestore"
 import { db } from '../../../firebase'
 import { useState, useEffect } from 'react'
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
 import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector, useDispatch } from "react-redux"
-import { setBaseStoryImagePromptCreated, setTitle } from "../../GlobalRedux/Features/viewStorySlice"
+import { setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
+import { addCharacters, addCharacter } from "../../GlobalRedux/Features/characterSlice"
+import { setBaseStoryImagePromptCreated, setTitle, setFullStory } from '../../GlobalRedux/Features/viewStorySlice'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
 import CharacterScrollBar from "../../../components/CharacterScrollBar"
 import BookLayoutScrollBar from "../../../components/BookLayoutScrollBar"
 import BookLayoutBuilder from "../../../components/BookLayoutBuilder"
-
+import ImproveImagesModal from "../../../components/ImproveImagesModal"
+import BookCover from "../../../components/BookCover"
 import InsidePage from "../../../components/InsidePage"
+import GetImagesModal from "../../../components/GetImagesModal"
+import AddTextModal from "../../../components/AddTextModal"
+import EditTextModal from "../../../components/EditTextModal"
+import ImproveStoryModal from "../../../components/ImproveStoryModal"
+import GetPageImageModal from "../../../components/GetPageImageModal"
+import BookPreview from "../../../components/BookPreview"
+import TextEditorToolBar from "../../../components/TextEditorToolBar"
+import { identityMatrix } from "pdf-lib/cjs/types/matrix"
+import { setId } from "../../GlobalRedux/Features/pageToEditSlice"
 
 interface PageData {
   id: string | null;
-  
+  data: any; // Replace 'any' with the appropriate type for your page data
+}
+
+interface ImageData {
+  id: string | null;
   data: any; // Replace 'any' with the appropriate type for your page data
 }
 
@@ -39,14 +56,15 @@ function StoryPage() {
   const [storyBaseImagePrompt, setStoryBaseImagePrompt] = useState<null | string>(null)
   const [gettingBasePrompt, setGettingBasePrompt] = useState(false)
   const [docId, setDocId] = useState<null | string>(null)
-  const [fullStory, setFullStory] = useState('')
+  // const [fullStory, setFullStory] = useState('')
   const [storyId, setStoryId] = useState<null | string>(null)
-  const [style, setStyle] = useState('')
+  // const [style, setStyle] = useState('')
   const [readersAge, setReadersAge] = useState('')
   const [heroCharacter, setHeroCharacter] = useState<null | any>(null)
   const [imagePrompts, setImagePrompts] = useState<any[]>([]);
   const [content, setContent] = useState<null | any>(null)
   const [sortedStoryContent, setSortedStoryContent] = useState<PageData[]>([]);
+  const [sortedImageIdeas, setSortedImageIdeas] = useState<ImageData[]>([]);
   const [storyContentId, setStoryContentId]= useState<null | string>(null)
   const [editStoryPage, setEditStoryPage] = useState(false)
   const [pagesProcessed, setPagesProcessed] = useState<string[]>([]);
@@ -57,8 +75,11 @@ function StoryPage() {
   // const baseStoryImagePrompt = useSelector((state: RootState) => state.viewStory.baseStoryImagePrompt)
   const baseStoryImagePromptCreated = useSelector((state: RootState) => state.viewStory.baseStoryImagePromptCreated)
   const heroImage = useSelector((state: RootState) => state.viewCharacter.characterImage)
+  const editTextId = useSelector((state: RootState) => state.editTextModal.editTextPageId)
   const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
   const [pageSelected, setPageSelected] = useState<string | null>(null)
+  const userEmail = session?.user?.email;
+  const storyIdValue = storyId;
 
   useEffect(() => {
     if (!pathname) return;
@@ -73,6 +94,30 @@ function StoryPage() {
     }
   }, [pathname])
 
+  let aiAssitantMessages: QuerySnapshot<DocumentData> | undefined;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!userEmail || !storyId) return;
+      const messagesRef = collection(db, 'users', userEmail, 'storys', storyId, 'aiMessages');
+      const querySnapshot = await getDocs(messagesRef);
+      aiAssitantMessages = querySnapshot;
+    };
+    fetchData();
+  }, [storyId, userEmail]);
+
+  useEffect(() => {
+    console.log('MESSAGES =====>', aiAssitantMessages?.docs);
+  }, [aiAssitantMessages]);
+
+  useEffect(() => {
+    console.log("page id ---> ", selectedPageId)
+    if (storyBuilderActive == 'InsidePage' && selectedPageId == ''){
+      dispatch(setId('page_1'))
+    }
+  }, [selectedPageId])
+
+  // Rest of your component code
 
   const [charactersSnapshot, characterLoading, characterError] = useCollection(
     session && collection(db, 'users', session?.user?.email!, 'characters'),
@@ -99,20 +144,56 @@ function StoryPage() {
 
 })) ?? [];
 
+const [images, imagesLoading, imagesError] = useCollection(
+  session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'images') : null,
+);
+
+useEffect(() => {
+  if (!images?.docs.length) return;
+
+  console.log('IMAGES ==> ', images.docs)
+
+  const sortedImages = images.docs
+    .map(doc => ({
+      id: doc.id,
+      data: doc.data(),
+    }))
+    .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
+  // setSortedImContent(sortedPages);
+  console.log('THESE ARE THE sorted Images', sortedImages)
+  setSortedImageIdeas(sortedImages)
+  sortedImages.map(image => {
+    
+    console.log('1', image.data.backgroundImage, '2', image.data.wildcardImage)
+    if (!image.data.backgroundImageUrl){
+      console.log('no url yet')
+    }
+  })
+}, [images]);
+
 const [story, storyLoading, storyError] = useDocument(
   session?.user?.email && storyId
     ? doc(db, 'users', session.user.email, 'storys', storyId)
     : null
 );
 
+useEffect(() => {
+  
+  const fullStory = story?.data()?.fullImagePrompt?.story;
+  dispatch(setFullStory(fullStory));
+  // console.log('STORY ====> ', fullStory);
+}, [story])
+
   const [storyContent, storyContentloading, storyContenterror] = useCollection(
-    session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyContent') : null,
+    session?.user?.email && storyId ? collection(db, 'users', session?.user.email, 'storys', storyId, 'storyContent') : null,
   );
 
 
   const [storyOutline, storyOutlineLoading, storyOutlineError] = useCollection(
-    session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'storyOutline') : null,
+    session?.user?.email && storyId ? collection(db, 'users', session?.user.email, 'storys', storyId, 'storyOutline') : null,
   );
+
+
 
   let documentID = "";
 
@@ -126,22 +207,59 @@ if (!storyOutlineLoading && !storyOutlineError && storyOutline) {
 
 const [singleDocument, singleDocumentLoading, singleDocumentError] = useDocument(
   session?.user?.email && storyId && documentID
-    ? doc(db, 'users', session.user.email, 'storys', storyId, 'storyOutline', documentID)
+    ? doc(db, 'users', session?.user.email, 'storys', storyId, 'storyOutline', documentID)
     : null
 );
+
+useEffect(() => {
+  if (singleDocument){
+    console.log('this is the story STYLE', singleDocument)
+   }
+
+}, [singleDocument])
+
+useEffect(() => {
+  if (!storyOutline?.docs.length) return;
+
+  if (storyOutline?.docs.length){
+    dispatch(setStyle(storyOutline?.docs[0].data().style))
+  }
+}, [storyOutline])
+
+const [supportingCharactersSnapshop, supportingCharactersLoading, supportingCharactersError] = useCollection(
+  session?.user?.email && storyId ? collection(db, 'users', session?.user.email, 'storys', storyId, 'characters') : null,
+);
+
+useEffect(()=> {
+  if (!supportingCharactersSnapshop?.docs.length) return;
+
+  if (supportingCharactersSnapshop?.docs.length){
+
+    const charactersArray = supportingCharactersSnapshop?.docs.map(doc => ({
+      name: doc.data().name,
+      description: doc.data().description,
+    }))
+
+    console.log('charactersArray', charactersArray)
+    dispatch(addCharacters(charactersArray))
+  }
+}, [supportingCharactersSnapshop])
 
 useEffect(() => {
   if (!singleDocument) return;
   console.log(singleDocument.data())
   setStyle(singleDocument.data()!.style)
   setReadersAge(singleDocument.data()!.readersAge)
-  const hc = `${singleDocument.data()!.heroCharacter.name} - ${singleDocument.data()!.heroCharacter.imagePrompt}`
-  setHeroCharacter(hc)
+  // const hc = `${}: ${singleDocument.data()!.heroCharacter.imagePrompt}`
+  // setHeroCharacter(hc)
+  const hero = { name:singleDocument.data()!.heroCharacter.name, description: singleDocument.data()!.heroCharacter.name }
+  // dispatch(setCharacterDescription(singleDocument.data()!.heroCharacter.imagePrompt))
+  // dispatch(setHeroCharacterName(singleDocument.data()!.heroCharacter.name))
+  dispatch(addCharacter(hero))
   
    console.log('singleDocument', singleDocument.data())
 }, [singleDocument])
 
- 
 useEffect(() => {
     if (!storyContent) return;
 
@@ -175,8 +293,9 @@ useEffect(() => {
     }
   }, [selectedPageId])
 
+
   const updatePageText = async () => {
-    console.log(selectedPageText, selectedPageId);
+    // console.log(selectedPageText, selectedPageId);
     if (!storyId || !selectedPageId) return;
     const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", selectedPageId);
     const updatedPage = await updateDoc(docRef, {
@@ -186,13 +305,40 @@ useEffect(() => {
   };
 
   return (
-    <div className="flex w-screen bg-gray-50">
+    <div className="w-screen bg-gray-50 ">
+      <ImproveImagesModal />
+      {/* <ImproveStoryModal  /> */}
+      {/* <GetImagesModal /> */}
+      <GetPageImageModal />
+      <AddTextModal />
+      <EditTextModal />
 
-  {storyBuilderActive !== 'create story outline' && (
-        <EditPageBar switchToEdit={() => setEditStoryPage(!editStoryPage)} updatePageText={updatePageText}  />
+      <div className="grid grid-cols-8">
 
-)}
-  <div className='w-full h-screen overflow-y-scroll'>
+        <div className="col-span-1">
+        {storyBuilderActive !== 'create story outline' && (
+            <EditPageBar switchToEdit={() => setEditStoryPage(!editStoryPage)} updatePageText={updatePageText}  />
+          )}
+        </div>
+        
+     
+
+      <div className='col-span-6 h-screen overflow-y-scroll '>
+          {editTextId == selectedPageId && (
+              <TextEditorToolBar />
+          )}
+         {storyBuilderActive === 'InsidePage' && (
+          <InsidePage />
+        )} 
+        </div>
+
+        <div className="col-span-1">
+        {storyBuilderActive !== 'create story outline' && (
+            <BookLayoutScrollBar storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
+          )}
+        </div>
+
+        </div>
 
         {storyBuilderActive == 'add character' && (
             <MainCharacterFundamentalsForm />
@@ -214,10 +360,6 @@ useEffect(() => {
           <p>Add villain</p>
         )}
 
-        {storyBuilderActive !== 'create story outline' && (
-          <BookLayoutScrollBar storyPages={sortedStoryContent} />
-        )}
-
         {storyBuilderActive == 'create story outline' && (
           <CharacterScrollBar characters={characters} />
         )}
@@ -226,20 +368,30 @@ useEffect(() => {
           <CreateStoryOutline characters={characters || []} />
         )}
 
-        {/* {storyBuilderActive === 'Cover Page' && (
-          <BookLayoutBuilder title={story?.data()?.title} coverImage={story?.data()?.coverImage} story={story?.data()?.story} storyId={storyId} heroDescription={heroCharacter} style={style}  />
-        )} */}
+        {storyBuilderActive === 'CoverPage' && (
+          <BookCover />
+        )}
 
-        {storyBuilderActive === 'InsidePage' && (
-          <InsidePage />
-        )} 
+       
      
      
-
-      </div>
 
     </div>
+
+
   )
 }
 
 export default StoryPage
+
+// this will stop the glitch on refresh because it gets user before it hits the browser
+
+// export async function getServerSideProps(context) {
+//   const session = await getSession(context)
+// }
+
+// return {
+//   props: {
+  // session
+// }
+// }

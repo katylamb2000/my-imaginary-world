@@ -32,7 +32,7 @@ function Header(){
     const adminQuery = adminCollectionRef ? query(adminCollectionRef) : null;
 
     const [adminDocs, adminLoading, adminError] = useCollection(adminQuery);
-    console.log("session", session)
+    // console.log("session", session)
 
     const [user, loading, error] = useDocument(
       session?.user?.email
@@ -123,7 +123,7 @@ return(
             onClick={goHome}
         />
 
-<h1 className="text-2xl font-bold text-purple-600 text-center">My Imaginary World</h1>
+<h1 className="text-2xl font-mystery text-purple-600 text-center">My Imaginary World</h1>
 
 <div className="flex space-x-3">
 {pdf && (

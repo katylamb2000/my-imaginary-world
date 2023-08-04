@@ -5,7 +5,8 @@ module.exports = {
     domains: [
       'firebasestorage.googleapis.com',
       'static.tryleap.ai',
-      'cdn.discordapp.com'
+      'cdn.discordapp.com',
+      'media.discordapp.net'
       
     ]
   },

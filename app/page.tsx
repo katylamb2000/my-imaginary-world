@@ -7,11 +7,12 @@ import { useRouter, usePathname } from 'next/navigation'
 import { useDispatch } from "react-redux" 
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import StoryThumbnail from '../components/StoryThumbnail'
-import { addDoc, collection, serverTimestamp, orderBy } from "firebase/firestore"
+import { addDoc, collection, serverTimestamp, doc } from "firebase/firestore"
 import { db } from "../firebase"
-import { useCollection } from 'react-firebase-hooks/firestore'
+import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
 import SideBar from "../components/SideBar"
 import axios from "axios"
+import { setUsername } from "./GlobalRedux/Features/userDetailsSlice"
 
 interface Story {
   id: string,
@@ -44,37 +45,49 @@ function HomePage() {
       session && collection(db, 'users', session?.user?.email!, 'storys'),
     )
 
+    const [user, userLoading, userError] = useDocument(
+      session?.user?.email
+        ? doc(db, 'users', session.user.email,)
+        : null
+    );
+
+    useEffect(() => {
+      console.log("GETTING USER!!!!!!!", user?.data(), user?.data()?.userName);
+      const username = user?.data()?.userName;
+      if (!username) return;
+      if (username){
+        console.log('username', username)
+        dispatch(setUsername(username));
+      }
+
+    }, [user, user?.data()?.userName]);
+    
+
   return (
     
-    <div className="bg-purple-300 grid grid-cols-2 md:grid-cols-3  min-h-screen overflow-y-scroll justify-center py-12 px-4 mx-auto text-white text-center flex-col w-full"> 
-        {storys?.docs.map(story => {
-            const storyData = story.data();
-            const mappedStory: Story = {
-              id: story.id,
-              image: storyData.image || '',
-              baseImagePrompt: storyData.baseImagePrompt || '',
-              title: storyData.title || '',
-              baseImagePromptCreated: storyData.baseImagePromptCreated || false,
-            };
-          
-            return <StoryThumbnail key={story.id} id={story.id} story={mappedStory} />;
-        
-          })}     
+    <div className=" grid sm:grid-cols-2 md:grid-cols-4 grid-cols-6 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-purple-100"> 
+    {storys?.docs.map(story => {
+        const storyData = story.data();
+        const mappedStory: Story = {
+          id: story.id,
+          image: storyData.image || '',
+          baseImagePrompt: storyData.baseImagePrompt || '',
+          title: storyData.title || '',
+          baseImagePromptCreated: storyData.baseImagePromptCreated || false,
+        };
+      
+        return <StoryThumbnail key={story.id} id={story.id} story={mappedStory} />;
+    
+      })}     
 
-          <button
-            className='w-48 h-48 rounded-lg bg-pink-600 text-center items-center justify-center align-center'
-            onClick={createNewStory}
-          >
-              Start a new story
-          </button>  
+      <button
+        className='w-68 h-48 rounded-lg bg-purple-500 hover:bg-purple-300 flex items-center justify-center text-2xl font-bold transition-colors duration-200'
+        onClick={createNewStory}
+      >
+          Start a new story
+      </button>
+</div>
 
-          {/* <button
-            className='w-48 h-48 rounded-lg bg-pink-600 text-center items-center justify-center align-center'
-            onClick={startAutomation}
-          >
-              Start automation
-          </button>   */}
-    </div>
 
   )
 }

@@ -1,13 +1,15 @@
 'use client';
 
 import { createSlice } from "@reduxjs/toolkit";
+import storyBaseIP from "../../../lib/storyBaseIP";
 
 export interface ViewStorySlice {
     title: string,
     thumbnailImage: string,
     baseStoryImagePrompt: string,
     baseStoryImagePromptCreated: Boolean,
-    storyId: string
+    storyId: string,
+    fullStory: string;
 }
 
 const initialState: ViewStorySlice = {
@@ -15,7 +17,8 @@ const initialState: ViewStorySlice = {
     title: '',
     thumbnailImage: '',
     baseStoryImagePrompt: '',
-    baseStoryImagePromptCreated: false
+    baseStoryImagePromptCreated: false,
+    fullStory: '',
 }
 
 export const viewStorySlice = createSlice({
@@ -37,9 +40,12 @@ export const viewStorySlice = createSlice({
         setBaseStoryImagePromptCreated: (state, action) => {
             state.baseStoryImagePromptCreated = action.payload;
         },
+        setFullStory: (state, action) => {
+            state.fullStory = action.payload;
+        },
     }
 });
 
-export const { setTitle, setStoryId, setThumbnailImage, setBaseStoryImagePrompt, setBaseStoryImagePromptCreated } = viewStorySlice.actions;
+export const { setTitle, setStoryId, setThumbnailImage, setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setFullStory } = viewStorySlice.actions;
 
 export default viewStorySlice.reducer;
