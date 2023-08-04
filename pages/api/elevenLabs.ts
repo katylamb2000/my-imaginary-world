@@ -2,14 +2,14 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { message, voice, storyId, pageId } = req.body;
-
+  const apiKey = process.env.eleven_labs_api_key || ''
   try {
     const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice}`, {
       method: "POST",
       headers: {
         accept: "audio/mpeg",
         "Content-Type": "application/json", 
-        "xi-api-key": 'b13a263b2185593267797af406d1be8f'
+        "xi-api-key": apiKey 
       }, 
       body: JSON.stringify({
         text: message, 
