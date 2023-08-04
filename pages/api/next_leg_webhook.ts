@@ -74,9 +74,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           .doc(storyId)
           .collection('storyContent')
           .doc(page);
+
+          const finalImage = `finalImage_${type}`
     
         await docRef.update({
-          finalImage: imageUrl,
+          [finalImage]: imageUrl,
         });
         if (page == 'page_1'){
           const docRef = adminDb

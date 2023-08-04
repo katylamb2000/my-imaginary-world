@@ -33,7 +33,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     const [url, setUrl] = useState<string | null>(null);
 
     const viewPage = () => {
-        console.log(page.data, index)
+     
 
         const ideas = imageIdeas.find(imageIdeas => imageIdeas.data.pageNumber === index + 1);
         dispatch(setWildcardIdea(ideas?.data?.wildcardImage))
@@ -86,24 +86,24 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
         // console.log('looking for page id ===', page.id)
         // console.log('looking for page id ===', currentPageId )
         if (!page ) return;
-        // console.log('looking for page id ===', page.id, currentPageId )
+
         if (page.id == currentPageId) {
             setActive(true)
-            // console.log('border should be green')
+
         }
         if (page.id !== currentPageId) {
             setActive(false)
             // console.log('border should be green')
         }
-    }, [currentPageId])
+    }, [currentPageId, page])
 
     useEffect(() => {
         // console.log('this is ddata', page.data.imageChoices, '===>', page.data.finalImage)
         if (page.data.finalImage){
             setUrl(page.data.finalImage)
         }
-        else if (page.data.imageChoices){
-            setUrl(page.data.imageChoices)
+        else if (page.data.imagePrompt_objectIMageChoicesUrl){
+            setUrl(page.data.imagePrompt_objectIMageChoicesUrl)
         }
         else {
             setUrl(null)
@@ -121,11 +121,11 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
   return (
     <div className="transition-all duration-500 ease-in-out transform hover:scale-110">
         <button 
-            className="w-32 h-28 mx-auto my-auto p-2 text-center bg-purple-300 hover:bg-purple-400 active:bg-purple-500 transition-colors duration-200 rounded-lg shadow-lg" 
+            className={`w-32 h-28 mx-auto my-auto p-2 text-center bg-purple-300 hover:bg-purple-400 ${active ? 'bg-purple-600': 'bg-purple-300' } transition-colors duration-200 rounded-lg shadow-lg`}
             onClick={viewPage} 
         >
 
-            <div className={`flex space-x-1 p-2 border-2 border-transparent hover:border-purple-500/50 transition-all duration-200 ${active ? 'border-purple-500' : ''}`}>
+            <div className={`flex space-x-1 p-2 border-2 border-transparent transition-all duration-200 ${active ? 'border-purple-700' : ''}`}>
                 <div className="w-12 h-12 border border-gray-200 bg-white rounded-lg shadow-md">
                     {index !== null && page.data && page.data.page !== '' && <p> ... </p>}
                 </div>

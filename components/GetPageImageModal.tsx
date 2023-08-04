@@ -31,6 +31,7 @@ function GetPageImageModal() {
     const style = useSelector((state: RootState) => state.pageToEdit.style)
     const pageId = useSelector((state: RootState) => state.pageToEdit.id)
     const previousPageText = useSelector((state: RootState) => state.pageToEdit.previousPageText)
+    const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl)
     const nextPageText = useSelector((state: RootState) => state.pageToEdit.nextPageText)
     const pageText = useSelector((state: RootState) => state.pageToEdit.text)
     const characters = useSelector((state: RootState) => state.characters)
@@ -46,7 +47,7 @@ function GetPageImageModal() {
     `;
     const [messages, setMessages] = useState<Message[]>([]);
 
-    console.log("page image modal", promptIdea)
+ 
     
 // useEffect(() => {
 //     if (pageText.length && storyId && story.length){
@@ -87,7 +88,9 @@ const sendImagineCommand = async() => {
     axios(config)
     .then(function (response) {
       console.log(JSON.stringify(response.data));
+      setLoading(false)
     })
+
     .catch(function (error) {
       console.log(error);
       setLoading(false)
@@ -164,8 +167,15 @@ try{
               
 
                 <div>
+                  
                 <p>{promptIdea}</p>
-                <button className="bg-pink-500 text-white p-4 rounded-lg hover:bg-pink-300" onClick={sendImagineCommand}>Get image</button>
+                {imageUrl ? (
+                  <img src={imageUrl} className="h-48 w-48" />
+                ):
+          
+                <button className="bg-pink-500 text-white p-4 rounded-lg hover:bg-pink-300" onClick={sendImagineCommand}>{loading ? 'loading' : 'Get image'}</button>
+                
+                }
                 </div>
 
             

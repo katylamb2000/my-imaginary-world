@@ -297,8 +297,9 @@ const playPauseClicked = () => {
 
 return (
   <div className='bg-gray-50 h-full w-full items-center overscroll-none'>
+
    
-          <div className="flex space-x-6 justify-center py-4 h-full bg-gray-50 ">
+          <div className="flex space-x-6 justify-center pt-4 h-full bg-gray-50 ">
      
              
                     {editTextSelected === pageId  ? (
@@ -358,11 +359,11 @@ return (
                 </div>
                 )}
 
-  {wildcardIdea && (
+  {wildcardIdea && !imageUrl  && (
     <div className="border-2 border-gray-300 border-dashed h-3/5 w-3/5 bg-white drop-shadow-md">
                 {wildcardIdea && (
-                  <button  className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600 hover:cursor-help" 
-                        onClick={() => openModal('wildcardImageUrlChoices', wildcardIdea)}
+                  <button   className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600 hover:cursor-help" 
+                            onClick={() => openModal('wildcardImageChoices', wildcardIdea)}
                         >
                     Wildcard image idea: {wildcardIdea}
                   </button>
@@ -370,7 +371,7 @@ return (
 
               {backgroundIdea && (
                   <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-                          onClick={() => openModal('backgroundImageUrlChoices', backgroundIdea)}
+                          onClick={() => openModal('backgroundImageChoices', backgroundIdea)}
                   >
                     Background image idea: {backgroundIdea}
                   </button>
@@ -378,7 +379,7 @@ return (
 
               {objectIdea && (
                  <button className="p-4 text-purple-400 hover:underline hover:text-purple-600"
-                 onClick={() => openModal('objectIMageChoicesUrl', objectIdea)}
+                 onClick={() => openModal('objectImageChoices', objectIdea)}
                  >
                     Object image idea: {objectIdea}
                   </button>
@@ -386,7 +387,7 @@ return (
 
               {characterIdea && (
                   <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-                  onClick={() => openModal('characterCloseUpChoicesUrl', characterIdea)}
+                  onClick={() => openModal('characterImageChoices', characterIdea)}
                   >
                     character image idea: {characterIdea}
                   </button>
@@ -394,20 +395,38 @@ return (
 
         </div>
   )}
-
-                {/* {imageUrl.length && (
-                    <div className=' h-44 bg-white border shadow-2xl border-gray-100  rounded-lg'> 
-                        <p className="mx-auto p-6">Select Your image</p>
-                        <div className="w-20 h-20 mx-auto my-auto bg-white grid grid-cols-2">
-                            <button onClick={() => upscaleChosenImage('U1')} className="text-purple-400 rounded-full hover:border hover:border-purple-600 hover:text-purple-600">1</button>
-                            <button onClick={() => upscaleChosenImage('U2')} className="text-purple-400 rounded-full hover:border hover:border-purple-600 hover:text-purple-600">2</button>
-                            <button onClick={() => upscaleChosenImage('U3')} className="text-purple-400 rounded-full hover:border hover:border-purple-600 hover:text-purple-600">3</button>
-                            <button onClick={() => upscaleChosenImage('U4')} className="text-purple-400 rounded-full hover:border hover:border-purple-600 hover:text-purple-600">4</button>
-                        </div>
-                    </div>
-                )} */}
-              
+      {imageUrl && (
+        <div className="h-3/5 w-3/5" >
+          <div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
+            <Image src={imageUrl} fill alt='/'  />
+            </div>
+            <div className='border shadow-2xl border-gray-100 rounded-lg mb-2 w-full h-20 '> 
+            <p className="mx-auto p-6" w-full>Select Your image</p>
+    
+       
+            <div className="mx-auto my-auto bg-white grid grid-cols-2">
+                <button onClick={() => upscaleChosenImage('U1')} className="text-purple-400  w-10 h-10 rounded-full hover:border hover:bg-purple-600 hover:text-white">1</button>
+                <button onClick={() => upscaleChosenImage('U2')} className="text-purple-400  w-10 h-10 rounded-full hover:border hover:bg-purple-600 hover:text-white">2</button>
+                <button onClick={() => upscaleChosenImage('U3')} className="text-purple-400  w-10 h-10 rounded-full hover:border hover:bg-purple-600 hover:text-white">3</button>
+                <button onClick={() => upscaleChosenImage('U4')} className="text-purple-400  w-10 h-10 rounded-full hover:border hover:bg-purple-600 hover:text-white">4</button>
+            </div>
+            </div>
           </div>
+        )}
+
+      {/* {imageUrl.length && (
+        <div className='border shadow-2xl border-gray-100 rounded-lg mb-200'> 
+            <p className="mx-auto p-6">Select Your image</p>
+    
+        </div>
+    )} */}
+
+
+</div>
+ 
+     
+
+
 
           {highlightedText && (
               <button 

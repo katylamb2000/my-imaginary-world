@@ -53,8 +53,7 @@ function ImproveImagesModal() {
     const [selectedTitle, setSelectedTitle] = useState<string>('')
     const [getBookCoverImagePrompt, setGetBookCoverImagePrompt] = useState<boolean>(true)
 
-    // fetch the aiAssistant message history!
-    console.log('Story ID:', storyId);
+
 
    
       const submit = async(e: React.FormEvent<HTMLFormElement>) => {
