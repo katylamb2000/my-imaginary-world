@@ -33,7 +33,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     const [url, setUrl] = useState<string | null>(null);
 
     const viewPage = () => {
-        console.log(page.data.text, index)
+        console.log(page.data, index)
 
         const ideas = imageIdeas.find(imageIdeas => imageIdeas.data.pageNumber === index + 1);
         dispatch(setWildcardIdea(ideas?.data?.wildcardImage))

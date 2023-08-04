@@ -35,8 +35,6 @@ function StoryThumbnail({ id, story }: Props) {
 
   const addStoryDetailsToRedux = () => {
 
-    // dispatch(setBaseStoryImagePrompt(story.baseImagePrompt))
-    // dispatch(setBaseStoryImagePromptCreated(story.baseImagePromptCreated))
     dispatch(setName('view story'))
     dispatch(setStoryId(id))
     console.log('this is the function to dispatch setName')

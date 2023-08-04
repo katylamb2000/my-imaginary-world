@@ -44,7 +44,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
   
       await docRef.update({
-        imagePromptKey: imageUrl,
+        [imagePromptKey]: imageUrl,
         imagePromptContent: content,
         buttonMessageId,
         buttons
