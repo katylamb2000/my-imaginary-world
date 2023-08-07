@@ -12,7 +12,7 @@ import { usePathname } from 'next/navigation'
 function BookCover() {
     const dispatch = useDispatch()
     const pathname = usePathname()
-    const title = useSelector((state: RootState) => state.pageToEdit.text)
+    const title = useSelector((state: RootState) => state.viewStory.title)
     const pageId = useSelector((state: RootState) => state.pageToEdit.id)
     const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl)
     const buttonId = useSelector((state: RootState) => state.pageToEdit.buttonId)
@@ -71,13 +71,13 @@ function BookCover() {
 
   return (
 <div className='bg-gray-50 h-full w-full  justify-center flex overscroll-none  '>
-    <div className="border-2 border-gray-300 border-dashed h-120 w-120 bg-white drop-shadow-md text-center mt-14 ">
-            <button onClick={openAIAssistant}>open ai</button>
+    <div className="border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md text-center mt-8 items-center">
+            {/* <button onClick={openAIAssistant}>open ai</button> */}
               
-            {imageUrl.length && (
+            {imageUrl && (
                         <Image className='w-full h-full z-10' alt="/" src={imageUrl} width={200} height={200} />
             )}
-
+{/* 
             <svg width="800" height="500" xmlns="http://www.w3.org/2000/svg">
             <path id="curve" fill="transparent" d="M 10 250 q 390 -200 780 0" />
             <text x="10" y="250" fill="black" font-size="25">
@@ -85,12 +85,14 @@ function BookCover() {
                 {title}
                 </textPath>
             </text>
-            </svg>
+            </svg> */}
+
+            <h1 className='text-2xl font-bold text-pink-600 mx-auto '>{title}</h1>
 
         <button onClick={openAIAssistant}>Open AI assistant</button>
     </div>
 
-         {imageUrl.length && (
+         {/* {imageUrl.length && (
                     <div className=' h-44 bg-white border shadow-2xl border-gray-100  rounded-lg'> 
                         <p className="mx-auto p-6">Select Your image</p>
                         <div className="w-20 h-20 mx-auto my-auto bg-white grid grid-cols-2">
@@ -100,7 +102,7 @@ function BookCover() {
                             <button onClick={() => upscaleChosenImage('U4')} className="text-purple-400 rounded-full hover:border hover:border-purple-600 hover:text-purple-600">4</button>
                         </div>
                     </div>
-                )}
+                )} */}
 </div>
 
 

@@ -37,7 +37,6 @@ function HomePage() {
           fullImagePrompt: null
       });
       dispatch(setName('create story outline'))
-  
       router.push(`/story/${doc.id}`)
     }
 
@@ -52,20 +51,17 @@ function HomePage() {
     );
 
     useEffect(() => {
-      console.log("GETTING USER!!!!!!!", user?.data(), user?.data()?.userName);
       const username = user?.data()?.userName;
       if (!username) return;
       if (username){
-        console.log('username', username)
         dispatch(setUsername(username));
       }
-
     }, [user, user?.data()?.userName]);
     
 
   return (
     
-    <div className=" grid sm:grid-cols-2 md:grid-cols-4 grid-cols-6 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-purple-100"> 
+    <div className=" grid sm:grid-cols-2 md:grid-cols-5 grid-cols-6 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-purple-100"> 
     {storys?.docs.map(story => {
         const storyData = story.data();
         const mappedStory: Story = {

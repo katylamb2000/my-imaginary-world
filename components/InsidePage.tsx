@@ -9,7 +9,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useRef, useCallback } from "react";
-import { setImageUrl, setEditText } from "../app/GlobalRedux/Features/pageToEditSlice";
+import { setImageUrl, setEditText, setText, setId , setAudioUrl} from "../app/GlobalRedux/Features/pageToEditSlice";
 import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice";
 import { doc, updateDoc, collection } from "firebase/firestore";
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
@@ -19,7 +19,6 @@ import { updateGetImagesModalStatus } from "../app/GlobalRedux/Features/getImage
 import { updateGetPageImageModalStatus, setPageId, setPrompt, setType } from "../app/GlobalRedux/Features/getPageImageModal"
 import DragableFontEditor from "./DragableFontEditor";
 import { updateTextString } from "../app/GlobalRedux/Features/dragableFontEditorSlice";
-
 import { Delta, Sources } from 'quill';
 import TipTap from './TextEditorToolBar'
 import TextEditor from "./TextEditor";
@@ -27,20 +26,22 @@ import TextEditorHeader from "./TextEditorHeader"
 import QuillToolbar from "./QuillToolbar";
 import { PauseCircleIcon, PlayCircleIcon } from '@heroicons/react/24/outline'
 import Star from '../masks/Star';
-
 import CustomTextEditor from "./CustomTextEditor";
+import LayoutScrollbar from "./LayoutScrollbar";
+import ReactPlayer from 'react-player'
 
-function InsidePage() {
+type Props = {
+  storyPages: any
+  imageIdeas: any
+}
 
-
+function InsidePage({ storyPages, imageIdeas }: Props) {
     const dispatch = useDispatch()
     const pathname = usePathname()
     const { data: session } = useSession()
     const [playing, setPlaying] = useState<boolean>(false)
     // const audioRef = useRef(new Audio());
-  const audioRef = useRef<HTMLAudioElement | null>(new Audio());
-
-
+    const audioRef = useRef<HTMLAudioElement | null>(new Audio());
     const pageText = useSelector((state: RootState) => state.pageToEdit.text)
     const audioUrl = useSelector((state: RootState) => state.pageToEdit.audioUrl)
     const characters = useSelector((state: RootState) => state.characters.characters)
@@ -64,6 +65,7 @@ function InsidePage() {
     const objectIdea = useSelector((state: RootState) => state.pageToEdit.objectIdea)
     const characterIdea = useSelector((state: RootState) => state.pageToEdit.characterIdea)
     const backgroundIdea = useSelector((state: RootState) => state.pageToEdit.backgroundIdea)
+    const showLayoutScrollbar = useSelector((state: RootState) => state.pageToEdit.showLayoutScrollbar)
 
     const [value, setValue] = useState(pageText)
     // const [value, setValue] = useState(`<p><strong class="ql-size-large" style="color: rgb(0, 153, 255);">Sophia</strong>, suddenly feeling more <em style="color: rgb(0, 153, 0);">brave</em> and <em style="color: rgb(0, 153, 0);">bold</em>, was just getting the knack of controlling the <u class="ql-size-large ql-font-monospace" style="color: rgb(102, 51, 153);">massive spaceship</u> when, without any warning, the floor beneath her began to <strong class="ql-size-huge" style="color: rgb(255, 51, 51);">shake</strong> and <em class="ql-size-huge" style="color: rgb(255, 51, 51);">shudder</em>.</p>
@@ -79,6 +81,21 @@ function InsidePage() {
     const open = useSelector((state: RootState) =>  state.improveImagesModal.status);
 
     const highlightedTextRef = useRef<string>('');
+    const [showText, setShowText] = useState(true);
+
+    useEffect(() => {
+      // When pageText or audioUrl changes, set showText to false to trigger the transition effect
+      setShowText(false);
+  
+      // After a short delay, set showText back to true to show the new text with the transition
+      const delay = 300; // Adjust the delay time as needed
+      const timeout = setTimeout(() => {
+        setShowText(true);
+      }, delay);
+  
+      // Clear the timeout when the component unmounts or when the dependency values change again
+      return () => clearTimeout(timeout);
+    }, [pageText, audioUrl]);
 
 useEffect(() => {
   setPlaying(false)
@@ -207,11 +224,13 @@ var config = {
 axios(config)
 .then(function (response) {
   console.log(JSON.stringify(response.data));
-//   setLoading(false)
+setLoading(false)
+dispatch(setImageUrl(null))
 })
 .catch(function (error) {
   console.log(error);
   setLoading(false)
+  dispatch(setImageUrl(null))
 });
   }
  
@@ -255,11 +274,46 @@ axios(config)
     dispatch(setEditText(''));
   };
 
+  const handleAudioEnded = () => {
+    console.log("Audio has finished playing!",  storyPages, pageId);
+    const currentPageNumber = parseInt(pageId.split("_")[1], 10);
+    // Increment the currentPageNumber by 1
+    const nextPageNumber = currentPageNumber + 1;
+    // Construct the next page name
+    const nextPageId = `page_${nextPageNumber}`;
+    console.log("go to ====>>", nextPageId)
+    const nextPage = storyPages.find((page: any) => page.id === nextPageId);
+    dispatch(setId(nextPage.id))
+    dispatch(setText(nextPage.data.text))
+    dispatch(setAudioUrl(nextPage.data.audioUrl))
+ 
+    // Call your desired function here...
+  };
+
+  useEffect(() => {
+    setPlaying(true)
+  }, [audioUrl])
  // Initialize the audio object when the component mounts
- useEffect(() => {
+// Initialize the audio object and add the event listener when the component mounts
+useEffect(() => {
   if (!audioUrl || !audioRef.current) return;
+
   audioRef.current.src = audioUrl;
+
+  const handleAudioEnded = () => {
+    console.log("Audio has finished playing!");
+    // Call your desired function here...
+  };
+
+  audioRef.current.addEventListener("onEnded", handleAudioEnded);
+
+  return () => {
+    if (audioRef.current) {
+      audioRef.current.removeEventListener("onEnded", handleAudioEnded);
+    }
+  };
 }, [audioUrl]);
+
 
 
 // Cleanup the audio object when the component unmounts
@@ -280,16 +334,24 @@ useEffect(() => {
 
 const play = useCallback(() => {
   console.log(audioRef, audioUrl)
-  if (!audioUrl || !audioRef.current) return;
-  setPlaying(true);
-  audioRef.current.play();
+      setPlaying(true);
 }, [audioUrl, audioRef.current]);
+
 const pause = () => {
-  if (!audioUrl || !audioRef.current) return;
-  setPlaying(false);
-  audioRef.current.pause();
+  // if (!audioUrl || !audioRef.current) return;
+      setPlaying(false);
+      // audioRef.current.pause();
+      // console.log(audioRef.current.ended)
 };
 
+useEffect(() => {
+  if (!audioUrl || !audioRef.current?.ended) return;
+  if (audioRef.current.ended){
+    setPlaying(false)
+    console.log('FINISHED', storyPages, pageId )
+    
+  }
+}, [audioRef.current?.ended])
 
 const playPauseClicked = () => {
   setPlaying(!playing)
@@ -297,21 +359,28 @@ const playPauseClicked = () => {
 
 return (
   <div className='bg-gray-50 h-full w-full items-center overscroll-none'>
+      <div className="flex space-x-6 justify-center pt-4 h-4/5 bg-gray-50 ">
+        {audioUrl && playing && (
+            <div className="react-player-wrapper" style={{ display: "none" }}>
+                <ReactPlayer url={audioUrl} playing={playing} onEnded={handleAudioEnded} />
+           </div>
+        )}
 
-   
-          <div className="flex space-x-6 justify-center pt-4 h-full bg-gray-50 ">
-     
-             
-                    {editTextSelected === pageId  ? (
-                         <div className="border-2 border-gray-300 border-dashed  h-3/5 w-3/5 bg-white drop-shadow-md">
-                        <CustomTextEditor  />
-                      </div>
-                    ):
-                    <div className="border-2 border-gray-300 border-dashed  h-3/5 w-3/5 bg-white drop-shadow-md">
-                      <p className="text-lg text-purple-700/60 m-4 p-4 font-mystery leading-loose">{pageText}</p>
-                
-                    </div>
-                    }
+         
+          {editTextSelected === pageId  ? (
+              <div className="border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md">
+                <CustomTextEditor  />
+              </div>
+          ):
+              // <div className="border-2 border-gray-300 border-dashed  h-4/5 w-3/5 bg-white drop-shadow-md">
+              <div
+              className={`border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md ${
+                showText ? 'opacity-100' : 'opacity-0 scale-0 translate-y-[-50%] transition-all duration-300'
+              }`}
+            >
+                  <p className="text-lg text-purple-700/60 m-4 p-4 font-mystery leading-loose">{pageText}</p>
+              </div>
+          }
 
                 {smallRoundImageUrl && (
                   <div className='h-1/2 w-1/2 bottom-0 relative mx-auto py-4 ' >
@@ -323,10 +392,9 @@ return (
                 {audioUrl && (
                 <div className="absolute bottom-20 w-full ">
                   {playing ? (
-                    <PauseCircleIcon className="h-8 w-8 text-green-500 absolute left-10"   onClick={pause}/>
+                    <PauseCircleIcon className="h-8 w-8 text-green-500 absolute left-10"  onClick={pause} />
                   ):
-  
-                    <PlayCircleIcon className="h-8 w-8 text-green-500 absolute left-10"  onClick={play}/>
+                    <PlayCircleIcon className="h-8 w-8 text-green-500 absolute left-10" onClick={play} />
                   }
                   </div>
                   )}
@@ -334,7 +402,7 @@ return (
   
 
                 {!wildcardIdea && (
-                <div className="border-2 border-gray-300 border-dashed  h-3/5 w-3/5 bg-white drop-shadow-md">
+                <div className="border-2 border-gray-300 border-dashed  h-4/5 w-3/5 bg-white drop-shadow-md">
                     {fullPageImageUrl ? (
                         <Image className='w-full h-full z-10' alt="/" src={fullPageImageUrl} width={200} height={200} />
                     ):
@@ -360,7 +428,7 @@ return (
                 )}
 
   {wildcardIdea && !imageUrl  && (
-    <div className="border-2 border-gray-300 border-dashed h-3/5 w-3/5 bg-white drop-shadow-md">
+    <div className="border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md">
                 {wildcardIdea && (
                   <button   className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600 hover:cursor-help" 
                             onClick={() => openModal('wildcardImageChoices', wildcardIdea)}
@@ -413,20 +481,11 @@ return (
             </div>
           </div>
         )}
-
-      {/* {imageUrl.length && (
-        <div className='border shadow-2xl border-gray-100 rounded-lg mb-200'> 
-            <p className="mx-auto p-6">Select Your image</p>
-    
-        </div>
-    )} */}
-
-
 </div>
  
-     
-
-
+      {showLayoutScrollbar && (
+          <LayoutScrollbar />
+        )}
 
           {highlightedText && (
               <button 

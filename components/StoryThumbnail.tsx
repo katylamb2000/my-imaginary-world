@@ -7,7 +7,7 @@ import Link from "next/link"
 import type { RootState } from '../app/GlobalRedux/store';
 import { useSession } from "next-auth/react";
 import { useSelector, useDispatch } from 'react-redux';
-import { setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setStoryId } from '../app/GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setStoryId, setTitle } from '../app/GlobalRedux/Features/viewStorySlice'
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -39,6 +39,7 @@ function StoryThumbnail({ id, story }: Props) {
     dispatch(setStoryId(id))
     console.log('this is the function to dispatch setName')
     router.push(`/story/${id}`)
+    dispatch(setTitle(story.title))
   }
 
   const addNewTitle = () => {
@@ -71,18 +72,19 @@ function StoryThumbnail({ id, story }: Props) {
   }
 
   return (
-<div className="flex flex-col items-center shadow-md mx-3 mt-6 rounded-sm overflow-hidden hover:scale-105 transition-transform duration-200 ease-in-out bg-white">
-  <button onClick={addStoryDetailsToRedux}>
+<div className="flex flex-col items-center shadow-md mx-3 mt-6 rounded-sm overflow-hidden hover:scale-105 transition-transform duration-200 ease-in-out bg-white relative">
+  <button onClick={addStoryDetailsToRedux} className='relative w-full h-3/4'>
     {story.image ? (
-      <img
+      <Image
         src={story.image}
-        className="w-full object-cover h-64"
+        fill
+        className="w-full"
+        alt="/"
       />
     ) : (
       
       <Image 
-        width={60}
-        height={60}
+        fill
         alt='/thumbnail'
         className="w-full object-fit fill"
         src={'https://cdn.discordapp.com/attachments/1103367080088191017/1112776230886965340/JimJ.Martin_Illustrate_Title_Sophia_and_the_Super_Sharky_Mermai_be2f358b-48c8-4fcb-b634-051fc8294d17.png'}
@@ -123,7 +125,7 @@ function StoryThumbnail({ id, story }: Props) {
 
     <div className="absolute top-0 right-0 p-2">
       <XCircleIcon 
-        className="text-black hover:text-gray-600 h-5 w-5 cursor-pointer" 
+        className="text-white hover:text-purple-600 h-5 w-5 cursor-pointer" 
         onClick={deleteStory} 
       />
     </div>

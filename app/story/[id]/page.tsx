@@ -21,6 +21,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
 import { addCharacters, addCharacter } from "../../GlobalRedux/Features/characterSlice"
 import { setBaseStoryImagePromptCreated, setTitle, setFullStory } from '../../GlobalRedux/Features/viewStorySlice'
+import { setName } from '../../GlobalRedux/Features/storyBuilderActiveSlice'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
 import CharacterScrollBar from "../../../components/CharacterScrollBar"
@@ -38,6 +39,8 @@ import BookPreview from "../../../components/BookPreview"
 import TextEditorToolBar from "../../../components/TextEditorToolBar"
 import { identityMatrix } from "pdf-lib/cjs/types/matrix"
 import { setId } from "../../GlobalRedux/Features/pageToEditSlice"
+import LayoutOne from "../../../components/LayoutOne"
+
 
 interface PageData {
   id: string | null;
@@ -74,12 +77,16 @@ function StoryPage() {
   const selectedPageText = useSelector((state: RootState) =>  state.pageToEdit.text);
   // const baseStoryImagePrompt = useSelector((state: RootState) => state.viewStory.baseStoryImagePrompt)
   const baseStoryImagePromptCreated = useSelector((state: RootState) => state.viewStory.baseStoryImagePromptCreated)
+  const layoutSelected = useSelector((state: RootState) => state.layout.layoutSelected)
   const heroImage = useSelector((state: RootState) => state.viewCharacter.characterImage)
   const editTextId = useSelector((state: RootState) => state.editTextModal.editTextPageId)
+  const openEditorToobar = useSelector((state: RootState) => state.editTextModal.editTextPageId)
   const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
   const [pageSelected, setPageSelected] = useState<string | null>(null)
   const userEmail = session?.user?.email;
   const storyIdValue = storyId;
+
+  console.log('layoutSelected', layoutSelected)
 
   useEffect(() => {
     if (!pathname) return;
@@ -111,7 +118,7 @@ function StoryPage() {
   }, [aiAssitantMessages]);
 
   useEffect(() => {
-    console.log("page id ---> ", selectedPageId)
+    console.log("page id ---> ", selectedPageId, )
     if (storyBuilderActive == 'InsidePage' && selectedPageId == ''){
       dispatch(setId('page_1'))
     }
@@ -151,7 +158,6 @@ const [images, imagesLoading, imagesError] = useCollection(
 useEffect(() => {
   if (!images?.docs.length) return;
 
-  console.log('IMAGES ==> ', images.docs)
 
   const sortedImages = images.docs
     .map(doc => ({
@@ -160,11 +166,9 @@ useEffect(() => {
     }))
     .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
   // setSortedImContent(sortedPages);
-  console.log('THESE ARE THE sorted Images', sortedImages)
+
   setSortedImageIdeas(sortedImages)
   sortedImages.map(image => {
-    
-    console.log('1', image.data.backgroundImage, '2', image.data.wildcardImage)
     if (!image.data.backgroundImageUrl){
       console.log('no url yet')
     }
@@ -181,7 +185,6 @@ useEffect(() => {
   
   const fullStory = story?.data()?.fullImagePrompt?.story;
   dispatch(setFullStory(fullStory));
-  // console.log('STORY ====> ', fullStory);
 }, [story])
 
   const [storyContent, storyContentloading, storyContenterror] = useCollection(
@@ -192,9 +195,6 @@ useEffect(() => {
   const [storyOutline, storyOutlineLoading, storyOutlineError] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session?.user.email, 'storys', storyId, 'storyOutline') : null,
   );
-
-
-
   let documentID = "";
 
 if (!storyOutlineLoading && !storyOutlineError && storyOutline) {
@@ -213,7 +213,7 @@ const [singleDocument, singleDocumentLoading, singleDocumentError] = useDocument
 
 useEffect(() => {
   if (singleDocument){
-    console.log('this is the story STYLE', singleDocument)
+
    }
 
 }, [singleDocument])
@@ -250,14 +250,8 @@ useEffect(() => {
   console.log(singleDocument.data())
   setStyle(singleDocument.data()!.style)
   setReadersAge(singleDocument.data()!.readersAge)
-  // const hc = `${}: ${singleDocument.data()!.heroCharacter.imagePrompt}`
-  // setHeroCharacter(hc)
   const hero = { name:singleDocument.data()!.heroCharacter.name, description: singleDocument.data()!.heroCharacter.name }
-  // dispatch(setCharacterDescription(singleDocument.data()!.heroCharacter.imagePrompt))
-  // dispatch(setHeroCharacterName(singleDocument.data()!.heroCharacter.name))
   dispatch(addCharacter(hero))
-  
-   console.log('singleDocument', singleDocument.data())
 }, [singleDocument])
 
 useEffect(() => {
@@ -270,7 +264,6 @@ useEffect(() => {
       }))
       .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
     setSortedStoryContent(sortedPages);
-    console.log('this is sorted pages length', sortedPages.length)
   }, [storyContent]);
 
   useEffect(() => {
@@ -304,6 +297,14 @@ useEffect(() => {
     console.log(updatedPage);
   };
 
+  useEffect(() => {
+    console.log('SBA --->', storyBuilderActive, 'PAgeid', selectedPageId)
+    if (storyBuilderActive == 'view story' && !selectedPageId){
+      dispatch(setName('CoverPage'))
+    }
+  }, [storyBuilderActive, selectedPageId ])
+
+
   return (
     <div className="w-screen bg-gray-50 ">
       <ImproveImagesModal />
@@ -311,7 +312,7 @@ useEffect(() => {
       {/* <GetImagesModal /> */}
       <GetPageImageModal />
       <AddTextModal />
-      <EditTextModal />
+      {/* <EditTextModal /> */}
 
       <div className="grid grid-cols-8">
 
@@ -324,11 +325,19 @@ useEffect(() => {
      
 
       <div className='col-span-6 h-screen overflow-y-scroll '>
-          {editTextId == selectedPageId && (
+          {editTextId == selectedPageId && openEditorToobar &&   (
               <TextEditorToolBar />
           )}
-         {storyBuilderActive === 'InsidePage' && (
-          <InsidePage />
+         {storyBuilderActive === 'InsidePage' && layoutSelected == 'default' && (
+          
+          <InsidePage storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
+        )} 
+        {storyBuilderActive === 'CoverPage' && (
+          <BookCover />
+        )}
+
+        {storyBuilderActive === 'InsidePage' && layoutSelected == 'one' && (
+          <LayoutOne />
         )} 
         </div>
 
@@ -368,9 +377,7 @@ useEffect(() => {
           <CreateStoryOutline characters={characters || []} />
         )}
 
-        {storyBuilderActive === 'CoverPage' && (
-          <BookCover />
-        )}
+    
 
        
      

@@ -32,6 +32,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     const [active, setActive] = useState<boolean>(false);
     const [url, setUrl] = useState<string | null>(null);
 
+   
     const viewPage = () => {
      
 
@@ -102,8 +103,17 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
         if (page.data.finalImage){
             setUrl(page.data.finalImage)
         }
-        else if (page.data.imagePrompt_objectIMageChoicesUrl){
-            setUrl(page.data.imagePrompt_objectIMageChoicesUrl)
+        if (page.data.imagePrompt_objectImageChoices){
+            setUrl(page.data.imagePrompt_objectImageChoices)
+        }
+        if (page.data.imagePrompt_characterImageChoices){
+            setUrl(page.data.imagePrompt_characterImageChoices)
+        }
+        if (page.data.imagePrompt_backgroundImageChoices){
+            setUrl(page.data.imagePrompt_backgroundImageChoices)
+        }
+        if (page.data.imagePrompt_wildcardImageChoices){
+            setUrl(page.data.imagePrompt_wildcardImageChoices)
         }
         else {
             setUrl(null)
@@ -119,7 +129,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     // }, [pageActive] )
 
   return (
-    <div className="transition-all duration-500 ease-in-out transform hover:scale-110">
+    <div className="transition-all duration-500 ease-in-out transform hover:scale-110 group">
         <button 
             className={`w-32 h-28 mx-auto my-auto p-2 text-center bg-purple-300 hover:bg-purple-400 ${active ? 'bg-purple-600': 'bg-purple-300' } transition-colors duration-200 rounded-lg shadow-lg`}
             onClick={viewPage} 
@@ -133,7 +143,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
                 {index !== null && <div className="w-12 h-12 border border-gray-200 bg-white rounded-lg shadow-md"></div>}
             </div>
 
-            <p className="text-sm text-gray-600 pt-2">{index == null ? title : index + 1}</p>
+            <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100  pt-2`}>{index == null ? title : index + 1}</p>
         </button>
     </div>
 

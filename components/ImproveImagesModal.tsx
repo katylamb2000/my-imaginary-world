@@ -351,9 +351,9 @@ const getImagePrompts = () => {
         if (!selectedTitle.length) return;
         console.log('selectedTitle', selectedTitle)
         const updateTitle = async () => {
-            const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", 'page_1');
+            const docRef = doc(db, "users", session?.user?.email!, "storys", storyId);
             await updateDoc(docRef, {
-              text: selectedTitle
+              title: selectedTitle
             });
         };
     

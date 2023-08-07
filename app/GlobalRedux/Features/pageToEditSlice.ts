@@ -23,7 +23,8 @@ export interface PageToEditSlice {
     characterIdea: string | null, 
     font: string,
     lineSpacing: string,
-    alignment: string
+    alignment: string,
+    showLayoutScrollbar: boolean
 }
 
 const initialState: PageToEditSlice = {
@@ -47,7 +48,8 @@ const initialState: PageToEditSlice = {
     objectIdea: null,
     font: 'serif',
     lineSpacing: 'leading-normal',
-    alignment: 'center'
+    alignment: 'center',
+    showLayoutScrollbar: false
 }
 
 export const PageToEditSlice = createSlice({
@@ -117,13 +119,16 @@ export const PageToEditSlice = createSlice({
         setAlignment: (state, action) => {
             state.alignment = action.payload;
         },
+        setShowLayoutScrollbar: (state, action) => {
+            state.showLayoutScrollbar = action.payload
+        }
     }
 });
 
 export const { 
     setId, setText, setTextColor, setTextSize, setImageUrl, setEditText, setButtonId, setCharacterDescription, 
     setHeroCharacterName, setStyle, setPreviousPageText, setNextPageText, setFormattedText, setAudioUrl, setWildcardIdea, setCharacterIdea,
-    setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment
+    setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar
 } 
     = PageToEditSlice.actions;
 

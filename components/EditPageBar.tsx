@@ -2,7 +2,7 @@ import type { RootState } from '../app/GlobalRedux/store';
 import {useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { useSession } from 'next-auth/react';
-import { setId, setText, setTextColor, setEditText } from '../app/GlobalRedux/Features/pageToEditSlice'
+import { setId, setText, setTextColor, setEditText, setShowLayoutScrollbar } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setAddTextBox } from '../app/GlobalRedux/Features/addTextBoxSlice';
 import { updateGetImagesModalStatus } from '../app/GlobalRedux/Features/getImagesModalSlice';
 import { updateAddTextModalStatus } from '../app/GlobalRedux/Features/addTextModalSlice';
@@ -12,21 +12,22 @@ import { PencilSquareIcon, PencilIcon, DocumentDuplicateIcon, PhotoIcon, Square2
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { SketchPicker } from 'react-color'
-import { updateEditTextModalStatus, setEditTextPageId } from '../app/GlobalRedux/Features/editTextModalSlice';
+import { updateEditTextModalStatus, setEditTextPageId, setOpenEditorToolbar } from '../app/GlobalRedux/Features/editTextModalSlice';
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice';
 import page from '../app/admin/[id]/page';
 import { updateimproveStoryModalStatus } from '../app/GlobalRedux/Features/improveStoryModalSlice';
+import { setStartReading, setCurrentPage, setCurrentPageText, setPaused } from '../app/GlobalRedux/Features/readStorySlice';
 import Draggable from 'react-draggable';
 import EditPageColor from './EditPageColor';
+import { setLayoutSelected } from '../app/GlobalRedux/Features/layoutSlice';
+
 
 type Props = {
     updatePageText: any;
     switchToEdit: any;
-
   }
 
 function EditPageBar({switchToEdit, updatePageText}: Props) {
-    
     const selectedPageId = useSelector((state: RootState) =>  state.pageToEdit.id);
     const editTextSelected = useSelector((state: RootState) =>  state.pageToEdit.editText);
     const selectedPageText = useSelector((state: RootState) =>  state.pageToEdit.text);
@@ -42,6 +43,11 @@ function EditPageBar({switchToEdit, updatePageText}: Props) {
     const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name);
     const addTextBox = useSelector((state: RootState) =>  state.addTextBox.addTextBox);
     const editTextId = useSelector((state: RootState) => state.editTextModal.editTextPageId)
+    const showLayoutScrollbar = useSelector((state: RootState) => state.pageToEdit.showLayoutScrollbar)
+
+    useEffect(() => {
+        console.log('======', selectedPageId, selectedPageText)
+    }, [selectedPageId, selectedPageText])
 
     useEffect(() => {
         if (!pathname) return;
@@ -58,7 +64,13 @@ function EditPageBar({switchToEdit, updatePageText}: Props) {
 
       const readStory = () => {
         // read story and also get the suggestions for improvements. 
-        dispatch(setName('preview'))
+        dispatch(setName('InsidePage'))
+        dispatch(setStartReading(true))
+        dispatch(setPaused(false))
+        dispatch(setCurrentPage('page_2'))
+        dispatch(setCurrentPageText(selectedPageText))
+        dispatch(setId('page_2'))
+        dispatch(setText(selectedPageText))
       }
 
       const improveStory = async() => {
@@ -107,13 +119,7 @@ const expandEditText = () => {
     // if (!selectedPageId.length) return;
     console.log('i want to get the pageID', selectedPageId)
     dispatch(setEditText(selectedPageId))
-
-    // setOpenTextEditor(!openTextEditor)
 }
-
-useEffect(() => {
-
-}, [])
 
 useEffect(() => {
     console.log('EDIT TEXT SLEc', editTextSelected)
@@ -133,7 +139,6 @@ const updateFontSize = async() => {
     // if (!storyId || !selectedPageId || !selectedPageId) return;
     if (!storyId || !pageId) return;
     console.log(storyBuilderActive)
-
     try{
         const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
         const updatedPage = await updateDoc(docRef, {
@@ -155,16 +160,26 @@ const updateFontSize = async() => {
         if (selectedPageId == editTextId){
             console.log('i want to close the text editor tool bar')
             dispatch(setEditTextPageId(''))
+            dispatch(setOpenEditorToolbar(false))
         }
         // dispatch(updateEditTextModalStatus(true))
         console.log("PAGE ID", pageId)
         if (selectedPageId && selectedPageId !== editTextId){
         dispatch(setEditTextPageId(selectedPageId))
+        dispatch(setOpenEditorToolbar(true))
         }
     }
 
     const openColorPicker = () => {
         setOpenColorEditor(true)
+    }
+
+    const openLayoutScrollbar = () => {
+        console.log(showLayoutScrollbar)
+        dispatch(setShowLayoutScrollbar(!showLayoutScrollbar))
+        if (!showLayoutScrollbar){
+            dispatch(setLayoutSelected('default'))
+        }
     }
 
   return (
@@ -243,7 +258,7 @@ const updateFontSize = async() => {
                 }
             </div>
 
-            <div className='w-full text-center group ' onClick={openColorPicker}>
+            <div className='w-full text-center group ' onClick={openLayoutScrollbar}>
                 <Squares2X2Icon  className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
                 <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Layout</p>
             </div>

@@ -2,12 +2,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Modal {
   status: boolean;
-  editTextPageId: string
+  editTextPageId: string, 
+  openEditorToolbar: boolean
 }
 
 const initialState: Modal = {
   status: false,
-  editTextPageId: ''
+  editTextPageId: '',
+  openEditorToolbar: false
 };
 
 export const editTextModalSlice = createSlice({
@@ -20,10 +22,13 @@ export const editTextModalSlice = createSlice({
       setEditTextPageId: (state, action: PayloadAction<string>) => {
         state.editTextPageId = action.payload;
       },
+      setOpenEditorToolbar: (state, action: PayloadAction<boolean>) => {
+        state.openEditorToolbar = action.payload;
+      },
   },
 });
 
-export const { updateEditTextModalStatus, setEditTextPageId } = editTextModalSlice.actions;
+export const { updateEditTextModalStatus, setEditTextPageId, setOpenEditorToolbar } = editTextModalSlice.actions;
 
 export default editTextModalSlice.reducer;
 
