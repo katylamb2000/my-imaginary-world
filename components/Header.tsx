@@ -15,6 +15,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { useDispatch } from "react-redux";
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import axios from "axios";
+import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice";
 const stripePromise = loadStripe(process.env.stripe_public_key || '');
 
 function Header(){ 
@@ -109,11 +110,12 @@ function Header(){
 
   const goHome = () => {
       dispatch(setName(''))
+      dispatch(setEditBarType('main'))
       router.push('/')
     }
 
 return(
-<header className="sticky bg-white top-0 z-50 text-center shadow-md
+<header className="sticky bg-white top-0 z-50 text-center shadow-md border-b border-purple-200
         p-3 md:px-10 w-full justify-between flex ">
     
         <img

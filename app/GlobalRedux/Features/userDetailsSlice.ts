@@ -4,10 +4,12 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export interface StoryBuilderActiveSlice {
     username: string,
+    isSubscriber: boolean
 }
 
 const initialState: StoryBuilderActiveSlice = {
-    username: ''
+    username: '',
+    isSubscriber: false
    
 }
 
@@ -17,10 +19,13 @@ export const userDetailsSlice = createSlice({
     reducers: {
         setUsername: (state, action) => {
             state.username = action.payload;
-        }
+        },
+        setIsSubscriber: (state, action) => {
+            state.isSubscriber = action.payload;
+        },
     }
 });
 
-export const { setUsername } = userDetailsSlice.actions;
+export const { setUsername, setIsSubscriber } = userDetailsSlice.actions;
 
 export default userDetailsSlice.reducer;

@@ -33,6 +33,8 @@ function StoryThumbnail({ id, story }: Props) {
   const [addTitle, setAddTitle] = useState<boolean>(false)
   const [titleInput, setTitleInput] = useState<string>('')
 
+  console.log(id)
+
   const addStoryDetailsToRedux = () => {
 
     dispatch(setName('view story'))
@@ -72,7 +74,7 @@ function StoryThumbnail({ id, story }: Props) {
   }
 
   return (
-<div className="flex flex-col items-center shadow-md mx-3 mt-6 rounded-sm overflow-hidden hover:scale-105 transition-transform duration-200 ease-in-out bg-white relative">
+<div className="flex flex-col items-center shadow-md mx-3 mt-6 rounded-sm overflow-hidden hover:scale-105 transition-transform duration-200 ease-in-out bg-white relative h-64">
   <button onClick={addStoryDetailsToRedux} className='relative w-full h-3/4'>
     {story.image ? (
       <Image
@@ -113,7 +115,7 @@ function StoryThumbnail({ id, story }: Props) {
       </div>
     ) : (
       <div>
-        <p className="text-sm">{id}</p>
+        <p className="text-sm text-purple-800">{id}</p>
         <button 
           className="bg-purple-500 hover:bg-purple-600 text-white px-3 py-1 rounded" 
           onClick={addNewTitle}

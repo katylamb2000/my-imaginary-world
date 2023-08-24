@@ -53,9 +53,6 @@ function ImproveImagesModal() {
     const [selectedTitle, setSelectedTitle] = useState<string>('')
     const [getBookCoverImagePrompt, setGetBookCoverImagePrompt] = useState<boolean>(true)
 
-
-
-   
       const submit = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault() 
         if (messages.length){

@@ -9,7 +9,9 @@ export interface ViewStorySlice {
     baseStoryImagePrompt: string,
     baseStoryImagePromptCreated: Boolean,
     storyId: string,
-    fullStory: string;
+    fullStory: string,
+    coverImage: string | null, 
+    storyComplete: boolean
 }
 
 const initialState: ViewStorySlice = {
@@ -19,6 +21,8 @@ const initialState: ViewStorySlice = {
     baseStoryImagePrompt: '',
     baseStoryImagePromptCreated: false,
     fullStory: '',
+    coverImage: null,
+    storyComplete: true
 }
 
 export const viewStorySlice = createSlice({
@@ -43,9 +47,15 @@ export const viewStorySlice = createSlice({
         setFullStory: (state, action) => {
             state.fullStory = action.payload;
         },
+        setCoverImage: (state, action) => {
+            state.coverImage = action.payload;
+        },
+        setStoryComplete: (state, action) => {
+            state.storyComplete = action.payload;
+        },
     }
 });
 
-export const { setTitle, setStoryId, setThumbnailImage, setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setFullStory } = viewStorySlice.actions;
+export const { setTitle, setStoryId, setThumbnailImage, setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setFullStory, setCoverImage, setStoryComplete } = viewStorySlice.actions;
 
 export default viewStorySlice.reducer;

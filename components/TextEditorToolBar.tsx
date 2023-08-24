@@ -14,7 +14,7 @@ const TextEditorToolBar = () => {
  
   return (
    <Draggable>
-           <div className="flex justify-around space-x-2 bg-purple-400 m-4 rounded-md shadow-lg  p-4">
+        <div className="flex justify-around space-x-2 bg-purple-400 m-4 rounded-md shadow-lg  p-4">
         <div>
           <label htmlFor="font-size">Font Size:</label>
           <select

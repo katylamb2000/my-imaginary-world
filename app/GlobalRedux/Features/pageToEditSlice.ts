@@ -24,7 +24,12 @@ export interface PageToEditSlice {
     font: string,
     lineSpacing: string,
     alignment: string,
-    showLayoutScrollbar: boolean
+    showLayoutScrollbar: boolean,
+    editBarType: string,
+    editStage: string,
+    buttonMsgId: string | null, 
+    imagePrompt: string | null, 
+    firstImagePromptIdea: string | null
 }
 
 const initialState: PageToEditSlice = {
@@ -49,7 +54,12 @@ const initialState: PageToEditSlice = {
     font: 'serif',
     lineSpacing: 'leading-normal',
     alignment: 'center',
-    showLayoutScrollbar: false
+    showLayoutScrollbar: false,
+    editBarType: 'main',
+    editStage: '1', 
+    buttonMsgId: null,
+    imagePrompt: null, 
+    firstImagePromptIdea: null
 }
 
 export const PageToEditSlice = createSlice({
@@ -121,14 +131,30 @@ export const PageToEditSlice = createSlice({
         },
         setShowLayoutScrollbar: (state, action) => {
             state.showLayoutScrollbar = action.payload
-        }
+        }, 
+        setEditBarType: (state, action) => {
+            state.editBarType = action.payload
+        }, 
+        setEditStage: (state, action) => {
+            state.editStage = action.payload
+        }, 
+        setbuttonMsgId: (state, action) => {
+            state.buttonMsgId = action.payload
+        }, 
+        setImagePrompt: (state, action) => {
+            state.imagePrompt = action.payload
+        }, 
+        setFirstImagePromptIdea: (state, action) => {
+            state.firstImagePromptIdea = action.payload
+        },
     }
 });
 
 export const { 
     setId, setText, setTextColor, setTextSize, setImageUrl, setEditText, setButtonId, setCharacterDescription, 
     setHeroCharacterName, setStyle, setPreviousPageText, setNextPageText, setFormattedText, setAudioUrl, setWildcardIdea, setCharacterIdea,
-    setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar
+    setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar, setEditBarType, setEditStage, 
+    setbuttonMsgId, setImagePrompt, setFirstImagePromptIdea
 } 
     = PageToEditSlice.actions;
 

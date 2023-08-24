@@ -130,7 +130,7 @@ const query = async (prompt: string) => {
       presence_penalty: 0,
     });
 
-    console.log("RESPONSE FROM GPT API:", res);
+  
 
     const story = res.data.choices[0].text;
     if (!story) {
@@ -163,7 +163,6 @@ const query = async (prompt: string) => {
       pages.push(currentPage.trim()); // Push the last page content
     }
     
-
     return { success: true, data: { title, pages, story } };
 
   } catch (err) {

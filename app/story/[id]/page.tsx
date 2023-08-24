@@ -1,6 +1,5 @@
 'use client' 
 
-
 import SideBar from "../../../components/SideBar"
 import CreatePDF from "../../../components/CreatePDF"
 import MainCharacterFundamentalsForm from "../../../components/MainCharacterFundamentalsForm"
@@ -18,9 +17,9 @@ import { useState, useEffect } from 'react'
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
 import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector, useDispatch } from "react-redux"
-import { setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
+import { setbuttonMsgId, setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
 import { addCharacters, addCharacter } from "../../GlobalRedux/Features/characterSlice"
-import { setBaseStoryImagePromptCreated, setTitle, setFullStory } from '../../GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete } from '../../GlobalRedux/Features/viewStorySlice'
 import { setName } from '../../GlobalRedux/Features/storyBuilderActiveSlice'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
@@ -40,7 +39,9 @@ import TextEditorToolBar from "../../../components/TextEditorToolBar"
 import { identityMatrix } from "pdf-lib/cjs/types/matrix"
 import { setId } from "../../GlobalRedux/Features/pageToEditSlice"
 import LayoutOne from "../../../components/LayoutOne"
-
+import CoverModal from "../../../components/CoverModal"
+import ImproveStoryPage from "../../../components/ImproveStoryPage"
+import GeneratePDF from "../../../components/generatePDF"
 
 interface PageData {
   id: string | null;
@@ -52,6 +53,11 @@ interface ImageData {
   data: any; // Replace 'any' with the appropriate type for your page data
 }
 
+type Props = {
+  sideBarCols: number,
+  pageCols: number
+}
+
 function StoryPage() {
   const dispatch = useDispatch()
   const { data: session } = useSession()
@@ -59,9 +65,8 @@ function StoryPage() {
   const [storyBaseImagePrompt, setStoryBaseImagePrompt] = useState<null | string>(null)
   const [gettingBasePrompt, setGettingBasePrompt] = useState(false)
   const [docId, setDocId] = useState<null | string>(null)
-  // const [fullStory, setFullStory] = useState('')
+
   const [storyId, setStoryId] = useState<null | string>(null)
-  // const [style, setStyle] = useState('')
   const [readersAge, setReadersAge] = useState('')
   const [heroCharacter, setHeroCharacter] = useState<null | any>(null)
   const [imagePrompts, setImagePrompts] = useState<any[]>([]);
@@ -85,8 +90,9 @@ function StoryPage() {
   const [pageSelected, setPageSelected] = useState<string | null>(null)
   const userEmail = session?.user?.email;
   const storyIdValue = storyId;
+  const [sideBarCols, setSideBarCols] = useState(1)
+  const [pageCols, setPageCols] = useState(5)
 
-  console.log('layoutSelected', layoutSelected)
 
   useEffect(() => {
     if (!pathname) return;
@@ -100,6 +106,60 @@ function StoryPage() {
       console.log("No match");
     }
   }, [pathname])
+
+  // useEffect(() => {
+  //   console.log('inside page ===>>', sideBarCols, pageCols, )
+  //   if (storyBuilderActive === 'InsidePage'){
+  //       console.log('inside page ===>>', sideBarCols, pageCols)
+  //       setPageCols(5)
+  //       setSideBarCols(1)
+  //   }
+  //   else if (storyBuilderActive === 'improveStory'){
+  //       setPageCols(3)
+  //       setSideBarCols(3)
+  //   }
+  //   else if (storyBuilderActive === 'CoverPage'){
+  //     setPageCols(4)
+  //     setSideBarCols(2)
+  // }
+  //   console.log('inside page ===>>', sideBarCols, pageCols, 'the storyBuilderActive === ', storyBuilderActive)
+  // }, [storyBuilderActive, sideBarCols, pageCols])
+
+
+  
+  useEffect(() => {
+    console.log(storyBuilderActive, sideBarCols, pageCols)
+    switch (storyBuilderActive) {
+      case 'CreatePDF':
+        setSideBarCols(1);
+        setPageCols(5);
+        // updateColumnLayout(1, 5);
+        break;
+      case 'InsidePage':
+        setSideBarCols(1);
+        setPageCols(5);
+        // updateColumnLayout(1, 5);
+        break;
+      case 'improveStory':
+        setSideBarCols(3);
+        setPageCols(3);
+        // updateColumnLayo
+        break;
+      case 'CoverPage':
+        setPageCols(3);
+        setSideBarCols(3);
+    
+        // updateColumnLayo
+        break;
+      default:
+        // Set default values here if needed
+        setSideBarCols(1);
+        setPageCols(5);
+        break;
+    }
+    console.log(storyBuilderActive, sideBarCols, pageCols)
+  }, [storyBuilderActive]);
+  
 
   let aiAssitantMessages: QuerySnapshot<DocumentData> | undefined;
 
@@ -118,7 +178,7 @@ function StoryPage() {
   }, [aiAssitantMessages]);
 
   useEffect(() => {
-    console.log("page id ---> ", selectedPageId, )
+    console.log("page id ---> ", selectedPageId)
     if (storyBuilderActive == 'InsidePage' && selectedPageId == ''){
       dispatch(setId('page_1'))
     }
@@ -157,15 +217,12 @@ const [images, imagesLoading, imagesError] = useCollection(
 
 useEffect(() => {
   if (!images?.docs.length) return;
-
-
   const sortedImages = images.docs
     .map(doc => ({
       id: doc.id,
       data: doc.data(),
     }))
     .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
-  // setSortedImContent(sortedPages);
 
   setSortedImageIdeas(sortedImages)
   sortedImages.map(image => {
@@ -183,14 +240,24 @@ const [story, storyLoading, storyError] = useDocument(
 
 useEffect(() => {
   
-  const fullStory = story?.data()?.fullImagePrompt?.story;
-  dispatch(setFullStory(fullStory));
+    // const fullStory = story?.data()?.fullStory;
+    // console.log("FULL STORY", fullStory)
+    // dispatch(setFullStory(fullStory));
+
+    const coverImage = story?.data()?.coverImage
+    dispatch(setCoverImage(coverImage))
+
+    const buttonMsgId = story?.data()?.buttonMessageId
+    dispatch(setbuttonMsgId(buttonMsgId))
+
+    const storyComplete = story?.data()?.storyComplete
+    // dispatch(setStoryComplete(storyComplete))
+
 }, [story])
 
   const [storyContent, storyContentloading, storyContenterror] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session?.user.email, 'storys', storyId, 'storyContent') : null,
   );
-
 
   const [storyOutline, storyOutlineLoading, storyOutlineError] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session?.user.email, 'storys', storyId, 'storyOutline') : null,
@@ -267,12 +334,37 @@ useEffect(() => {
   }, [storyContent]);
 
   useEffect(() => {
-    const storyText = sortedStoryContent.reduce((text, page) => {
-      return text + page.data.page;
-    }, '');
-    setFullStory(storyText)
-  }, [sortedStoryContent])
+    let pageNumber = 1;
+    let finalString = '';
+  
+    sortedStoryContent.forEach(story => {
+      finalString += `page_${pageNumber}: ${story.data.text} `;
+      pageNumber++;
+    });
+    dispatch(setFullStory(finalString))
+  
+  }, [sortedStoryContent]);
+  
 
+  // useEffect(() => {
+  //     if (!storyContent) return;
+  //     storyContent.docs.map(doc => {
+  //       if (doc.data().audioUrl) return;
+  //       else if (!doc.data().audioUrl){
+  //         fetch('/api/elevenLabs', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify({ message:  doc.data().text, voice: '21m00Tcm4TlvDq8ikWAM', pageId: doc.id, storyId: storyId, session: session })
+  //         }).then(async (response) => {
+  //           const blob = await response.blob();
+    
+  //           console.log("I AM BLOB", blob)
+  //         }).catch(console.error);
+  //       }
+  //       console.log('DOC DATA', doc.data().audioUrl)
+  //     })
+
+  // }, [storyContent])
 
 
   const switchToEdit = () => {
@@ -286,7 +378,6 @@ useEffect(() => {
     }
   }, [selectedPageId])
 
-
   const updatePageText = async () => {
     // console.log(selectedPageText, selectedPageId);
     if (!storyId || !selectedPageId) return;
@@ -298,59 +389,69 @@ useEffect(() => {
   };
 
   useEffect(() => {
-    console.log('SBA --->', storyBuilderActive, 'PAgeid', selectedPageId)
     if (storyBuilderActive == 'view story' && !selectedPageId){
       dispatch(setName('CoverPage'))
     }
   }, [storyBuilderActive, selectedPageId ])
 
-
   return (
     <div className="w-screen bg-gray-50 ">
-      <ImproveImagesModal />
-      {/* <ImproveStoryModal  /> */}
-      {/* <GetImagesModal /> */}
+      {/* <ImproveImagesModal />
+      <ImproveStoryModal  />
+      <GetImagesModal />
       <GetPageImageModal />
       <AddTextModal />
+      <CoverModal /> */}
       {/* <EditTextModal /> */}
 
-      <div className="grid grid-cols-8">
+      <div className="w-full grid grid-cols-7">
 
-        <div className="col-span-1">
-        {storyBuilderActive !== 'create story outline' && (
-            <EditPageBar switchToEdit={() => setEditStoryPage(!editStoryPage)} updatePageText={updatePageText}  />
-          )}
+        <div className={`col-span-${sideBarCols}`}>
+          {storyBuilderActive !== 'create story outline' && (
+              <SideBar />
+            )}
         </div>
         
-     
-
-      <div className='col-span-6 h-screen overflow-y-scroll '>
-          {editTextId == selectedPageId && openEditorToobar &&   (
+    <div className={`col-span-${pageCols} h-screen overflow-y-scroll bg-purple-200 `}>
+      {/* <div className={`col-span-5 h-screen overflow-y-scroll bg-purple-200 `}> */}
+          {/* {editTextId == selectedPageId && openEditorToobar &&   (
               <TextEditorToolBar />
-          )}
-         {storyBuilderActive === 'InsidePage' && layoutSelected == 'default' && (
-          
+          )} */}
+        {storyBuilderActive === 'InsidePage' && layoutSelected == 'default' && (
           <InsidePage storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
         )} 
+
+         {storyBuilderActive === 'improveStory' && layoutSelected == 'default' && (
+          <ImproveStoryPage storyPages={sortedStoryContent} />
+        )} 
+
         {storyBuilderActive === 'CoverPage' && (
+       
           <BookCover />
+
         )}
 
-        {storyBuilderActive === 'InsidePage' && layoutSelected == 'one' && (
+        {/* {storyBuilderActive === 'InsidePage' && layoutSelected == 'one' && (
           <LayoutOne />
-        )} 
-        </div>
+        )}  */}
 
+        {storyBuilderActive == 'create story outline' && (
+          <CreateStoryOutline characters={characters || []} />
+        )}
+    </div>
+        
         <div className="col-span-1">
-        {storyBuilderActive !== 'create story outline' && (
-            <BookLayoutScrollBar storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
-          )}
+            {storyBuilderActive !== 'create story outline' && (
+              // <div className="col-span-7 w-full items-center ">
+                <BookLayoutScrollBar storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
+              // </div>
+            )}
         </div>
-
+ 
         </div>
 
         {storyBuilderActive == 'add character' && (
-            <MainCharacterFundamentalsForm />
+          <MainCharacterFundamentalsForm />
         )}
 
         {storyBuilderActive == 'add hero' && (
@@ -373,19 +474,11 @@ useEffect(() => {
           <CharacterScrollBar characters={characters} />
         )}
 
-        {storyBuilderActive == 'create story outline' && (
-          <CreateStoryOutline characters={characters || []} />
+        {storyBuilderActive == 'createPDF' && storyId && (
+          <GeneratePDF story={sortedStoryContent} storyId={storyId} />
         )}
 
-    
-
-       
-     
-     
-
     </div>
-
-
   )
 }
 

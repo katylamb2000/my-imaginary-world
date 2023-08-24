@@ -34,8 +34,6 @@ export default async function createStory(
     user: session.user,
   };
 
-
-
   if (hasPages(response)) {
     const batch = adminDb.batch();
   

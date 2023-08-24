@@ -20,7 +20,6 @@ export default async function handler(
     const answer = await assistantConversation(userMessage);
     console.log("Answer", answer)
 
-
     if (answer) {
     res.status(200).json({ answer });
     }

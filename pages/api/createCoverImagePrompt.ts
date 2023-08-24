@@ -15,6 +15,7 @@ export default async function createStory(
 
 ) {
   const { session, storyId, prompt } = req.body
+  console.log(session, storyId, prompt)
 
   if (!prompt) {
     res.status(400).json( { message: 'Missing prompt' } );
@@ -33,7 +34,7 @@ export default async function createStory(
 
   // ChatGPT query
   const response = await createCoverImagePromptHelper(prompt);
-
+  console.log(response)
 
       
         await adminDb

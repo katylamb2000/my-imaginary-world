@@ -178,11 +178,7 @@ try{
                 }
                 </div>
 
-            
-            
-      
-
-
+    
                         </div>
                         </Transition.Child>
                 </div>

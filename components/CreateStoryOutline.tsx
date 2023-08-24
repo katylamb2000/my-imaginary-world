@@ -80,13 +80,15 @@ function CreateStoryOutline({ characters  }: Props) {
   };
 
   useEffect(() => {
-    if (!heroCharacter) return;
-    if (heroCharacter == null){
-      setHeroDescription('create your own hero character')
+      if (!heroCharacter) return;
+      if (heroCharacter == null){
+        setHeroDescription('create your own hero character')
     }
-    const description = `a ${heroCharacter.age} years old ${heroCharacter.gender} called ${heroCharacter.name} .`
-    console.log(description)
-    setHeroDescription(description)
+    else {
+      const description = `a ${heroCharacter.age} years old ${heroCharacter.gender} called ${heroCharacter.name}. They have ${heroCharacter.hairColor} ${heroCharacter.hairStyle} hair, ${heroCharacter.eyeColor} eyes. They are wearing ${heroCharacter.clothing}. And they are of ${heroCharacter.skinColor}`
+      console.log(description)
+      setHeroDescription(description)
+    }
   }, [heroCharacter])
 
   useEffect(() => {
@@ -96,6 +98,7 @@ function CreateStoryOutline({ characters  }: Props) {
         dispatch(setCharacterImage(selectedCharacter.heroImage));
         dispatch(setCharacterImagePrompt(selectedCharacter.imagePrompt));
         setHeroCharacter(selectedCharacter)
+        console.log(selectedCharacter)
       }
     }
   }, [heroCharacterId, characters]);
@@ -106,9 +109,11 @@ function CreateStoryOutline({ characters  }: Props) {
 
   useEffect(() => {
     if (!storyContent) return;
-    if (storyContent.docs){
-      console.log('this is storyContent ==========> ', storyContent.docs)
-    }
+    if (!storyContent.docs) return;
+    if (!storyContent.docChanges.length)return;
+      else if (storyContent.docChanges.length){
+        dispatch(setName('view story'))
+      }
   }, [storyContent])
   
   useEffect(() => {
@@ -126,39 +131,47 @@ function CreateStoryOutline({ characters  }: Props) {
 
 const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('story outline ==> ', 'readersAge:', age, 'setting', setting, 'things to include', favouriteThings, 'storyStyle', genre, 'style', style, 'heroCharacter' )
+    console.log('story outline ==> ', 'readersAge:', age, 'setting', setting, 'things to include', favouriteThings, 'storyStyle', genre, 'style', style, 'heroCharacter', heroDescription )
     setLoading(true)
-    await addDoc(collection(db, 'users', session?.user?.email!, 'storys', storyId!, 'storyOutline'),
+    try{
+    const outline = await addDoc(collection(db, 'users', session?.user?.email!, 'storys', storyId!, 'storyOutline'),
         {
             readersAge: age,
             setting: setting,
             thingsToInclude: favouriteThings,
             storyStyle: genre,
             style: style,
-            heroCharacter: heroCharacter
+            heroCharacter: heroDescription
         }
     )
+    console.log(outline)
+    createStory()
+      }catch(err){
+        console.log(err)
+        setLoading(false)
+   
+      }
+    }
+    const createStory = async() => {
+      const notification = toast.loading('Hang tight! Your story is being written!')
 
-const notification = toast.loading('Hang tight! Your story is being written!')
+        try{
 
-const storyPrompt = `Create a 14 page adventurous and humorous ${genre} story that will captivate a ${age} years old child. The story should embody the whimsical nature of ${style}, be set in the fantastic world of ${setting}, and incorporate ${favouriteThings} as key elements to generate fun and laughter.
+          const storyPrompt = `Create a 14 page adventurous and humorous ${genre} story that will captivate a ${age} years old child. The story should embody the whimsical nature of ${style}, be set in the fantastic world of ${setting}, and incorporate ${favouriteThings} as key elements to generate fun and laughter.
 
-Our hero is ${heroDescription} - a character with a quirky twist that makes them unique and entertaining.
+          Our hero is ${heroDescription} - a character with a quirky twist that makes them unique and entertaining.
 
-The story must be structured into exactly 14 pages and a title page. The structure should be as follows:
+          The story must be structured into exactly 14 pages and a title page. The structure should be as follows:
 
-Title: 
+          Title: 
 
-Page 1: 
+          Page 1: 
 
-Page 2: 
+          Page 2: 
 
-etc
-`;
-
-    
-try{
-    const response = await fetch('/api/createStory', {
+          etc
+          `;
+        const response = await fetch('/api/createStory', {
         method: 'POST', 
         headers: {
             'Content-Type': 'application/json'
@@ -167,7 +180,6 @@ try{
             prompt: storyPrompt, 
             session: session,
             storyId: storyId, 
-            hero: heroCharacter?.name
         }),
     })
 console.log('response from api', response)
@@ -175,8 +187,10 @@ console.log('response from api', response)
     toast.success('Your story has been created', {
             id: notification
         })
-// if (response)
-// dispatch(setName('view story'))
+if (response)
+console.log('RESPONSE', response)
+setLoading(false)
+dispatch(setName('view story'))
 // getImagePrompts()
 }catch(err){
   toast.error('FAIL', {
@@ -185,7 +199,7 @@ console.log('response from api', response)
   toast.dismiss()
     setLoading(false)
     console.log(err)
-}
+  }
 }
 
 const getImagePrompts = async() => {
@@ -251,15 +265,16 @@ useEffect(() => {
   // updateStoryTitle()
 }, [title])
 
+
   return (
     <div className="bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4">
-    {
+    {/* {
     storyContent &&
     storyContent!.docs.length > 0 ? (
       <div className='bg-white rounded-lg p-4 border border-gray-100'>
         <p className='p-4'>Got a  STORY</p>
       </div>
-          ): 
+          ):  */}
 
     <div className="max-w-md w-full space-y-8">
       <div>
@@ -287,6 +302,7 @@ useEffect(() => {
           </div>
         </div>
         
+
         <select
             className="appearance-none rounded-none relative block w-full px-3 py-2 mt-1 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm border-gray-300"
             onChange={(e) => setHeroCharacterId(e.target.value)}
@@ -395,7 +411,7 @@ useEffect(() => {
             </form>
 
           </div>
-}
+{/* } */}
 
         </div>
         

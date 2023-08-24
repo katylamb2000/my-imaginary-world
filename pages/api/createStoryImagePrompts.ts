@@ -4,12 +4,28 @@ import imageQuery from "../../lib/storyImagePrompts";
 import admin from "firebase-admin";
 import { adminDb } from "../../firebaseAdmin";
 
+
+interface PageDetail {
+  page?: string;
+  backgroundImage?: string;
+  characterCloseUp?: string;
+  object?: string;
+  wildCardImage?: string;
+  [key: string]: string | undefined;
+}
+
 export default async function createStoryImagePrompts(
   req: NextApiRequest,
-  res: NextApiResponse<{ answer: { message: string } | { data: { generalStyle: string | undefined; pages: { pageNumber: string, backgroundImage: string, characterCloseUp: string, object: string, wildCardImage: string }[] } } }>
-) {
+  res: NextApiResponse<{ answer: { message: string } | { data: { pages: [] | undefined }}}>
+
+) 
+
+{
   console.log(req.body);
-  const { session, prompt, storyId } = req.body
+  const { session, prompt, storyId, promptType } = req.body
+    console.log("session", session);
+    console.log("prompt", prompt);
+    console.log("storyId", storyId);
 
   if (!prompt) {
     res.status(400).json({ answer: { message: 'i dont have a prompt' } });
@@ -22,53 +38,39 @@ export default async function createStoryImagePrompts(
   }
 
   const response = await imageQuery(prompt);
-  console.log('this is the response', response.data)
 
-  const pages = response?.data?.pages;
+    console.log('this is the response', response.data)
+    const pagesArray = response.data?.pages?.filter(page => page !== '') || [];
 
-  if (!pages) {
-    console.error("Pages data is undefined.");
-    res.status(500).json({ answer: { message: "Pages data is undefined." } });
-    return;
-  }
-
-  try {
-    const batch = adminDb.batch();
-
-    for (let i = 0; i < pages.length; i++) {
-      try {
-        const cleanedPageString = pages[i].replace('undefined ', '');
-        const page: { pageNumber: string, backgroundImage: string, characterCloseUp: string, object: string, wildCardImage: string } = JSON.parse(cleanedPageString);
-
-        console.log("PAGE ~~~~~>>>", page)
-
-        const pageRef = adminDb
-            .collection("users")
-            .doc(session.user.email)
-            .collection("storys")
-            .doc(storyId)
-            .collection("images")
-            .doc(`page_${page.pageNumber}`);
-
-        batch.set(pageRef, {
-            'backgroundImage': page.backgroundImage,
-            'characterCloseUp': page.characterCloseUp,
-            'objectImage': page.object,
-            'wildcardImage': page.wildCardImage,
-            'pageNumber': page.pageNumber
-        });
-
-
-      } catch (error) {
-        console.error("Error while processing page: ", error);
-      }
-
-    }
-    await batch.commit();
-    res.status(200).json({ answer: { message:  "Data successfully saved." } });
+    const pagePrompts = pagesArray.map(page => {
+      const [_, number, ...rest] = page.split(' ');
+      const details = rest.join(' ');
   
-} catch (error) {
-    console.error("Error while saving data: ", error);
-    res.status(500).json({ answer: { message: "An error occurred while saving data." } });
+      if (promptType === 'firstImageIdeas'){
+      return {
+          // number: parseInt(number.replace(':', '')),
+          firstImagePromptIdea: details
+      };
+    };
+  });
+
+    const batch = adminDb.batch();
+if (promptType === 'firstImageIdeas'){
+pagePrompts.forEach((prompt, index) => {
+    const pageRef = adminDb
+        .collection('users')
+        .doc(session.user.email)
+        .collection('storys')
+        .doc(storyId)
+        .collection('storyContent')
+        .doc(`page_${index + 1}`);
+
+    batch.update(pageRef, prompt);
+});
 }
+await batch.commit();
+
+
+    res.status(200).json({ answer: { message: "Data successfully saved." } });
+
 }

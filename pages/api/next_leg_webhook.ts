@@ -29,7 +29,24 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         
           });
         }
-   
+
+        if (action === 'improveSingleImagePrompt') {
+          const docRef = adminDb
+            .collection('users')
+            .doc(userId)
+            .collection('storys')
+            .doc(storyId)
+            .collection('storyContent')
+            .doc(page);
+  
+            await docRef.update({
+              improvedImageUrl: imageUrl,
+              imagePromptContent: content,
+              improvedImageButtonMessageId: buttonMessageId,
+              improvedImageButtons: buttons
+            });
+          }
+        
 
     if (action === 'imagine') {
       const docRef = adminDb

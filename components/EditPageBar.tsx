@@ -2,13 +2,13 @@ import type { RootState } from '../app/GlobalRedux/store';
 import {useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { useSession } from 'next-auth/react';
-import { setId, setText, setTextColor, setEditText, setShowLayoutScrollbar } from '../app/GlobalRedux/Features/pageToEditSlice'
+import { setId, setText, setTextColor, setEditText, setShowLayoutScrollbar, setEditBarType } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setAddTextBox } from '../app/GlobalRedux/Features/addTextBoxSlice';
 import { updateGetImagesModalStatus } from '../app/GlobalRedux/Features/getImagesModalSlice';
 import { updateAddTextModalStatus } from '../app/GlobalRedux/Features/addTextModalSlice';
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { ArrowDownCircleIcon, ArrowUpCircleIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/solid';
-import { PencilSquareIcon, PencilIcon, DocumentDuplicateIcon, PhotoIcon, Square2StackIcon, Squares2X2Icon, BookOpenIcon, PlayIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, PencilIcon, DocumentDuplicateIcon, PhotoIcon, Square2StackIcon, Squares2X2Icon, BookOpenIcon, PlayIcon, DocumentCheckIcon } from '@heroicons/react/24/outline';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { SketchPicker } from 'react-color'
@@ -16,6 +16,7 @@ import { updateEditTextModalStatus, setEditTextPageId, setOpenEditorToolbar } fr
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice';
 import page from '../app/admin/[id]/page';
 import { updateimproveStoryModalStatus } from '../app/GlobalRedux/Features/improveStoryModalSlice';
+import { setDesignCoverModalStatus, setType } from '../app/GlobalRedux/Features/designCoverModalSlice';
 import { setStartReading, setCurrentPage, setCurrentPageText, setPaused } from '../app/GlobalRedux/Features/readStorySlice';
 import Draggable from 'react-draggable';
 import EditPageColor from './EditPageColor';
@@ -27,7 +28,8 @@ type Props = {
     switchToEdit: any;
   }
 
-function EditPageBar({switchToEdit, updatePageText}: Props) {
+function EditPageBar() {
+    const router = useRouter()
     const selectedPageId = useSelector((state: RootState) =>  state.pageToEdit.id);
     const editTextSelected = useSelector((state: RootState) =>  state.pageToEdit.editText);
     const selectedPageText = useSelector((state: RootState) =>  state.pageToEdit.text);
@@ -40,11 +42,15 @@ function EditPageBar({switchToEdit, updatePageText}: Props) {
     const dispatch = useDispatch()
     const { data: session } = useSession()
     const pathname = usePathname()
+    const coverModalStatus = useSelector((state: RootState) => state.designCoverModal.status)
+    const coverModalType = useSelector((state: RootState) => state.designCoverModal.type)
     const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name);
     const addTextBox = useSelector((state: RootState) =>  state.addTextBox.addTextBox);
     const editTextId = useSelector((state: RootState) => state.editTextModal.editTextPageId)
     const showLayoutScrollbar = useSelector((state: RootState) => state.pageToEdit.showLayoutScrollbar)
-
+    const toggleGetImagesModuleStatus = useSelector((state: RootState) => state.getImagesModal.status)
+    const subscriber = useSelector((state: RootState) => state.userDetails.isSubscriber)
+    const storyComplete = useSelector((state: RootState) => state.viewStory.storyComplete)
     useEffect(() => {
         console.log('======', selectedPageId, selectedPageText)
     }, [selectedPageId, selectedPageText])
@@ -75,6 +81,8 @@ function EditPageBar({switchToEdit, updatePageText}: Props) {
 
       const improveStory = async() => {
         dispatch(updateimproveStoryModalStatus(true))
+        dispatch(setEditBarType('improveStory'))
+        dispatch(setName('improveStory'))
         // open the ai module to discuss how to improve the story with the author. 
       }
 
@@ -86,15 +94,10 @@ const updatePageTextInDB = async() => {
         const updatedPage = await updateDoc(docRef, {
           page: selectedPageText
         });
-        console.log('updated page text:', updatedPage)
     }catch(err){
         console.log(err)
     }
 }
-
-useEffect(() => {
-    console.log(selectedPageTextColor)
-}, [selectedPageTextColor])
 
 const increaseTextSize = () => {
     console.log()
@@ -121,9 +124,6 @@ const expandEditText = () => {
     dispatch(setEditText(selectedPageId))
 }
 
-useEffect(() => {
-    console.log('EDIT TEXT SLEc', editTextSelected)
-}, [editTextSelected])
 
 useEffect(() => {
     updateFontSize()
@@ -152,22 +152,24 @@ const updateFontSize = async() => {
 
     const getImages = () => {
         console.log("Get images", storyId)
-        dispatch(updateGetImagesModalStatus(true))
+        // dispatch(updateGetImagesModalStatus(!toggleGetImagesModuleStatus))
+        dispatch(setEditBarType('getImages'))
     }
 
     const editText = () => {
         console.log('i want to close the text editor tool bar', selectedPageId, editTextId)
-        if (selectedPageId == editTextId){
-            console.log('i want to close the text editor tool bar')
-            dispatch(setEditTextPageId(''))
-            dispatch(setOpenEditorToolbar(false))
-        }
+        // if (selectedPageId == editTextId){
+        //     console.log('i want to close the text editor tool bar')
+        //     dispatch(setEditTextPageId(''))
+        //     dispatch(setOpenEditorToolbar(false))
+        // }
         // dispatch(updateEditTextModalStatus(true))
-        console.log("PAGE ID", pageId)
-        if (selectedPageId && selectedPageId !== editTextId){
-        dispatch(setEditTextPageId(selectedPageId))
-        dispatch(setOpenEditorToolbar(true))
-        }
+        // console.log("PAGE ID", pageId)
+        // if (selectedPageId && selectedPageId !== editTextId){
+        // dispatch(setEditTextPageId(selectedPageId))
+        // dispatch(setOpenEditorToolbar(true))
+        dispatch(setEditBarType('editText'))
+        // }
     }
 
     const openColorPicker = () => {
@@ -182,43 +184,78 @@ const updateFontSize = async() => {
         }
     }
 
+    const designBookCover = () => {
+        console.log('design cover modal', coverModalStatus, coverModalType)
+        // dispatch(setDesignCoverModalStatus(!coverModalStatus))
+        // dispatch(setType('do you work!!!'))
+        dispatch(setEditBarType('editCover'))
+        dispatch(setName('CoverPage'))
+        // dispatch(setText(page.data.text))
+        // dispatch(setFormattedText(page.data.formattedText))
+        // dispatch(setId(page.id))
+        // dispatch(setImageUrl(page.data.imageUrl))
+    }
+
+    const goToCheckOut = () => {
+        router.push('/orders')
+    }
+
+    const createPDF = () => {
+        dispatch(setName('createPDF'))
+    }
   return (
-    // <div className="flex">
+
        
-        <div className="bg-white w-32 h-screen">
-    
-    <div className='space-y-6 w-full my-12 '>
+ <div className="bg-white h-screen ml-2 mr-8">
 
-        <div className='w-full text-center ' >
-            <div className='group' onClick={readStory}>
-                <PlayIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
-                <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Read the story</p>
+    <div className='space-y-6 w-full pt-8 '>
+
+        {subscriber && (
+            <div className='w-full text-center ' >
+                <div className='group' onClick={readStory}>
+                    <PlayIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
+                    <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Read the story</p>
+                </div>
             </div>
-        </div>
+        )}
 
-        <div className='w-full text-center ' >
+        <div className='w-full text-center' >
                 {storyId ? (
-                    <div className='group' onClick={improveStory}>
+                    <div className='group' onClick={designBookCover}>
                         <BookOpenIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
-                        <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Improve the story</p>
+                        <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Design Cover</p>
                     </div>
                 ):
                 <>
                     <BookOpenIcon className='text-gray-300 h-8 w-8 mx-auto  ' />
-                    <p className=' text-gray-300'>Improve the story</p>
+                    <p className=' text-gray-300'>Design Cover</p>
+                </>
+                }
+            </div>
+   
+        <div className='w-full text-center ' >
+                {storyId ? (
+                    <div className='group' onClick={improveStory}>
+                        <BookOpenIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
+                        <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600 sm:hidden'>Improve the story</p>
+                    </div>
+                ):
+                <>
+                    <BookOpenIcon className='text-gray-300 h-8 w-8 mx-auto  ' />
+                    <p className=' text-gray-300 sm:hidden'>Improve the story</p>
                 </>
                 }
             </div>
 
-            <div className='w-full text-center group'>
+            {/* <div className='w-full text-center group'>
                 <Square2StackIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
                 <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Add a layer</p>
-            </div>
+            </div> */}
             
             <div className='w-full text-center ' >
                 {selectedPageId ? (
                     <div className='group' onClick={getImages}>
-                        <PhotoIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
+                        <PhotoIcon className='text-gray-300 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
                         <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Get Images</p>
                     </div>
                 ):
@@ -229,7 +266,7 @@ const updateFontSize = async() => {
 }
             </div>
 
-            <div className='w-full text-center'>
+            {/* <div className='w-full text-center'>
                 {selectedPageId ? (
                 <div className='group'onClick={addText} >
                     <PencilIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
@@ -241,7 +278,7 @@ const updateFontSize = async() => {
                     <p className='text-gray-300'>Add Text</p>
                     </>
                 }
-            </div>
+            </div> */}
 
             <div className='w-full text-center' >
                 {selectedPageId ? (
@@ -258,19 +295,39 @@ const updateFontSize = async() => {
                 }
             </div>
 
-            <div className='w-full text-center group ' onClick={openLayoutScrollbar}>
+            {/* <div className='w-full text-center group ' onClick={openLayoutScrollbar}>
                 <Squares2X2Icon  className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
                 <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Layout</p>
-            </div>
+            </div> */}
       
-        </div>
+      <div className='w-full text-center ' >
+                {storyComplete ? (
+                    <div className='group' onClick={createPDF}>
+                        <DocumentCheckIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
+                        <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Create PDF</p>
+                    </div>
+                ):
+                <div className='group'>
+                    <DocumentCheckIcon className='text-gray-300 h-8 w-8 mx-auto ' />
+                    <p className='text-gray-100'>Create PDF</p>
+                </div>
+}
+            </div>
 
-        {openColorEditor && (
-            <Draggable>
-                <EditPageColor />
-            </Draggable>
-        )}
-
+        <div className='w-full text-center ' >
+                {storyComplete ? (
+                    <div className='group' onClick={goToCheckOut}>
+                        <ArrowDownCircleIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
+                        <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Order your booK</p>
+                    </div>
+                ):
+                <div className='group'>
+                    <ArrowDownCircleIcon className='text-gray-300 h-8 w-8 mx-auto ' />
+                    <p className='text-gray-100'>Order your book</p>
+                </div>
+}
+            </div>
+            </div>
         </div>
         // {/* {openTextEditor && (
         //     <div className="bg-white w-32 h-screen ">

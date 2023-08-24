@@ -3,7 +3,7 @@ import { useState, FormEvent, useEffect, CSSProperties } from 'react';
 import Image from 'next/image';
 import { HandRaisedIcon, LockClosedIcon } from '@heroicons/react/24/solid';
 import { usePathname, useRouter } from 'next/navigation';
-import { addDoc, collection, serverTimestamp, doc  } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, doc, updateDoc  } from 'firebase/firestore';
 import { useSession } from 'next-auth/react';
 import { db } from '../firebase'
 import SyncLoader from "react-spinners/SyncLoader";
@@ -12,6 +12,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
 import { setCharacterId } from '../app/GlobalRedux/Features/viewCharacterSlice'
+import createStory from '../pages/api/createCoverImagePrompt';
 
 interface ImageOption {
   uri: string;
@@ -20,7 +21,7 @@ interface ImageOption {
 
 function MainCharacterFundamentalsForm() {
   const [loading, setLoading] = useState(false)
-  const [storyId, setStoryId] = useState<null | string>(null); 
+  const [characterId, setCharacterId] = useState<null | string>(null); 
   const [characterName, setCharacterName] = useState('');
   const [setting, setSetting] = useState('')
   const [favouriteThings, setFavouriteThings] = useState('')
@@ -39,6 +40,7 @@ function MainCharacterFundamentalsForm() {
   const { data: session } = useSession()
   const dispatch = useDispatch()
   let [color, setColor] = useState("#ffffff");
+  
 
   const override: CSSProperties = {
     display: "block",
@@ -56,12 +58,13 @@ function MainCharacterFundamentalsForm() {
 
   useEffect(() => {
     if (!pathname) return;
-    const regex = /^\/story\/([a-zA-Z0-9]+)$/;
+    const regex = /^\/character\/([a-zA-Z0-9]+)$/;
     const id = regex.exec(pathname);
   
     if (id) {
       const identifier = id[1];
-      setStoryId(identifier);  // Output: 4Hs1V2g0rDZeEut6piJj
+  
+      setCharacterId(identifier);  // Output: 4Hs1V2g0rDZeEut6piJj
     } else {
       console.log("No match");
     }
@@ -72,38 +75,80 @@ function MainCharacterFundamentalsForm() {
 const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
 
-  createNewCharacter()
+  updateCharacterDetails()
 };
 
-
-const createNewCharacter = async() => {
+const updateCharacterDetails = async () => {
   setLoading(true)
   try{
-   const doc = await addDoc(collection(db, "users", session?.user?.email!, 'characters' ), {
-      userId: session?.user?.email!,
-      createdAt: serverTimestamp(), 
-      name: characterName, 
-      gender: gender,
-      hairColor: hairColor, 
-      hairStyle: hairStyle,
-      eyeColor: eyeColor, 
-      skinColor: skinColor, 
-      clothing: clothing,
-      age: age
-
+  if (!characterId) return;
+  const docRef = doc(db, "users", session?.user?.email!, "characters", characterId);
+  const updatedCharacter = await updateDoc(docRef, {
+    userId: session?.user?.email!,
+    createdAt: serverTimestamp(), 
+    name: characterName, 
+    gender: gender,
+    hairColor: hairColor, 
+    hairStyle: hairStyle,
+    eyeColor: eyeColor, 
+    skinColor: skinColor, 
+    clothing: clothing,
+    age: age
   });
-  setHeroCharacterId(doc.id)
-  console.log('this is the hero id', doc.id)
-  dispatch(setCharacterId(doc.id))
+  console.log(updatedCharacter);
 
+  // router.push(`/story/${doc.id}`)
+  createStory()
 }catch(err){
   console.log(err)
 }}
 
-useEffect(() => {
-  if (!heroCharacterId) return;
-  generateCharacter()
-}, [heroCharacterId])
+
+
+const createStory = async() => {
+  try{
+  const doc = await addDoc(collection(db, "users", session?.user?.email!, 'storys'), {
+      userId: session?.user?.email!,
+      createdAt: serverTimestamp(), 
+      fullImagePrompt: null
+  });
+    dispatch(setName('create story outline'))
+    router.push(`/story/${doc.id}`)
+  }catch (err){
+
+    console.log(err)
+  }
+}
+
+
+// const createNewCharacter = async() => {
+//   setLoading(true)
+//   try{
+//    const doc = await addDoc(collection(db, "users", session?.user?.email!, 'characters' ), {
+//       userId: session?.user?.email!,
+//       createdAt: serverTimestamp(), 
+//       name: characterName, 
+//       gender: gender,
+//       hairColor: hairColor, 
+//       hairStyle: hairStyle,
+//       eyeColor: eyeColor, 
+//       skinColor: skinColor, 
+//       clothing: clothing,
+//       age: age
+
+//   });
+//   setHeroCharacterId(doc.id)
+//   console.log('this is the hero id', doc.id)
+//   dispatch(setCharacterId(doc.id))
+
+// }catch(err){
+//   console.log(err)
+// }}
+
+// useEffect(() => {
+//   if (!heroCharacterId) return;
+//   generateCharacter()
+// }, [heroCharacterId])
 
 // const generateCharacter = async() => {
 //   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
@@ -140,7 +185,7 @@ const generateCharacter = async() => {
   console.log(prompt)
   var data = JSON.stringify({
     msg: prompt,
-    ref: { storyId: storyId, userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId },
+    ref: {  userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId },
     webhookOverride: ""
   });
   
@@ -159,7 +204,7 @@ const generateCharacter = async() => {
     console.log(JSON.stringify(response.data));
     if (response.data.success === true){ 
       dispatch(setName("hero"));
-      dispatch(setCharacterId(heroCharacterId));
+      // dispatch(setCharacterId(heroCharacterId));
     }
     else{ 
       console.log('not going to prograss!')

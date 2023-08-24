@@ -1,8 +1,11 @@
 'use client'
 
+import { ArrowLeftIcon as BackOutline } from "@heroicons/react/24/outline" 
+import { ArrowLeftIcon as BackSolid } from "@heroicons/react/24/solid"
 import { useSelector, useDispatch } from "react-redux"
 import { RootState } from '../app/GlobalRedux/store'
 import { updateimproveStoryModalStatus } from '../app/GlobalRedux/Features/improveStoryModalSlice'
+import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice"
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, use, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -22,13 +25,14 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice"
 import { usePathname } from "next/navigation"
+import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice"
 
 interface Message {
     role: string;
     content: string;
 }
 
-function ImproveStoryModal() {
+function ImproveStorySideBar() {
     const dispatch = useDispatch()
     const pathname = usePathname()
     const open = useSelector((state: RootState) =>  state.imporoveStoryModal.status);
@@ -45,11 +49,11 @@ function ImproveStoryModal() {
     const heroName = useSelector((state: RootState) => state.pageToEdit.heroCharacterName)
     const { data: session } = useSession()
     const [userMessage, setUserMessage] = useState('')
+    const [loading, setLoading] = useState(false)
     const [getImagePromptIdeasMessageAdded, setGetImagePromptIdeasMessageAdded] = useState(false)
     const [suggestions, setSuggestions] = useState<string[]>([])
     const [suggestionsAnswer, setSuggestionsAnswer] = useState<string | null>(null)
     const [introduction, setIntroduction] = useState<string>('');
-
     const [imageIdea, setImageIdea] = useState<string | null>(null)
     const [sendGetImagePromptsReady, setSendGetImagePromptsReady] = useState(false)
     // const [messagesLength, setMessagesLength] = useState(1)
@@ -138,6 +142,7 @@ function ImproveStoryModal() {
     }, [story]);
 
     const sendImproveStoryInitialSystemMessage = async() => {
+        setLoading(true)
         try{
         const response = await fetch('/api/aiChatGPTAssistant', {
             method: 'POST', 
@@ -159,8 +164,10 @@ function ImproveStoryModal() {
             setMessages(prevMessages => [...prevMessages, { role: "assistant", content: responseData.answer }]);
             setSendAddAPageOfTextMessage(false)
             setAiResponded(true) 
+            setLoading(true)
        }catch(err){
            console.error(err);
+           setLoading(true)
     }
 }
 
@@ -183,10 +190,26 @@ useEffect(() => {
 
   const handleDoIt = async(index: number, text: string) => {
     console.log('do it', index, text)
-        const doItPrompt = `
-            I want you to improve this story ${story} based on this feedback ${text}. Keep the original page structure. 
+        const doItPrompt = 
+        // `
+        // I want you to improve this story ${story} by making it a rhyming and hilarious story. Keep the original page structure. 
+        // The story must be structured into exactly 14 pages and a title page. The structure should be as follows:
+        
+        // Message from chat GPT: explain the ehancements you have made. 
+
+        // Title: 
+        
+        // Page 1: 
+        
+        // Page 2: 
+        
+        // etc`
+        `
+            I want you to improve this story ${story} by doing the following: ${text}. Keep the original page structure. 
             The story must be structured into exactly 14 pages and a title page. The structure should be as follows:
             
+            Message from chat GPT: explain the ehancements you have made. 
+
             Title: 
             
             Page 1: 
@@ -214,60 +237,25 @@ useEffect(() => {
     }
     }
 
+    const goBack = () => {
+        dispatch(setEditBarType('main'))
+        dispatch(setName('InsidePage'))
+    }
+
   return (
+    <div className="bg-white h-screen ml-2 mr-8">
 
-<Transition.Root show={open} as={Fragment}>
-  <Dialog
-    as="div"
-    className="fixed z-10 inset-0 overflow-y-auto"
-    onClose={() => dispatch(updateimproveStoryModalStatus(false))}
-  >
-    <div className="flex items-end justify-center max-w-6xl min-h-[800px] sm:min-h-screen pt-4 pb-20 text-center sm:block sm:p-0">
-      <Transition.Child
-        as={Fragment}
-        enter="ease-out duration-300"
-        enterFrom="opacity-0"
-        enterTo="opacity-100"
-        leave="ease-in duration-200"
-        leaveFrom="opacity-100"
-        leaveTo="opacity-0"
-      >
-        <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-      </Transition.Child>
+    <div className='space-y-6 w-full pt-8 '>
+        <BackOutline className="h-8 w-8 text-purple-600 hover:text-purple-400" onClick={goBack} />
 
-      <span
-        className="hidden sm:inline-block sm:align-middle sm:h-screen"
-        aria-hidden="true"
-      >
-        &#8203;
-      </span>
-
-      <Transition.Child
-        as={Fragment}
-        enter="ease-out duration-300"
-        enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-        enterTo="opacity-100 translate-y-0 sm:scale-100"
-        leave="ease-in duration-200"
-        leaveFrom="opacity-100 translate-y-0 sm:scale-100"
-        leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-      >
-        <div className="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md max-w-4xl sm:w-full sm:p-6">
-          <div className="text-center">
-            <img
-              src="https://firebasestorage.googleapis.com/v0/b/my-imaginary-world-b5705.appspot.com/o/aiAvatar.PNG?alt=media&token=204b1d94-f30b-4c3c-8a81-101d57673aa7"
-              className="h-28 w-28 mx-auto my-5 rounded-full"
-              alt="AI Avatar"
-            />
-          </div>
-
-          {messages.length !== 2 && (
+        {messages.length !== 2 && (
             <p className="text-gray-600 text-sm">
               I am just reading they story. I'll let you know my thoughts in a
               few.
             </p>
           )}
 
-          {messages.length == 1 && (
+          {messages.length == 1 && !loading && (
             <button
               onClick={sendImproveStoryInitialSystemMessage}
               className="py-2 px-4 my-2 bg-indigo-500 text-white rounded-md shadow-md hover:bg-indigo-700 transition-colors"
@@ -275,8 +263,9 @@ useEffect(() => {
               send prompt
             </button>
           )}
-
-          <div className="mt-4">
+    </div>
+            {suggestions.length > 0 && (
+    <div className="mt-4">
             <h1 className="font-semibold text-lg mb-2">Story Improvement Suggestions</h1>
             <p className="text-gray-600 text-sm mb-4">{introduction}</p>
             {suggestions.map((suggestion, index) => (
@@ -314,11 +303,9 @@ useEffect(() => {
 ))}
 
           </div>
-        </div>
-      </Transition.Child>
+            )}
     </div>
-  </Dialog>
-</Transition.Root>
-  )}
+  )
+}
 
-export default ImproveStoryModal
+export default ImproveStorySideBar
