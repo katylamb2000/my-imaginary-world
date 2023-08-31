@@ -29,7 +29,17 @@ export interface PageToEditSlice {
     editStage: string,
     buttonMsgId: string | null, 
     imagePrompt: string | null, 
-    firstImagePromptIdea: string | null
+    firstImagePromptIdea: string | null,
+    improvedImageUrl: string | null,
+    showEditTextIcon: boolean,
+    showInputBox: boolean,
+    imageRequestSent: boolean,
+    finalImageUrl: string | null, 
+    signatureTextSize: string,
+    signatureLineOne: string, 
+    signatureLineTwo: string,
+    signatureTextColor: string,
+  
 }
 
 const initialState: PageToEditSlice = {
@@ -59,7 +69,16 @@ const initialState: PageToEditSlice = {
     editStage: '1', 
     buttonMsgId: null,
     imagePrompt: null, 
-    firstImagePromptIdea: null
+    firstImagePromptIdea: null,
+    improvedImageUrl: null, 
+    showEditTextIcon: false,
+    showInputBox: false,
+    imageRequestSent: false,
+    finalImageUrl: null, 
+    signatureTextSize: 'text-md',
+    signatureLineOne: '',
+    signatureLineTwo: '',
+    signatureTextColor: 'text-pink-500',
 }
 
 export const PageToEditSlice = createSlice({
@@ -147,6 +166,33 @@ export const PageToEditSlice = createSlice({
         setFirstImagePromptIdea: (state, action) => {
             state.firstImagePromptIdea = action.payload
         },
+        setImprovedImageUrl: (state, action) => {
+            state.improvedImageUrl = action.payload
+        },
+        setShowEditTextIcon: (state, action) => {
+            state.showEditTextIcon = action.payload
+        },
+        setShowInputBox: (state, action) => {
+            state.showInputBox = action.payload
+        },
+        setImageRequestSent: (state, action) => {
+            state.imageRequestSent = action.payload
+        },
+        setFinalImageUrl: (state, action) => {
+            state.finalImageUrl = action.payload
+        },
+        setSignatureTextSize: (state, action) => {
+            state.signatureTextSize = action.payload
+        },
+        setSignatureLineOne: (state, action) => {
+            state.signatureLineOne = action.payload
+        },
+        setSignatureLineTwo: (state, action) => {
+            state.signatureLineTwo = action.payload
+        }, 
+        setSignatureTextColor: (state, action) => {
+            state.signatureTextColor = action.payload
+        }, 
     }
 });
 
@@ -154,7 +200,8 @@ export const {
     setId, setText, setTextColor, setTextSize, setImageUrl, setEditText, setButtonId, setCharacterDescription, 
     setHeroCharacterName, setStyle, setPreviousPageText, setNextPageText, setFormattedText, setAudioUrl, setWildcardIdea, setCharacterIdea,
     setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar, setEditBarType, setEditStage, 
-    setbuttonMsgId, setImagePrompt, setFirstImagePromptIdea
+    setbuttonMsgId, setImagePrompt, setFirstImagePromptIdea, setImprovedImageUrl, setShowEditTextIcon, setShowInputBox, setImageRequestSent,
+    setFinalImageUrl, setSignatureTextSize, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor
 } 
     = PageToEditSlice.actions;
 

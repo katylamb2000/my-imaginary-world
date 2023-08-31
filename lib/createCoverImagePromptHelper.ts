@@ -14,7 +14,9 @@ const createCoverImagePromptHelper = async (prompt: string) => {
       presence_penalty: 0,
     })
     .then((res) => {
+      console.log(res)
       const coverImagePrompt = res.data.choices[0].text;
+
       if (!coverImagePrompt) {
         throw new Error("Story is undefined");
       }

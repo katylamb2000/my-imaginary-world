@@ -94,7 +94,7 @@ function EditTextModal() {
     }
 
     useEffect(() => {
-        if (!messages.length && pageText.length && story.length){
+        if (!messages.length && pageText.length && story?.length){
             console.log('these are messages', messages)
             setMessages([...messages, { role: "system", content: improveContentAndAddTypogrphy }]);
         } 

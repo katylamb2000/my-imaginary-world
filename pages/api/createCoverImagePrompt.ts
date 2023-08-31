@@ -14,7 +14,7 @@ export default async function createStory(
   res: NextApiResponse<{ coverImagePrompt: string } | { message: string }>
 
 ) {
-  const { session, storyId, prompt } = req.body
+  const { session, storyId, prompt, promptType } = req.body
   console.log(session, storyId, prompt)
 
   if (!prompt) {
@@ -36,16 +36,20 @@ export default async function createStory(
   const response = await createCoverImagePromptHelper(prompt);
   console.log(response)
 
+  if (promptType == 'coverImage'){
       
         await adminDb
               .collection("users")
               .doc(session.user.email)
               .collection('storys')
               .doc(storyId)
-          
-              .update(response);
+              .collection('storyContent')
+              .doc('page_1')
+              .update({
+                coverImagePrompt: response
+              });
       
-
+  }
 
 
 res.status(200).json(response);

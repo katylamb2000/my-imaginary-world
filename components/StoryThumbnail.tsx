@@ -18,7 +18,8 @@ interface Story {
   image: string,
   baseImagePrompt: string,
   title: string, 
-  baseImagePromptCreated: Boolean
+  baseImagePromptCreated: Boolean,
+  thumbnail: string | null
 }
 
 type Props = {
@@ -33,10 +34,9 @@ function StoryThumbnail({ id, story }: Props) {
   const [addTitle, setAddTitle] = useState<boolean>(false)
   const [titleInput, setTitleInput] = useState<string>('')
 
-  console.log(id)
+  console.log('this is the story ----> ', story)
 
   const addStoryDetailsToRedux = () => {
-
     dispatch(setName('view story'))
     dispatch(setStoryId(id))
     console.log('this is the function to dispatch setName')
@@ -73,12 +73,12 @@ function StoryThumbnail({ id, story }: Props) {
     }
   }
 
-  return (
+return (
 <div className="flex flex-col items-center shadow-md mx-3 mt-6 rounded-sm overflow-hidden hover:scale-105 transition-transform duration-200 ease-in-out bg-white relative h-64">
   <button onClick={addStoryDetailsToRedux} className='relative w-full h-3/4'>
-    {story.image ? (
+    {story.thumbnail ? (
       <Image
-        src={story.image}
+        src={story.thumbnail}
         fill
         className="w-full"
         alt="/"

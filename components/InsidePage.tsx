@@ -8,7 +8,7 @@ import type { RootState } from '../app/GlobalRedux/store';
 import { useSelector, useDispatch } from 'react-redux';
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, CSSProperties } from "react";
 import { setImageUrl, setEditText, setText, setId , setAudioUrl} from "../app/GlobalRedux/Features/pageToEditSlice";
 import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice";
 import { doc, updateDoc, collection } from "firebase/firestore";
@@ -33,6 +33,10 @@ import SelectImageToUpscaleBar from "./SelectImageToUpscaleBar";
 import FlipPage from "./FlipPage";
 import ImproveImagesModal from "./ImproveImagesModal";
 import ImproveImagesBox from "./ImproveImagesBox";
+import NextImageModal from "./NextImageModal";
+import { SyncLoader } from 'react-spinners'
+
+
 
 type Props = {
   storyPages: any
@@ -46,12 +50,14 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     const [playing, setPlaying] = useState<boolean>(false)
     // const audioRef = useRef(new Audio());
     // const audioRef = useRef<HTMLAudioElement | null>(new Audio());
+    const style = useSelector((state: RootState) => state.pageToEdit.style)
     const pageText = useSelector((state: RootState) => state.pageToEdit.text)
     const audioUrl = useSelector((state: RootState) => state.pageToEdit.audioUrl)
     const characters = useSelector((state: RootState) => state.characters.characters)
     const characterDescription = useSelector((state: RootState) => state.pageToEdit.characterDescription)
     const heroCharacterName = useSelector((state: RootState) => state.pageToEdit.heroCharacterName)
     const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl)
+    const improvedImageUrl = useSelector((state: RootState) => state.pageToEdit.improvedImageUrl)
     const imagePrompt = useSelector((state: RootState) => state.pageToEdit.imagePrompt)
     const [fullPageImageUrl, setFullPageImage] = useState(null)
     const [smallRoundImageUrl, setSmallRoundImageUrl] = useState('https://media.discordapp.net/attachments/1083423262681350234/1141007317580656672/katy2000_on_a_white_background_in_the_style_of_adam_stower_a_c_863e0d5e-0589-493d-b9bb-211e6caa0ab2.png?width=1060&height=1060')
@@ -80,6 +86,7 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     const [happyToSelectImage, setHappyToSelectImage] = useState<boolean | 'not clicked'>('not clicked')
 
     const [value, setValue] = useState(pageText)
+    const [currentQuadrant, setCurrentQuadrant] = useState(1);
     // const [value, setValue] = useState(`<p><strong class="ql-size-large" style="color: rgb(0, 153, 255);">Sophia</strong>, suddenly feeling more <em style="color: rgb(0, 153, 0);">brave</em> and <em style="color: rgb(0, 153, 0);">bold</em>, was just getting the knack of controlling the <u class="ql-size-large ql-font-monospace" style="color: rgb(102, 51, 153);">massive spaceship</u> when, without any warning, the floor beneath her began to <strong class="ql-size-huge" style="color: rgb(255, 51, 51);">shake</strong> and <em class="ql-size-huge" style="color: rgb(255, 51, 51);">shudder</em>.</p>
     // <p>In a <strong class="ql-size-large" style="color: rgb(0, 102, 255);">flash</strong>, as if from thin air, <u class="ql-size-huge ql-font-monospace" style="color: rgb(204, 0, 204);">creatures</u> from another galaxy - <strong class="ql-size-huge" style="color: rgb(204, 0, 204);">aliens!</strong> - materialized out of nowhere!</p>`);
     
@@ -95,10 +102,39 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     const [imageUrlType, setImageChoicesUrl] = useState<string>('choices')
     const highlightedTextRef = useRef<string>('');
     const [showText, setShowText] = useState(true);
+    const [imageBoxHeight, setImageBoxHeight] = useState<string>();
+
+    const [textHeight, setTextHeight] = useState(0);
+    const [boxHeight, setBoxHeight] = useState(0);
+   
+    const textRef = useRef<HTMLParagraphElement | null>(null);
+    const boxRef = useRef<HTMLDivElement | null>(null);
+
+    const [color, setColor] = useState("#c026d3");
+
+
+const override: CSSProperties = {
+  display: "block",
+  margin: "0 auto",
+  borderColor: "#c026d3",
+};
+
+    console.log(wildcardIdea, objectIdea, characterIdea)
 
     useEffect(() => {
-      console.log('these are page stuffs ==> ', pageText, imageUrl)
-    }, [imageUrl, pageText])
+      const imageHeight = boxHeight - textHeight;
+      const int = Math.floor(imageHeight)
+      const string = int.toString()
+      const ibh = `h-[${string}px]`
+      setImageBoxHeight(ibh)
+      console.log('box height', boxHeight, 'text height', textHeight, 'imageBoxHeight', imageBoxHeight, 'string', string, ibh, int)
+    }, [boxHeight, textHeight])
+  
+    useEffect(() => {
+      console.log('these are page stuffs ==> ', pageText, )
+      console.log('1st image ==> ', imageUrl )
+      console.log('improved image ==> ', improvedImageUrl, )
+    }, [imageUrl, pageText, improvedImageUrl])
 
 
     useEffect(() => {
@@ -160,7 +196,7 @@ useEffect(() => {
     }
   
     const getImage = async() => {
-      console.log('imagePrompt', imagePrompt, heroCharacterName, characterDescription)
+      console.log('imagePrompt', imagePrompt, currentStoryId, session?.user?.email, pageId)
       setLoading(true)
         // let enhancedPageText = pageText;
         // enhancedPageText = enhancedPageText.replace(new RegExp(heroCharacterName, 'g'), `${heroCharacterName} (${characterDescription})`);
@@ -171,7 +207,8 @@ useEffect(() => {
         // setLoading(true)
         var data = JSON.stringify({
           // msg: `In the style of Adam Stower illustrate an image for a children's book depicting ${enhancedPageText} `,
-          msg: imagePrompt,
+          // msg: imagePrompt,
+          msg: firstImagePromptIdea,
           ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'imagine', page: pageId },
           webhookOverride: ""
         });
@@ -196,6 +233,46 @@ useEffect(() => {
           setLoading(false)
         });
       }
+
+      const getSmallImage = async(idea: string | null, type: string) => {
+        console.log('imagePrompt', imagePrompt, currentStoryId, session?.user?.email, pageId)
+        setLoading(true)
+        const prompt = `in the style of ${style} for a childrens book illustrate ${idea} on a white bavckground`
+          // let enhancedPageText = pageText;
+          // enhancedPageText = enhancedPageText.replace(new RegExp(heroCharacterName, 'g'), `${heroCharacterName} (${characterDescription})`);
+          
+          // characters.forEach(character => {
+          //     enhancedPageText = enhancedPageText.replace(new RegExp(character.name, 'g'), `${character.name} (${character.description})`);
+          // });
+          // setLoading(true)
+          var data = JSON.stringify({
+            // msg: `In the style of Adam Stower illustrate an image for a children's book depicting ${enhancedPageText} `,
+            // msg: imagePrompt,
+            msg: prompt,
+            ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'imagineSmallImage', page: pageId, type: type  },
+            webhookOverride: ""
+          });
+          
+          var config = {
+            method: 'post',
+            url: 'https://api.thenextleg.io/v2/imagine',
+            headers: { 
+              'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+              'Content-Type': 'application/json'
+            },
+            data : data
+          };
+  
+          axios(config)
+          .then(function (response) {
+            console.log(JSON.stringify(response.data));
+          //   setLoading(false)
+          })
+          .catch(function (error) {
+            console.log(error);
+            setLoading(false)
+          });
+        }
 
   const resetText = () => {
         setUpdatedPageText(pageText)
@@ -345,8 +422,14 @@ const playPauseClicked = () => {
 }
 
 useEffect(() => {
-  console.log(pageId, '--->>', newFontColor)
-}, [newFontColor, pageId])
+  console.log('Characters--->>', characters)
+}, [characters ])
+
+useEffect(() => {
+  if (firstImagePromptIdea && !imageUrl){
+    getImage()
+  }
+}, [firstImagePromptIdea, imageUrl])
 
 const getSmallImagePrompt = async() => {
   console.log(session, "STORYID",  currentStoryId )
@@ -395,11 +478,63 @@ useEffect(() => {
   setHappyToSelectImage('not clicked')
 }, [pageId])
 
-return (
-  <div className='bg-purple-50 h-full w-full items-center overscroll-none'>
-      
-      <div className="flex space-x-6 justify-center pt-4 h-4/5 bg-gray-50 ">
+
+
+useEffect(() => {
+    if (textRef.current) {
+        setTextHeight(textRef?.current?.getBoundingClientRect().height);
+    }
+    if (boxRef.current){
+      setBoxHeight(boxRef?.current?.getBoundingClientRect().height);
+    }
+}, [pageText, boxRef]);  // This effect will run every time `pageText` changes.
+
+const nextQuadrant = () => {
+  setCurrentQuadrant((prev) => (prev === 4 ? 1 : prev + 1));
+};
+
+const lastQuadrant = () => {
+  setCurrentQuadrant((prev) => (prev === 4 ? 1 : prev - 1));
+};
+
+
+const upscaleChosenImage = async() => {
         
+  const button = `U${currentQuadrant}`
+  console.log('Button', button)
+  // var data = JSON.stringify({
+  //   button: button,
+  //   buttonMessageId: buttonId ,
+  //   ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'upscale', page: pageId },
+  //   webhookOverride: ""
+  // });
+  
+  // var config = {
+  //   method: 'post',
+  //   url: 'https://api.thenextleg.io/v2/button',
+  //   headers: { 
+  //     'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+  //     'Content-Type': 'application/json'
+  //   },
+  //   data : data
+  // };
+  // axios(config)
+  // .then(function (response) {
+  //   console.log(JSON.stringify(response.data));
+
+  // })
+  // .catch(function (error) {
+  //   console.log(error);
+
+  // });
+    }
+
+
+return (
+  <div className='bg-purple-500 h-5/6 w-full items-center overscroll-none'>
+      
+    <div className="justify-center h-full bg-gray-50 ">
+      <div className="flex space-x-6 h-4/5 bg-gray-50 pt-6 px-6 -pb-12 ">
         {audioUrl && playing && (
             <div className="react-player-wrapper" style={{ display: "none" }}>
                 <ReactPlayer url={audioUrl} playing={playing} onEnded={handleAudioEnded} />
@@ -413,16 +548,36 @@ return (
           ):
               // <div className="border-2 border-gray-300 border-dashed  h-4/5 w-3/5 bg-white drop-shadow-md">
               <div
+              ref={boxRef}
               className={`border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md ${
                 showText ? 'opacity-100' : 'opacity-0 scale-0 translate-y-[-50%] transition-all duration-300'
               }`}
             >
-                  <p className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-50`}>{pageText}</p>
+                  <p ref={textRef} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-50`}>{pageText}</p>
+       
+                  <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
+                    onClick={() => getSmallImage(wildcardIdea, 'wildcard')}
+                    >
+                      {wildcardIdea}
+                  </button>
+                  <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
+                    onClick={() => getSmallImage(characterIdea, 'character')}
+                    >
+                      {characterIdea}
+                  </button>
+
+                  <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
+                    onClick={() => getSmallImage(objectIdea, 'object')}
+                    >
+                      {objectIdea}
+                  </button>
+       
+                {/* <div className={`bg-red-500 ${imageBoxHeight}]`}>
                   {smallRoundImageUrl ?  (
                   <div className='h-1/2 w-1/2 bottom-0 relative mx-auto py-4 z-10 ' >
                     <Image src={smallRoundImageUrl} alt='/' fill className="mx-auto rounded-full" />
-                    {/* <img src={smallRoundImageUrl} style={{mask: 'url(#mask)'}} /> */}
                   </div>
+                 
                 ): 
                     <button   
                       className="bg-purple-500 text-white hover:bg-purple-300 p-4 rounded-lg"
@@ -431,10 +586,16 @@ return (
                         Get small image
                     </button>
                 }
+              </div> */}
+              <div className={` ${imageBoxHeight} flex-1 w-full bg-green-700 `}>
+              {smallRoundImageUrl &&  (
+                  <div className='h-3/4 w-3/4 bottom-0 relative mx-auto z-10 ' >
+                    <Image src={smallRoundImageUrl} alt='/' fill className="mx-auto" />
+                  </div>
+              )}
+              </div>
               </div>
           }
-
-              
 
                 {audioUrl && (
                 <div className="absolute bottom-20 w-full ">
@@ -448,25 +609,72 @@ return (
 
   
  <div className="h-4/5 w-3/5 relative" >
-          <div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
-          {imageUrl &&  (
-            <Image src={imageUrl || 'https://media.discordapp.net/attachments/1083423262681350234/1140985949216571463/katy2000_on_a_white_background_draw_two_friendly_aliens_in_the_5a7de73c-0857-4382-9cea-a6b4ade86a5b.png?width=1060&height=1060'} fill alt='/'  />
+      <div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
+          {/* {imageUrl &&  (
+            <Image src={improvedImageUrl || imageUrl || 'https://media.discordapp.net/attachments/1083423262681350234/1140985949216571463/katy2000_on_a_white_background_draw_two_friendly_aliens_in_the_5a7de73c-0857-4382-9cea-a6b4ade86a5b.png?width=1060&height=1060'} fill alt='/'  />
       
-        )}
+        )} */}
+      {!imageUrl && loading && (
+        <div className="w-full h-full items-center justify-center text-center my-24">
+              <SyncLoader
+              color={color}
+              loading={loading}
+              cssOverride={override}
+              size={15}
+              aria-label="Loading Spinner"
+              data-testid="loader"
+            />
+            <p className={`text-fuchsia-600`}>Your image is being created</p>
+        </div>
+      )}
 
-        {firstImagePromptIdea && !imageUrl && (
+      {imageUrl && (() => {
+          let bgPosition = 'top left';
+          switch (currentQuadrant) {
+            case 1:
+              bgPosition = 'top left';
+              break;
+            case 2:
+              bgPosition = 'top right';
+              break;
+            case 3:
+              bgPosition = 'bottom left';
+              break;
+            case 4:
+              bgPosition = 'bottom right';
+              break;
+            default:
+              bgPosition = 'top left';
+          }
+          return (
+            <div
+              className="w-full h-full bg-no-repeat bg-cover rounded-sm cursor-pointer"
+              style={{
+                backgroundImage: `url(${imageUrl})`,
+                backgroundPosition: bgPosition,
+                backgroundSize: '200% 200%'
+              }}
+            />
+          );
+        })()}
+
+        {/* {firstImagePromptIdea && !imageUrl && (
         <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
         onClick={getImage}
         >
            {firstImagePromptIdea}
-           {/* {imagePrompt} */}
+           {imagePrompt}
         </button>
-)}
-              </div>
-              </div>
-        
+        )} */}
 
+      </div></div>
+  
    
+</div>
+      
+{imageUrl && (
+          <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant} selectImage={upscaleChosenImage} />
+      )}
 </div>
 {/*  
       {showLayoutScrollbar && (
@@ -484,7 +692,7 @@ return (
                {/* {imageUrlType == 'choices' && (
         <SelectImageToUpscaleBar />
       )} */}
-      {firstImagePromptIdea && imageUrl && happyToSelectImage == 'not clicked' &&  (
+      {/* {firstImagePromptIdea && imageUrl && happyToSelectImage == 'not clicked' &&  (
           <div className="w-1/3 bg-fuchsia-400 rounded-sm  drop-shadow-2xl p-6 absolute bottom-10 right-56 ">
             <p className="text-white text-lg">Are you happy to use one of these images? </p>
             <div className="flex gap-4 py-2 mx-10">
@@ -492,7 +700,8 @@ return (
               <button className="bg-white text-fuchsia-700 hover:text-white hover:bg-fuchsia-700 rounded-lg hover:drop-shadow-2xl p-4  " onClick={() => setHappyToSelectImage(false)}>NOOOOO!!</button>
             </div>
           </div>
-      )}
+      )} */}
+  
       {/* <FlipPage /> */}
 
       {happyToSelectImage == true && (

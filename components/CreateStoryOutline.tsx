@@ -183,6 +183,9 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         }),
     })
 console.log('response from api', response)
+if (response.status == 200) {
+  console.log("send api request to get character descriptions. ")
+}
     setLoading(false)
     toast.success('Your story has been created', {
             id: notification
@@ -190,6 +193,7 @@ console.log('response from api', response)
 if (response)
 console.log('RESPONSE', response)
 setLoading(false)
+
 dispatch(setName('view story'))
 // getImagePrompts()
 }catch(err){

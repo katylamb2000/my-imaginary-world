@@ -5,7 +5,7 @@ import { ArrowLeftIcon as BackSolid } from "@heroicons/react/24/solid"
 import { useSelector, useDispatch } from "react-redux"
 import { RootState } from '../app/GlobalRedux/store'
 import { updateimproveStoryModalStatus } from '../app/GlobalRedux/Features/improveStoryModalSlice'
-import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice"
+import { setEditBarType, setShowEditTextIcon } from "../app/GlobalRedux/Features/pageToEditSlice"
 import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, use, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -70,7 +70,7 @@ function ImproveStorySideBar() {
     const [sendGenerateTitleIdeas, setSendGenerateTitleIdeas] = useState<boolean>(false)
     const [selectedTitle, setSelectedTitle] = useState<string>('')
     const [getBookCoverImagePrompt, setGetBookCoverImagePrompt] = useState<boolean>(true)
-
+    const [getAIHelpToImproveStory, setGetAIHelpToImproveStory] = useState<boolean>(false)
     const [userName, setUserName] = useState<string>('')
 
     // console.log(storyId, "MSSGS", messages, story)
@@ -164,10 +164,10 @@ function ImproveStorySideBar() {
             setMessages(prevMessages => [...prevMessages, { role: "assistant", content: responseData.answer }]);
             setSendAddAPageOfTextMessage(false)
             setAiResponded(true) 
-            setLoading(true)
+            setLoading(false)
        }catch(err){
            console.error(err);
-           setLoading(true)
+           setLoading(false)
     }
 }
 
@@ -242,28 +242,40 @@ useEffect(() => {
         dispatch(setName('InsidePage'))
     }
 
+    useEffect(() => {
+      if (!getAIHelpToImproveStory) return;
+      else if (getAIHelpToImproveStory){
+        sendImproveStoryInitialSystemMessage()
+      }
+    }, [getAIHelpToImproveStory])
+
   return (
     <div className="bg-white h-screen ml-2 mr-8">
 
     <div className='space-y-6 w-full pt-8 '>
-        <BackOutline className="h-8 w-8 text-purple-600 hover:text-purple-400" onClick={goBack} />
+        <div className="space-x-4 w-full flex h-12 items-center group cursor-pointer">
+          <BackOutline className="h-8 w-8 text-purple-600 font-bold group-hover:text-purple-400" onClick={goBack} />
+          <p className="text-purple-600 font-bold group-hover:text-purple-400">Go back</p>
+        </div>
 
-        {messages.length !== 2 && (
+    {getAIHelpToImproveStory &&  (
+      <div> 
+        {loading && (
             <p className="text-gray-600 text-sm">
               I am just reading they story. I'll let you know my thoughts in a
               few.
             </p>
           )}
 
-          {messages.length == 1 && !loading && (
+          {/* {messages.length == 1 && !loading && (
             <button
               onClick={sendImproveStoryInitialSystemMessage}
               className="py-2 px-4 my-2 bg-indigo-500 text-white rounded-md shadow-md hover:bg-indigo-700 transition-colors"
             >
               send prompt
             </button>
-          )}
-    </div>
+          )} */}
+
             {suggestions.length > 0 && (
     <div className="mt-4">
             <h1 className="font-semibold text-lg mb-2">Story Improvement Suggestions</h1>
@@ -302,8 +314,30 @@ useEffect(() => {
                 </Accordion>
 ))}
 
+
+
+
           </div>
+
             )}
+      </div>
+      )}
+          </div>
+        {getAIHelpToImproveStory == false && (
+          <div>
+            <div  className="h-18 w-full border-t-2 border-b-2 border-purple-300 hover:bg-purple-300 group group-hover:drop-shadow-xl transition duration-200  "
+                  onClick={() => dispatch(setShowEditTextIcon(true))}
+            >
+              <button className="text-purple-500 group-hover:text-white p-4 ">Edit text like a human</button>
+            </div>
+
+            <div  className="h-18 w-full  border-b-2 border-purple-300 hover:bg-purple-300 group group-hover:drop-shadow-xl transition duration-200  "
+                  onClick={() => (setGetAIHelpToImproveStory(true))}
+            >
+              <button className="text-purple-500 group-hover:text-white p-4 ">Get Ai to edit text</button>
+            </div>
+          </div>
+        )}
     </div>
   )
 }

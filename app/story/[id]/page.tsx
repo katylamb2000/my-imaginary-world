@@ -19,7 +19,7 @@ import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector, useDispatch } from "react-redux"
 import { setbuttonMsgId, setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
 import { addCharacters, addCharacter } from "../../GlobalRedux/Features/characterSlice"
-import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete } from '../../GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters } from '../../GlobalRedux/Features/viewStorySlice'
 import { setName } from '../../GlobalRedux/Features/storyBuilderActiveSlice'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
@@ -308,6 +308,21 @@ useEffect(()=> {
     }))
 
     console.log('charactersArray', charactersArray)
+    dispatch(setStoryCharacters(charactersArray))
+  }
+}, [supportingCharactersSnapshop])
+
+useEffect(()=> {
+  if (!supportingCharactersSnapshop?.docs.length) return;
+
+  if (supportingCharactersSnapshop?.docs.length){
+
+    const charactersArray = supportingCharactersSnapshop?.docs.map(doc => ({
+      name: doc.data().name,
+      description: doc.data().description,
+    }))
+
+    console.log('charactersArray', charactersArray)
     dispatch(addCharacters(charactersArray))
   }
 }, [supportingCharactersSnapshop])
@@ -412,7 +427,7 @@ useEffect(() => {
             )}
         </div>
         
-    <div className={`col-span-${pageCols} h-screen overflow-y-scroll bg-purple-200 `}>
+    <div className={`col-span-${pageCols} h-screen overflow-y-scroll bg-gray-50 `}>
       {/* <div className={`col-span-5 h-screen overflow-y-scroll bg-purple-200 `}> */}
           {/* {editTextId == selectedPageId && openEditorToobar &&   (
               <TextEditorToolBar />

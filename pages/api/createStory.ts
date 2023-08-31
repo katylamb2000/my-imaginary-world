@@ -185,6 +185,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/
 
 import type { NextApiRequest, NextApiResponse } from "next";
 import query from "../../lib/createStoryApi";
+import { generateCharacterDescriptions } from "../../lib/createCharacterDescriptions";
 
 export default async function createStory(
   req: NextApiRequest,
@@ -237,7 +238,18 @@ const { pages } = response.data || {}; // Handle undefined response.data
       fullStory: pages,
     });
 
+    try {
+      const characterDescriptions = await generateCharacterDescriptions(session, storyId, pages, hero);
+      console.log('Generated character descriptions:', characterDescriptions);
+    } catch (error) {
+      console.error('Error while generating character descriptions:', error);
+      res.status(500).json({ answer: { message: "Error occurred while generating character descriptions." } });
+      return;
+    }
+
     res.status(200).json({ answer: { message: 'Story created successfully.' } });
+
+
   } catch (error) {
     console.error('An error occurred:', error);
     res.status(500).json({ answer: { message: 'An error occurred while processing the request.' } });

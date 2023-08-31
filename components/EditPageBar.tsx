@@ -2,7 +2,7 @@ import type { RootState } from '../app/GlobalRedux/store';
 import {useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { useSession } from 'next-auth/react';
-import { setId, setText, setTextColor, setEditText, setShowLayoutScrollbar, setEditBarType } from '../app/GlobalRedux/Features/pageToEditSlice'
+import { setId, setText, setTextColor, setEditText, setShowLayoutScrollbar, setEditBarType,  } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setAddTextBox } from '../app/GlobalRedux/Features/addTextBoxSlice';
 import { updateGetImagesModalStatus } from '../app/GlobalRedux/Features/getImagesModalSlice';
 import { updateAddTextModalStatus } from '../app/GlobalRedux/Features/addTextModalSlice';
@@ -21,7 +21,6 @@ import { setStartReading, setCurrentPage, setCurrentPageText, setPaused } from '
 import Draggable from 'react-draggable';
 import EditPageColor from './EditPageColor';
 import { setLayoutSelected } from '../app/GlobalRedux/Features/layoutSlice';
-
 
 type Props = {
     updatePageText: any;
@@ -51,6 +50,7 @@ function EditPageBar() {
     const toggleGetImagesModuleStatus = useSelector((state: RootState) => state.getImagesModal.status)
     const subscriber = useSelector((state: RootState) => state.userDetails.isSubscriber)
     const storyComplete = useSelector((state: RootState) => state.viewStory.storyComplete)
+    
     useEffect(() => {
         console.log('======', selectedPageId, selectedPageText)
     }, [selectedPageId, selectedPageText])
@@ -152,24 +152,12 @@ const updateFontSize = async() => {
 
     const getImages = () => {
         console.log("Get images", storyId)
-        // dispatch(updateGetImagesModalStatus(!toggleGetImagesModuleStatus))
         dispatch(setEditBarType('getImages'))
     }
 
     const editText = () => {
         console.log('i want to close the text editor tool bar', selectedPageId, editTextId)
-        // if (selectedPageId == editTextId){
-        //     console.log('i want to close the text editor tool bar')
-        //     dispatch(setEditTextPageId(''))
-        //     dispatch(setOpenEditorToolbar(false))
-        // }
-        // dispatch(updateEditTextModalStatus(true))
-        // console.log("PAGE ID", pageId)
-        // if (selectedPageId && selectedPageId !== editTextId){
-        // dispatch(setEditTextPageId(selectedPageId))
-        // dispatch(setOpenEditorToolbar(true))
         dispatch(setEditBarType('editText'))
-        // }
     }
 
     const openColorPicker = () => {
@@ -185,15 +173,8 @@ const updateFontSize = async() => {
     }
 
     const designBookCover = () => {
-        console.log('design cover modal', coverModalStatus, coverModalType)
-        // dispatch(setDesignCoverModalStatus(!coverModalStatus))
-        // dispatch(setType('do you work!!!'))
         dispatch(setEditBarType('editCover'))
         dispatch(setName('CoverPage'))
-        // dispatch(setText(page.data.text))
-        // dispatch(setFormattedText(page.data.formattedText))
-        // dispatch(setId(page.id))
-        // dispatch(setImageUrl(page.data.imageUrl))
     }
 
     const goToCheckOut = () => {
@@ -231,13 +212,13 @@ const updateFontSize = async() => {
                     <p className=' text-gray-300'>Design Cover</p>
                 </>
                 }
-            </div>
+        </div>
    
         <div className='w-full text-center ' >
                 {storyId ? (
                     <div className='group' onClick={improveStory}>
                         <BookOpenIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
-                        <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600 sm:hidden'>Improve the story</p>
+                        <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Improve the story</p>
                     </div>
                 ):
                 <>

@@ -3,7 +3,11 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/GlobalRedux/store";
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
-import { setId, setText, setImageUrl, setButtonId, setPreviousPageText, setNextPageText, setFormattedText, setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, setFirstImagePromptIdea } from '../app/GlobalRedux/Features/pageToEditSlice'
+import { 
+  setId, setText, setImageUrl, setButtonId, setPreviousPageText, setNextPageText, setFormattedText, 
+  setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, 
+  setFirstImagePromptIdea, setImprovedImageUrl, setEditBarType, setImageRequestSent, setFinalImageUrl
+} from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setPageId } from "../app/GlobalRedux/Features/getPageImageModal";
 
 type Props = {
@@ -18,8 +22,8 @@ type Props = {
 type ImageIdea = {
     data: {
       pageNumber: number;
-      wildcardImage: string, 
-      objectImage: string, 
+      wildCardImage: string, 
+      object: string, 
       characterCloseUp: string, 
       backgroundImage: string
     }}
@@ -31,6 +35,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     const [active, setActive] = useState<boolean>(false);
     const [url, setUrl] = useState<string | null>(null);
 
+
     useEffect(() => {
       if (currentPageId !== page.id ) return; 
       if ( page.data.imageUrl){
@@ -40,24 +45,37 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [page, currentPageId])
 
     const viewPage = () => {
-
+        dispatch(setButtonId(page.data.buttonMessageId))
+        dispatch(setFinalImageUrl(page.data.finalImage_undefined))
         dispatch(setImageUrl(page.data.imageUrl))
+        dispatch(setImprovedImageUrl(page.data.improvedImageUrl))
+        dispatch(setImageRequestSent(page.data.imageRequestSent))
         const ideas = imageIdeas.find(imageIdeas => imageIdeas.data.pageNumber === index + 1);
-        dispatch(setWildcardIdea(ideas?.data?.wildcardImage))
-        dispatch(setObjectIdea(ideas?.data.objectImage))
+        dispatch(setWildcardIdea(page?.data?.wildCardImage))
+        dispatch(setObjectIdea(page?.data.object))
         dispatch(setBackgroundIdea(ideas?.data.backgroundImage))
-        dispatch(setCharacterIdea(ideas?.data.characterCloseUp))
+        dispatch(setCharacterIdea(page?.data.characterCloseUp))
         dispatch(setImagePrompt(page.data.details))
         dispatch(setFirstImagePromptIdea(page.data.firstImagePromptIdea))
+        console.log("FIRST IMAGE PROMPT IDeas", page.data.firstImagePromptIdea)
         console.log("IMAGE PROMPT", page.data.details)
+        if (index == 0){
+          dispatch(setName('CoverPage'))
+          dispatch(setEditBarType('editCover'))
+          dispatch(setImageUrl(page.data.imageUrl))
+          dispatch(setButtonId(page.data.buttonMessageId))
+        }
+        if (index !== 0){
+          dispatch(setName('InsidePage'))
+          dispatch(setEditBarType('main'))
+        }
         if (!index){
             dispatch(setName('CoverPage'))
             dispatch(setText(page.data.text))
             dispatch(setFormattedText(page.data.formattedText))
             dispatch(setId(page.id))
             dispatch(setImageUrl(page.data.imageUrl))
-
- 
+            dispatch(setButtonId(page.data.buttonMessageId))
             if (url) {
                 // dispatch(setImageUrl(url))
                 dispatch(setButtonId(page.data.buttonMessageId))
@@ -69,7 +87,6 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
                 dispatch(setImageUrl(page.data.imageUrl))
             }
         }
-        
         else {
             dispatch(setId(page.id))
             dispatch(setText(page.data.text))

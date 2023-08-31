@@ -68,6 +68,20 @@ pagePrompts.forEach((prompt, index) => {
     batch.update(pageRef, prompt);
 });
 }
+
+if (promptType === 'smallImageIdeas'){
+  pagePrompts.forEach((prompt, index) => {
+      const pageRef = adminDb
+          .collection('users')
+          .doc(session.user.email)
+          .collection('storys')
+          .doc(storyId)
+          .collection('storyContent')
+          .doc(`page_${index + 1}`);
+  
+      batch.update(pageRef, prompt);
+  });
+  }
 await batch.commit();
 
 

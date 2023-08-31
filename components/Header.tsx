@@ -12,10 +12,13 @@ import { HomeIcon, MapIcon, BriefcaseIcon, MagnifyingGlassCircleIcon, StarIcon  
 import { signOut } from 'next-auth/react'
 import { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import axios from "axios";
-import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice";
+import { setEditBarType, setId, setImageUrl } from "../app/GlobalRedux/Features/pageToEditSlice";
+import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice";
+import { useSelect } from "@mui/base";
+import { RootState } from "../app/GlobalRedux/store";
 const stripePromise = loadStripe(process.env.stripe_public_key || '');
 
 function Header(){ 
@@ -24,7 +27,8 @@ function Header(){
     const router = useRouter()
     const pathname = usePathname()
     const [admin, setAdmin] = useState <null | any>(null)
-    const [storyId, setStoryId] = useState<null | string>(null)
+    // const [storyId, setStoryId] = useState<null | string>(null)
+    const storyId = useSelector((state: RootState) => state.viewStory.storyId)
     const [pdf, setPdf] = useState<null | string>(null)
 
     const userEmail = session?.user?.email;
@@ -33,6 +37,7 @@ function Header(){
     const adminQuery = adminCollectionRef ? query(adminCollectionRef) : null;
 
     const [adminDocs, adminLoading, adminError] = useCollection(adminQuery);
+    const [loggingOut, setLoggingOut] = useState(false)
     // console.log("session", session)
 
     const [user, loading, error] = useDocument(
@@ -111,12 +116,32 @@ function Header(){
   const goHome = () => {
       dispatch(setName(''))
       dispatch(setEditBarType('main'))
+      dispatch(setStoryId(null))
       router.push('/')
     }
 
+  const logout = () => {
+
+    dispatch(setName(''))
+    dispatch(setEditBarType('main'))
+    dispatch(setStoryId(null))
+
+    signOut()
+
+  
+  }
+
+
+  // useEffect(() => {
+  //   if (!session) return;
+  //   router.push('/')
+  // }, [session])
+
+
+
 return(
 <header className="sticky bg-white top-0 z-50 text-center shadow-md border-b border-purple-200
-        p-3 md:px-10 w-full justify-between flex ">
+        p-3 md:px-10 w-full justify-between flex items-center ">
     
         <img
             src="https://firebasestorage.googleapis.com/v0/b/my-imaginary-world-b5705.appspot.com/o/MyImaginaryWorldLogo.png?alt=media&token=87d07dd8-56a5-4935-88f8-e562923bc7c0"
@@ -125,7 +150,7 @@ return(
             onClick={goHome}
         />
 
-<h1 className="text-2xl font-mystery text-purple-600 text-center">My Imaginary World</h1>
+<h1 className="text-2xl font-mystery text-purple-600 text-center font-extrabold md:text-4xl">My Imaginary World</h1>
 
 <div className="flex space-x-3">
 {pdf && (
@@ -138,25 +163,25 @@ return(
     Checkout
   </button>
 )}
-{admin && (
+{/* {admin && (
             <img src={`https://ui-avatars.com/api/?name=ADMIN`}
               onClick={() => goToAdminPage()}                            
               className="h-12 w-12 rounded-full cursor-pointer mb-2 hover:opactiy-50"
               alt="Profile Pic"
         />
           )
-}
+} */}
 
 {session && session.user?.image ? (
   <img 
         src={session.user.image} 
-        onClick={() => signOut()}                            
+        onClick={logout}                            
         className="h-12 w-12 rounded-full cursor-pointer  mb-2 hover:opactiy-50"
         alt="Profile Pic"
    />
 ) : (
   <img src={`https://ui-avatars.com/api/?name=${session?.user?.name}`}
-        onClick={() => signOut()}                            
+        onClick={logout}                            
         className="h-12 w-12 rounded-full cursor-pointer mb-2 hover:opactiy-50"
         alt="Profile Pic"
   />

@@ -16,16 +16,14 @@ import axios from "axios"
 import { setUsername, setIsSubscriber } from "./GlobalRedux/Features/userDetailsSlice"
 import { addCharacters } from "./GlobalRedux/Features/characterSlice"
 
-
 interface Story {
   id: string,
   image: string,
   baseImagePrompt: string,
   title: string, 
   baseImagePromptCreated: Boolean,
+  thumbnail: string | null
 }
-
-
 
 function HomePage() {
     const [storyId, setStoryId] = useState<null | string>(null);
@@ -97,17 +95,17 @@ function HomePage() {
       if (subscriber){
         dispatch(setIsSubscriber(subscriber))
         }
-
     }, [user, user?.data()?.userName]);
     
-  return (
+return (
     
-    <div className=" grid sm:grid-cols-2 md:grid-cols-5 grid-cols-6 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-purple-100"> 
+<div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-purple-100"> 
     {storys?.docs.map(story => {
         const storyData = story.data();
         const mappedStory: Story = {
           id: story.id,
           image: storyData.image || '',
+          thumbnail: storyData.thumbNail || null,
           baseImagePrompt: storyData.baseImagePrompt || '',
           title: storyData.title || '',
           baseImagePromptCreated: storyData.baseImagePromptCreated || false,
@@ -118,17 +116,19 @@ function HomePage() {
       })}     
     {characters.length == 0 ? (
           <button
-          className='w-68 h-48 rounded-lg bg-purple-500 hover:bg-purple-300 flex items-center justify-center text-2xl font-bold transition-colors duration-200'
+          className='w-48 h-48 rounded-sm bg-purple-500 hover:bg-purple-300 flex items-center justify-center text-2xl font-bold transition-colors duration-200'
           onClick={createFirstCharacter}
         >
             Create your first character
         </button>
     ):
       <button
-        className='w-68 h-48 rounded-lg bg-purple-500 hover:bg-purple-300 flex items-center justify-center text-2xl font-bold transition-colors duration-200'
+        className='w-48 h-48 rounded-sm bg-purple-500 hover:bg-purple-300 flex items-center justify-center text-2xl font-bold transition-colors duration-200'
         onClick={createNewStory}
       >
+        
           Start a new story
+
       </button>
 }
 </div>

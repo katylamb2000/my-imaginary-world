@@ -3,15 +3,24 @@
 import { createSlice } from "@reduxjs/toolkit";
 import storyBaseIP from "../../../lib/storyBaseIP";
 
-export interface ViewStorySlice {
+
+export 
+
+interface Character {
+    name: string;
+    description: string;
+  }
+
+interface ViewStorySlice {
     title: string,
     thumbnailImage: string,
     baseStoryImagePrompt: string,
     baseStoryImagePromptCreated: Boolean,
     storyId: string,
-    fullStory: string,
+    fullStory: string | null,
     coverImage: string | null, 
-    storyComplete: boolean
+    storyComplete: boolean,
+    storyCharacters: Character[]
 }
 
 const initialState: ViewStorySlice = {
@@ -20,9 +29,10 @@ const initialState: ViewStorySlice = {
     thumbnailImage: '',
     baseStoryImagePrompt: '',
     baseStoryImagePromptCreated: false,
-    fullStory: '',
+    fullStory: null,
     coverImage: null,
-    storyComplete: true
+    storyComplete: true,
+    storyCharacters: []
 }
 
 export const viewStorySlice = createSlice({
@@ -53,9 +63,12 @@ export const viewStorySlice = createSlice({
         setStoryComplete: (state, action) => {
             state.storyComplete = action.payload;
         },
+        setStoryCharacters: (state, action) => {
+            state.storyCharacters = action.payload;
+        },
     }
 });
 
-export const { setTitle, setStoryId, setThumbnailImage, setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setFullStory, setCoverImage, setStoryComplete } = viewStorySlice.actions;
+export const { setTitle, setStoryId, setThumbnailImage, setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters } = viewStorySlice.actions;
 
 export default viewStorySlice.reducer;

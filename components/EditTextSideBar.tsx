@@ -1,5 +1,5 @@
-import { ArrowLeftIcon as BackOutline } from "@heroicons/react/24/outline" 
-import { ArrowLeftIcon as BackSolid } from "@heroicons/react/24/solid"
+import { ArrowLeftIcon as BackOutline, CheckBadgeIcon, CheckCircleIcon } from "@heroicons/react/24/outline" 
+import { ArrowLeftIcon as BackSolid, CheckIcon,  CheckCircleIcon as SavedIcon } from "@heroicons/react/24/solid"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../app/GlobalRedux/store"
 import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice"
@@ -17,22 +17,25 @@ function EditTextSideBar() {
       const { data: session } = useSession()
       const pathname = usePathname()
       const font = useSelector((state: RootState) => state.pageToEdit.font)
-      const fontSize = useSelector((state: RootState) => state.pageToEdit.textSize)
+      // const fontSize = useSelector((state: RootState) => state.pageToEdit.textSize)
       const lineSpacing = useSelector((state: RootState) => state.pageToEdit.lineSpacing)
       const fontColor = useSelector((state: RootState) => state.pageToEdit.textColor)
       const alignment = useSelector(( state: RootState) => state.pageToEdit.alignment)
       const storyId = useSelector((state: RootState) => state.viewStory.storyId)
       const pageId = useSelector((state: RootState) => state.pageToEdit.id)
-
+      const editBarType = useSelector((state: RootState) => state.pageToEdit.editBarType)
       const [hexColor, setHexColor] = useState<string | null>(null)
+
+      const fontSizeSaved = useSelector((state: RootState) => state.pageToEdit.textSize)
+      const [fontSize, setFontSize] = useState('text-md')
     
     const goBack = () => {
         dispatch(setEditBarType('main'))
     }
 
     useEffect(() => {
-        console.log(fontColor, 'fontColor')
-    },[fontColor])
+        console.log('FONTSIZESVED', fontSizeSaved)
+    },[fontSizeSaved])
 
     useEffect(() => {
       if (!pathname) return;
@@ -84,40 +87,60 @@ function EditTextSideBar() {
   return (
     <div className="bg-white h-screen ml-2 mr-8">
       <div className="space-y-6 w-full pt-8">
-        <div className="flex space-x-2 group cursor-pointer w-full">
-          <BackOutline className="h-8 w-8 font-bold text-purple-600 group-hover:text-purple-400 " onClick={goBack} />
-          <p className="h-8 w-8 text-sm text-purple-600 group-hover:text-purple-400">Go Back</p>
-        </div>
+        {editBarType !== 'editCover' && (
+            <div className="flex space-x-2 group cursor-pointer w-full">
+              <BackOutline className="h-8 w-8 font-bold text-purple-600 group-hover:text-purple-400 " onClick={goBack} />
+              <p className="h-8 w-8 text-sm text-purple-600 group-hover:text-purple-400">Go Back</p>
+            </div>
+        )}
+   
 
-        <div className="bg-purple-400 rounded-md shadow-lg p-6 space-y-6">
+        <div className="bg-purple-400 rounded-sm shadow-lg p-6 space-y-6">
 
-          <div className="items-center space-y-2">
-              <label htmlFor="font-size" className="font-semibold text-md">
+          <div className="items-center space-y-2 w-full space-x-6 flex">
+            <div className="w-1/5 ">
+            <label htmlFor="font-size" className="font-semibold text-md 0">
                 Font Size:
               </label>
+            </div>
+          
               <select
                 id="font-size"
-                value={fontSize}
+                value={fontSizeSaved}
                 onChange={(e) => dispatch(setTextSize(e.target.value))}
-                className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400"
+                // onChange={(e) => setFontSize(e.target.value)}
+                className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
               >
-                <option value="text-sm">small</option>
-                <option value="text-md">medium</option>
-                <option value="text-lg">large</option>
-                <option value="text-xl">huge</option>
+                <option value="text-xl">small</option>
+                <option value="text-2l">medium</option>
+                <option value="text-4xl">large</option>
+                <option value="text-6xl">huge</option>
               </select>
+
+              <div>
+                {fontSizeSaved ? (
+                <SavedIcon className="w-8 h-8 text-gray-500" />
+                ): 
+                <CheckCircleIcon className="w-8 h-8 text-gray-500" />
+                }
+
+              </div>
           </div>
   
-          <div className="items-center space-y-2">
-            <label htmlFor="font-color" className="font-semibold">
+          <div className="items-center space-y-2 w-full space-x-6 flex">
+            <div className="w-1/5 ">
+            <label htmlFor="font-size" className="font-semibold text-md 0">
               Font Color:
             </label>
+            </div>
             <select
               id="font-color"
               value={fontColor}
               onChange={(e) =>  updateTextColor(e.target.value)}
-              className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400"
+              className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
             >
+            <option value="text-white">White</option>
+            <option value="text-black">Black</option>
             <option value="text-purple-500">Purple</option>   
             <option value="text-red-500">Red</option>
             <option value="text-green-500">Green</option>
@@ -127,13 +150,17 @@ function EditTextSideBar() {
             </select>
           </div>
       
-        <div>
-          <label htmlFor="font">Font:</label>
+          <div className="items-center space-y-2 w-full space-x-6 flex">
+              <div className="w-1/5 ">
+                <label htmlFor="font" className="font-semibold text-md 0">
+                Font:
+              </label>
+            </div>
           <select
             id="font"
             value={font}
             onChange={e => dispatch(setFont(e.target.value))}
-            className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400"
+            className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
           >
             <option value="font-mystery">Mystery</option>
             <option value="font-roboto">Roboto</option>
@@ -141,16 +168,18 @@ function EditTextSideBar() {
             <option value="font-handlee">Handlee</option>
           </select>
         </div>
-   
-        <div className="items-center space-y-2">
-            <label htmlFor="line-spacing" className="font-semibold">
-              Line Spacing:
-            </label>
+
+        <div className="items-center space-y-2 w-full space-x-6 flex">
+              <div className="w-1/5 ">
+                <label  htmlFor="line-spacing" className="font-semibold text-md 0">
+                  Line Spacing:
+                </label>
+            </div>
             <select
               id="line-spacing"
               value={lineSpacing}
               onChange={(e) => dispatch(setLineSpacing(e.target.value))}
-              className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400"
+              className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
             >
             <option value="leading-normal">Normal</option>
             <option value="leading-4">1.5</option>
@@ -159,15 +188,17 @@ function EditTextSideBar() {
           </div>
      
 
-        <div className="items-center space-y-2">
-            <label htmlFor="alignment" className="font-semibold">
-              Alignment:
-            </label>
+            <div className="items-center space-y-2 w-full space-x-6 flex">
+              <div className="w-1/5 ">
+                <label  htmlFor="alignment" className="font-semibold text-md 0">
+                  Alignment:
+                </label>
+              </div>
             <select
               id="alignment"
               value={alignment}
               onChange={(e) => dispatch(setAlignment(e.target.value as 'left' | 'center' | 'right'))}
-              className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400"
+              className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
 
             >
             <option value="left">Left</option>

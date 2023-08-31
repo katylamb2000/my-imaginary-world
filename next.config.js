@@ -6,7 +6,8 @@ module.exports = {
       'firebasestorage.googleapis.com',
       'static.tryleap.ai',
       'cdn.discordapp.com',
-      'media.discordapp.net'
+      'media.discordapp.net',
+      'cdn.midjourney.com'
       
     ]
   },
