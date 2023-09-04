@@ -36,7 +36,6 @@ import ImproveImagesModal from "./ImproveImagesModal";
 import ImproveImagesBox from "./ImproveImagesBox";
 import NextImageModal from "./NextImageModal";
 import { SyncLoader } from 'react-spinners'
-import { RoomCodec } from "twilio/lib/rest/insights/v1/room";
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 
 
@@ -97,6 +96,7 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     
     const [textSize, setTextSize] = useState<number>(24)
     const [loading, setLoading] = useState<boolean>(false)
+    const [gettingSmallImage, setGettingSmallImage] = useState<boolean>(false)
     const [addText, setAddText] = useState<boolean>(false)
     const [updatedPageText, setUpdatedPageText] = useState<string>(pageText)
     const [currentStoryId, setCurrentStoryId] = useState<string | null>()
@@ -248,35 +248,35 @@ useEffect(() => {
       const getSmallImage = async(idea: string | null, type: string) => {
         console.log('auth token', process.env.next_leg_api_token)
         console.log( 'props to be sent ===> ', currentStoryId, session?.user?.email, pageId, type)
-        // setLoading(true)
+        setGettingSmallImage(true)
         const prompt = `in the style of ${style} for a childrens book illustrate ${idea} on a white background`
         console.log('OTTTTTOOOO ===> PROMPT ---->>>', prompt)
-        //   var data = JSON.stringify({
-        //     msg: prompt,
-        //     ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'imagineSmallImage', page: pageId, type: type  },
-        //     webhookOverride: ""
-        //   });
+          var data = JSON.stringify({
+            msg: prompt,
+            ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'imagineSmallImage', page: pageId, type: type  },
+            webhookOverride: ""
+          });
           
-        //   var config = {
-        //     method: 'post',
-        //     url: 'https://api.thenextleg.io/v2/imagine',
-        //     headers: { 
-        //       'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
-        //       'Content-Type': 'application/json'
-        //     },
-        //     data : data
-        //   };
+          var config = {
+            method: 'post',
+            url: 'https://api.thenextleg.io/v2/imagine',
+            headers: { 
+              'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+              'Content-Type': 'application/json'
+            },
+            data : data
+          };
   
-        //   axios(config)
-        //   .then(function (response) {
-        //     console.log(response);
-        //     console.log(JSON.stringify(response.data));
-        //   //   setLoading(false)
-        //   })
-        //   .catch(function (error) {
-        //     console.log(error);
-        //     setLoading(false)
-        //   });
+          axios(config)
+          .then(function (response) {
+            console.log(response);
+            console.log(JSON.stringify(response.data));
+            setGettingSmallImage(false)
+          })
+          .catch(function (error) {
+            console.log(error);
+            setGettingSmallImage(false)
+          });
         }
 
   const resetText = () => {
@@ -511,31 +511,31 @@ const upscaleChosenImage = async() => {
         
   const button = `U${currentQuadrant}`
   console.log('Button', button)
-  // var data = JSON.stringify({
-  //   button: button,
-  //   buttonMessageId: buttonId ,
-  //   ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'upscale', page: pageId },
-  //   webhookOverride: ""
-  // });
+  var data = JSON.stringify({
+    button: button,
+    buttonMessageId: buttonId ,
+    ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'upscale', page: pageId },
+    webhookOverride: ""
+  });
   
-  // var config = {
-  //   method: 'post',
-  //   url: 'https://api.thenextleg.io/v2/button',
-  //   headers: { 
-  //     'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
-  //     'Content-Type': 'application/json'
-  //   },
-  //   data : data
-  // };
-  // axios(config)
-  // .then(function (response) {
-  //   console.log(JSON.stringify(response.data));
+  var config = {
+    method: 'post',
+    url: 'https://api.thenextleg.io/v2/button',
+    headers: { 
+      'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+      'Content-Type': 'application/json'
+    },
+    data : data
+  };
+  axios(config)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data));
 
-  // })
-  // .catch(function (error) {
-  //   console.log(error);
+  })
+  .catch(function (error) {
+    console.log(error);
 
-  // });
+  });
     }
 
     const editSmallImage = () => {
@@ -578,7 +578,7 @@ return (
           <button onClick={editText} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button>
                   
                   
-            {!smallImageUrl && (
+            {!smallImageUrl && !gettingSmallImage && (
                     <>
                   <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
                     onClick={() => getSmallImage(wildcardIdea, 'wildcard')}
@@ -598,6 +598,20 @@ return (
                   </button>
                   </>
                   )}
+
+                {gettingSmallImage && (
+                  <div>
+                       <SyncLoader
+                    color={color}
+                    loading={loading}
+                    cssOverride={override}
+                    size={15}
+                    aria-label="Loading Spinner"
+                    data-testid="loader"
+                  />
+                  <p>Your small image is on its way!</p>
+                  </div>
+                )}
            
         
 

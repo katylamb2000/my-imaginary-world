@@ -44,6 +44,7 @@ import ImproveStoryPage from "../../../components/ImproveStoryPage"
 import GeneratePDF from "../../../components/generatePDF"
 import TextPage from "../../../components/LeftPage"
 import LeftPage from "../../../components/LeftPage"
+import RightPage from "../../../components/RightPage"
 
 interface PageData {
   id: string | null;
@@ -134,17 +135,22 @@ function StoryPage() {
         setSideBarCols(3);
         // updateColumnLayo
         break;
-        case 'editText':
+      case 'editText':
           setPageCols(3);
           setSideBarCols(3);
           // updateColumnLayo
           break;
-          case 'editLeft':
+        case 'editLeft':
             setPageCols(3);
             setSideBarCols(3);
             // updateColumnLayo
             break;
-            case 'leftAndRightPage':
+          case 'editRightPage':
+            setPageCols(3);
+            setSideBarCols(3);
+              // updateColumnLayo
+             break;
+          case 'leftAndRightPage':
               setPageCols(3);
               setSideBarCols(3);
               // updateColumnLayo
@@ -400,10 +406,14 @@ useEffect(() => {
           <LeftPage />
         )} 
 
+        {storyBuilderActive === 'editRightPage' && layoutSelected == 'default' && (
+          <RightPage />
+        )} 
+
 
          {storyBuilderActive === 'leftAndRightPage' && layoutSelected == 'default' && (
           <>
-  
+          
           <LeftPage />
       
         

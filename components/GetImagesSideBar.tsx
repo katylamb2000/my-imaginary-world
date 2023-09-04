@@ -221,9 +221,10 @@ const updatePageWithGettingImageStarted = async() => {
 
 const getImage = async() => {
   if (!session || !storyId || !firstImagePromptIdea) return;
+  console.log(pageId)
     var data = JSON.stringify({
       msg: firstImagePromptIdea,
-      ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', pageId: pageId },
+      ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: pageId },
       webhookOverride: ""
     });
     

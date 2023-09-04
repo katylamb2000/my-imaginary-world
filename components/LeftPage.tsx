@@ -65,12 +65,12 @@ const viewRight = () => {
      
   </div>
 
-      {pageView == 'leftAndRightPage' && (
+      {/* {pageView == 'leftAndRightPage' && ( */}
             <div className="w-1/3 mx-auto mt-4 bg-purple-300 rounded-md mb-48 flex justify-evenly h-14 text-center items-center">
               <ArrowLeftIcon className=' h-8 w-8 text-purple-800 hover:text-white'  onClick={viewRight}/>
               <ArrowRightIcon className=' h-8 w-8 text-purple-800 hover:text-white' onClick={viewRight} />
             </div>
-        )}
+        {/* // )} */}
     </div>
 
   );

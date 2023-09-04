@@ -4,11 +4,12 @@ import { RootState } from "../app/GlobalRedux/store";
 
 function NextImageModal({ nextImage, lastImage, selectImage }: any) {
   const pageId = useSelector((state: RootState) => state.pageToEdit.id);
-  const isFullPageWidth = pageId !== 'page_1';
+  const viewPage = useSelector((state: RootState) => state.storyBuilderActive.name)
+  const isFullPageWidth = pageId !== 'page_1' ;
 
   return (
     <div className={`grid grid-cols-${isFullPageWidth ? "2" : "1"} w-full`}>
-      {isFullPageWidth && (
+      {isFullPageWidth && viewPage !== 'editRightPage' && (
         <div className="col-span-1 " />
       )}
       <div
@@ -19,7 +20,7 @@ function NextImageModal({ nextImage, lastImage, selectImage }: any) {
             <ArrowLeftIcon className="h-8 w-8 text-purple-500 hover:text-purple-600 font-extrabold" />
           </button>
 
-          <div className="flex flex-col items-center space-y-2">
+          <div className={`flex ${viewPage == 'InsidePage' && 'flex-col'} items-center space-y-2`}>
             <button className="px-6 py-2 rounded-md text-white bg-purple-400 hover:bg-purple-600" onClick={selectImage}>
               Use this image
             </button>
