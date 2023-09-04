@@ -244,6 +244,7 @@ const getImage = async() => {
     })
     .catch(function (error: any) {
       console.log(error);
+      dispatch(setImageRequestSent(false))
       // setLoading(false)
     });
   }

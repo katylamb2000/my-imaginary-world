@@ -64,8 +64,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         // [imagePromptKey]: imageUrl,
         imageUrl: imageUrl,
         imagePromptContent: content,
-        buttonMessageId,
-        buttons
+        buttonMessageId: buttonMessageId,
+        buttons: buttons
       });
      }
 
