@@ -3,7 +3,7 @@ import { adminDb } from '../../firebaseAdmin';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  console.log('ALL Webhook data:', req.body);
+
   if (req.method === 'POST') {
     // Log the incoming data for debugging purposes
     console.log('ALL Webhook data:', req.body);
@@ -57,15 +57,15 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         .collection('storyContent')
         .doc(page);
 
-        const imagePromptKey = `imagePrompt_${type}`; // Create the dynamic key
+        // const imagePromptKey = `imagePrompt_${type}`; // Create the dynamic key
 
   
       await docRef.update({
         // [imagePromptKey]: imageUrl,
         imageUrl: imageUrl,
-        imagePromptContent: content,
+        // imagePromptContent: content,
         buttonMessageId: buttonMessageId,
-        buttons: buttons
+        // buttons: buttons
       });
      }
 

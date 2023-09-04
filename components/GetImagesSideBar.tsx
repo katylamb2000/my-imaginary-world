@@ -180,7 +180,7 @@ useEffect(() => {
 }, [firstImagePromptIdea])
 
 useEffect(() => {
-  console.log('imageUrl no if', imageUrl)
+  console.log('imageUrl no if', imageUrl, imageRequestSent)
   if (imageUrl) return;
   if (!firstImagePromptIdea) return;
   if (imageRequestSent) return;
@@ -188,7 +188,7 @@ useEffect(() => {
     updatePageWithGettingImageStarted()
 
   }
-}, [imageUrl, firstImagePromptIdea])
+}, [imageUrl, firstImagePromptIdea, imageRequestSent])
 
 useEffect(() => {
   if (storyId == ''){
