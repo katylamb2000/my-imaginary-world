@@ -13,7 +13,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
      // Deserialize the ref field to extract storyId, userId, and page
      const { storyId, userId, page, action, heroId, type } = ref;
-     console.log('ACTION IS --', action)
+     console.log('ACTION IS --', action, 'IMAGE URL ==>', imageUrl,  buttonMessageId)
 
  try{
      // Update the story data in Firestore
