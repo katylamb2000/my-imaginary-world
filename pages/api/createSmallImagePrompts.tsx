@@ -87,7 +87,7 @@ interface RequestBody {
   prompt: string;
   storyId: string;
   pageId: string;
-  promptType: 'getSmallImagePrompt' | 'improveSingleImagePrompt';
+  promptType: 'getSmallImagePrompt' | 'improveSingleImagePrompt' | 'improveSmallImagePrompt';
 }
 
 export default async function createSmallImagePrompts(
@@ -152,6 +152,9 @@ try {
     case 'improveSingleImagePrompt':
       updateField = 'updatedImagePrompt';
       break;
+      case 'improveSmallImagePrompt':
+        updateField = 'improvedSmallImagePrompt';
+        break;
     default:
       res.status(400).json({ answer: { message: 'Invalid prompt type' } });
       return;

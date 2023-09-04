@@ -10,9 +10,7 @@ function EditPageColor() {
       };
     
   return (
-    
-    <SketchPicker color={color} onChangeComplete={handleChangeComplete} />
-
+      <SketchPicker color={color} onChangeComplete={handleChangeComplete} />
   )
 }
 

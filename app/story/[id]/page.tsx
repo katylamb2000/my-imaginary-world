@@ -42,6 +42,8 @@ import LayoutOne from "../../../components/LayoutOne"
 import CoverModal from "../../../components/CoverModal"
 import ImproveStoryPage from "../../../components/ImproveStoryPage"
 import GeneratePDF from "../../../components/generatePDF"
+import TextPage from "../../../components/LeftPage"
+import LeftPage from "../../../components/LeftPage"
 
 interface PageData {
   id: string | null;
@@ -107,28 +109,9 @@ function StoryPage() {
     }
   }, [pathname])
 
-  // useEffect(() => {
-  //   console.log('inside page ===>>', sideBarCols, pageCols, )
-  //   if (storyBuilderActive === 'InsidePage'){
-  //       console.log('inside page ===>>', sideBarCols, pageCols)
-  //       setPageCols(5)
-  //       setSideBarCols(1)
-  //   }
-  //   else if (storyBuilderActive === 'improveStory'){
-  //       setPageCols(3)
-  //       setSideBarCols(3)
-  //   }
-  //   else if (storyBuilderActive === 'CoverPage'){
-  //     setPageCols(4)
-  //     setSideBarCols(2)
-  // }
-  //   console.log('inside page ===>>', sideBarCols, pageCols, 'the storyBuilderActive === ', storyBuilderActive)
-  // }, [storyBuilderActive, sideBarCols, pageCols])
 
-
-  
   useEffect(() => {
-    console.log(storyBuilderActive, sideBarCols, pageCols)
+    console.log('colum view', storyBuilderActive, sideBarCols, pageCols)
     switch (storyBuilderActive) {
       case 'CreatePDF':
         setSideBarCols(1);
@@ -136,6 +119,7 @@ function StoryPage() {
         // updateColumnLayout(1, 5);
         break;
       case 'InsidePage':
+        console.log("CHANGED TO INSIDE PAGE!")
         setSideBarCols(1);
         setPageCols(5);
         // updateColumnLayout(1, 5);
@@ -148,9 +132,23 @@ function StoryPage() {
       case 'CoverPage':
         setPageCols(3);
         setSideBarCols(3);
-    
         // updateColumnLayo
         break;
+        case 'editText':
+          setPageCols(3);
+          setSideBarCols(3);
+          // updateColumnLayo
+          break;
+          case 'editLeft':
+            setPageCols(3);
+            setSideBarCols(3);
+            // updateColumnLayo
+            break;
+            case 'leftAndRightPage':
+              setPageCols(3);
+              setSideBarCols(3);
+              // updateColumnLayo
+              break;
       default:
         // Set default values here if needed
         setSideBarCols(1);
@@ -184,7 +182,6 @@ function StoryPage() {
     }
   }, [selectedPageId])
 
-  // Rest of your component code
 
   const [charactersSnapshot, characterLoading, characterError] = useCollection(
     session && collection(db, 'users', session?.user?.email!, 'characters'),
@@ -240,10 +237,6 @@ const [story, storyLoading, storyError] = useDocument(
 
 useEffect(() => {
   
-    // const fullStory = story?.data()?.fullStory;
-    // console.log("FULL STORY", fullStory)
-    // dispatch(setFullStory(fullStory));
-
     const coverImage = story?.data()?.coverImage
     dispatch(setCoverImage(coverImage))
 
@@ -251,7 +244,6 @@ useEffect(() => {
     dispatch(setbuttonMsgId(buttonMsgId))
 
     const storyComplete = story?.data()?.storyComplete
-    // dispatch(setStoryComplete(storyComplete))
 
 }, [story])
 
@@ -359,28 +351,6 @@ useEffect(() => {
     dispatch(setFullStory(finalString))
   
   }, [sortedStoryContent]);
-  
-
-  // useEffect(() => {
-  //     if (!storyContent) return;
-  //     storyContent.docs.map(doc => {
-  //       if (doc.data().audioUrl) return;
-  //       else if (!doc.data().audioUrl){
-  //         fetch('/api/elevenLabs', {
-  //           method: 'POST',
-  //           headers: { 'Content-Type': 'application/json' },
-  //           body: JSON.stringify({ message:  doc.data().text, voice: '21m00Tcm4TlvDq8ikWAM', pageId: doc.id, storyId: storyId, session: session })
-  //         }).then(async (response) => {
-  //           const blob = await response.blob();
-    
-  //           console.log("I AM BLOB", blob)
-  //         }).catch(console.error);
-  //       }
-  //       console.log('DOC DATA', doc.data().audioUrl)
-  //     })
-
-  // }, [storyContent])
-
 
   const switchToEdit = () => {
     setEditStoryPage(!editStoryPage)
@@ -394,7 +364,6 @@ useEffect(() => {
   }, [selectedPageId])
 
   const updatePageText = async () => {
-    // console.log(selectedPageText, selectedPageId);
     if (!storyId || !selectedPageId) return;
     const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", selectedPageId);
     const updatedPage = await updateDoc(docRef, {
@@ -411,13 +380,7 @@ useEffect(() => {
 
   return (
     <div className="w-screen bg-gray-50 ">
-      {/* <ImproveImagesModal />
-      <ImproveStoryModal  />
-      <GetImagesModal />
-      <GetPageImageModal />
-      <AddTextModal />
-      <CoverModal /> */}
-      {/* <EditTextModal /> */}
+
 
       <div className="w-full grid grid-cols-7">
 
@@ -427,13 +390,24 @@ useEffect(() => {
             )}
         </div>
         
-    <div className={`col-span-${pageCols} h-screen overflow-y-scroll bg-gray-50 `}>
-      {/* <div className={`col-span-5 h-screen overflow-y-scroll bg-purple-200 `}> */}
-          {/* {editTextId == selectedPageId && openEditorToobar &&   (
-              <TextEditorToolBar />
-          )} */}
+    <div className={`col-span-${pageCols} overflow-y-scroll bg-gray-50 `}>
+
         {storyBuilderActive === 'InsidePage' && layoutSelected == 'default' && (
           <InsidePage storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
+        )} 
+
+        {storyBuilderActive === 'editLeft' && layoutSelected == 'default' && (
+          <LeftPage />
+        )} 
+
+
+         {storyBuilderActive === 'leftAndRightPage' && layoutSelected == 'default' && (
+          <>
+  
+          <LeftPage />
+      
+        
+          </>
         )} 
 
          {storyBuilderActive === 'improveStory' && layoutSelected == 'default' && (
@@ -446,10 +420,6 @@ useEffect(() => {
 
         )}
 
-        {/* {storyBuilderActive === 'InsidePage' && layoutSelected == 'one' && (
-          <LayoutOne />
-        )}  */}
-
         {storyBuilderActive == 'create story outline' && (
           <CreateStoryOutline characters={characters || []} />
         )}
@@ -457,9 +427,7 @@ useEffect(() => {
         
         <div className="col-span-1">
             {storyBuilderActive !== 'create story outline' && (
-              // <div className="col-span-7 w-full items-center ">
                 <BookLayoutScrollBar storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
-              // </div>
             )}
         </div>
  

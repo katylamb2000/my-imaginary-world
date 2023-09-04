@@ -39,6 +39,8 @@ export interface PageToEditSlice {
     signatureLineOne: string, 
     signatureLineTwo: string,
     signatureTextColor: string,
+    smallImageUrl: string | null,
+    smallImageTop: string
   
 }
 
@@ -79,6 +81,8 @@ const initialState: PageToEditSlice = {
     signatureLineOne: '',
     signatureLineTwo: '',
     signatureTextColor: 'text-pink-500',
+    smallImageUrl: null, 
+    smallImageTop: 'imageTop'
 }
 
 export const PageToEditSlice = createSlice({
@@ -193,6 +197,13 @@ export const PageToEditSlice = createSlice({
         setSignatureTextColor: (state, action) => {
             state.signatureTextColor = action.payload
         }, 
+        setSmallImageUrl: (state, action) => {
+            state.smallImageUrl = action.payload
+        }, 
+        setSmallImageTop: (state, action) => {
+            state.smallImageTop = action.payload
+        }, 
+
     }
 });
 
@@ -201,7 +212,7 @@ export const {
     setHeroCharacterName, setStyle, setPreviousPageText, setNextPageText, setFormattedText, setAudioUrl, setWildcardIdea, setCharacterIdea,
     setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar, setEditBarType, setEditStage, 
     setbuttonMsgId, setImagePrompt, setFirstImagePromptIdea, setImprovedImageUrl, setShowEditTextIcon, setShowInputBox, setImageRequestSent,
-    setFinalImageUrl, setSignatureTextSize, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor
+    setFinalImageUrl, setSignatureTextSize, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor, setSmallImageUrl, setSmallImageTop
 } 
     = PageToEditSlice.actions;
 

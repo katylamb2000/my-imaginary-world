@@ -153,11 +153,13 @@ const updateFontSize = async() => {
     const getImages = () => {
         console.log("Get images", storyId)
         dispatch(setEditBarType('getImages'))
+        dispatch(setName('leftAndRightPage'))
     }
 
     const editText = () => {
         console.log('i want to close the text editor tool bar', selectedPageId, editTextId)
         dispatch(setEditBarType('editText'))
+        dispatch(setName('editLeft'))
     }
 
     const openColorPicker = () => {
@@ -227,16 +229,11 @@ const updateFontSize = async() => {
                 </>
                 }
             </div>
-
-            {/* <div className='w-full text-center group'>
-                <Square2StackIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
-                <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Add a layer</p>
-            </div> */}
             
             <div className='w-full text-center ' >
                 {selectedPageId ? (
                     <div className='group' onClick={getImages}>
-                        <PhotoIcon className='text-gray-300 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
+                        <PhotoIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
                         <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Get Images</p>
                     </div>
                 ):
@@ -247,19 +244,6 @@ const updateFontSize = async() => {
 }
             </div>
 
-            {/* <div className='w-full text-center'>
-                {selectedPageId ? (
-                <div className='group'onClick={addText} >
-                    <PencilIcon className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
-                    <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Add Text</p>
-                </div>
-                ):
-                    <>
-                    <PencilIcon className='text-gray-300 h-8 w-8 mx-auto ' />
-                    <p className='text-gray-300'>Add Text</p>
-                    </>
-                }
-            </div> */}
 
             <div className='w-full text-center' >
                 {selectedPageId ? (
@@ -275,11 +259,6 @@ const updateFontSize = async() => {
                     </>
                 }
             </div>
-
-            {/* <div className='w-full text-center group ' onClick={openLayoutScrollbar}>
-                <Squares2X2Icon  className='text-gray-800 h-8 w-8 mx-auto  group-hover:text-purple-600 group-hover:scale-105 ' />
-                <p className='group-hover:text-purple-600 group-hover:scale-105 text-gray-600'>Layout</p>
-            </div> */}
       
       <div className='w-full text-center ' >
                 {storyComplete ? (

@@ -9,7 +9,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState, useRef, useCallback, CSSProperties } from "react";
-import { setImageUrl, setEditText, setText, setId , setAudioUrl} from "../app/GlobalRedux/Features/pageToEditSlice";
+import { setImageUrl, setEditText, setText, setId , setAudioUrl, setEditBarType} from "../app/GlobalRedux/Features/pageToEditSlice";
+import { setEditTextPageId } from "../app/GlobalRedux/Features/editTextModalSlice";
 import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice";
 import { doc, updateDoc, collection } from "firebase/firestore";
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
@@ -35,6 +36,8 @@ import ImproveImagesModal from "./ImproveImagesModal";
 import ImproveImagesBox from "./ImproveImagesBox";
 import NextImageModal from "./NextImageModal";
 import { SyncLoader } from 'react-spinners'
+import { RoomCodec } from "twilio/lib/rest/insights/v1/room";
+import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 
 
 
@@ -59,6 +62,8 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl)
     const improvedImageUrl = useSelector((state: RootState) => state.pageToEdit.improvedImageUrl)
     const imagePrompt = useSelector((state: RootState) => state.pageToEdit.imagePrompt)
+    const smallImageUrl = useSelector((state: RootState) => state.pageToEdit.smallImageUrl)
+    const finalImageUrl = useSelector((state: RootState) => state.pageToEdit.finalImageUrl)
     const [fullPageImageUrl, setFullPageImage] = useState(null)
     const [smallRoundImageUrl, setSmallRoundImageUrl] = useState('https://media.discordapp.net/attachments/1083423262681350234/1141007317580656672/katy2000_on_a_white_background_in_the_style_of_adam_stower_a_c_863e0d5e-0589-493d-b9bb-211e6caa0ab2.png?width=1060&height=1060')
     // const [smallRoundImageUrl, setSmallRoundImageUrl] = useState('https://media.discordapp.net/attachments/1083423262681350234/1140985949216571463/katy2000_on_a_white_background_draw_two_friendly_aliens_in_the_5a7de73c-0857-4382-9cea-a6b4ade86a5b.png?width=1060&height=1060')
@@ -119,8 +124,6 @@ const override: CSSProperties = {
   borderColor: "#c026d3",
 };
 
-    console.log(wildcardIdea, objectIdea, characterIdea)
-
     useEffect(() => {
       const imageHeight = boxHeight - textHeight;
       const int = Math.floor(imageHeight)
@@ -128,12 +131,13 @@ const override: CSSProperties = {
       const ibh = `h-[${string}px]`
       setImageBoxHeight(ibh)
       console.log('box height', boxHeight, 'text height', textHeight, 'imageBoxHeight', imageBoxHeight, 'string', string, ibh, int)
-    }, [boxHeight, textHeight])
+    }, [boxHeight, textHeight, imageBoxHeight])
   
     useEffect(() => {
       console.log('these are page stuffs ==> ', pageText, )
       console.log('1st image ==> ', imageUrl )
-      console.log('improved image ==> ', improvedImageUrl, )
+      console.log('improved image ==> ', improvedImageUrl)
+      console.log('final image', finalImageUrl) 
     }, [imageUrl, pageText, improvedImageUrl])
 
 
@@ -232,52 +236,57 @@ useEffect(() => {
           console.log(error);
           setLoading(false)
         });
-      }
+      }   // let enhancedPageText = pageText;
+      // enhancedPageText = enhancedPageText.replace(new RegExp(heroCharacterName, 'g'), `${heroCharacterName} (${characterDescription})`);
+      
+      // characters.forEach(character => {
+      //     enhancedPageText = enhancedPageText.replace(new RegExp(character.name, 'g'), `${character.name} (${character.description})`);
+      // });
+      // setLoading(true)
+
 
       const getSmallImage = async(idea: string | null, type: string) => {
-        console.log('imagePrompt', imagePrompt, currentStoryId, session?.user?.email, pageId)
-        setLoading(true)
-        const prompt = `in the style of ${style} for a childrens book illustrate ${idea} on a white bavckground`
-          // let enhancedPageText = pageText;
-          // enhancedPageText = enhancedPageText.replace(new RegExp(heroCharacterName, 'g'), `${heroCharacterName} (${characterDescription})`);
+        console.log('auth token', process.env.next_leg_api_token)
+        console.log( 'props to be sent ===> ', currentStoryId, session?.user?.email, pageId, type)
+        // setLoading(true)
+        const prompt = `in the style of ${style} for a childrens book illustrate ${idea} on a white background`
+        console.log('OTTTTTOOOO ===> PROMPT ---->>>', prompt)
+        //   var data = JSON.stringify({
+        //     msg: prompt,
+        //     ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'imagineSmallImage', page: pageId, type: type  },
+        //     webhookOverride: ""
+        //   });
           
-          // characters.forEach(character => {
-          //     enhancedPageText = enhancedPageText.replace(new RegExp(character.name, 'g'), `${character.name} (${character.description})`);
-          // });
-          // setLoading(true)
-          var data = JSON.stringify({
-            // msg: `In the style of Adam Stower illustrate an image for a children's book depicting ${enhancedPageText} `,
-            // msg: imagePrompt,
-            msg: prompt,
-            ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'imagineSmallImage', page: pageId, type: type  },
-            webhookOverride: ""
-          });
-          
-          var config = {
-            method: 'post',
-            url: 'https://api.thenextleg.io/v2/imagine',
-            headers: { 
-              'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
-              'Content-Type': 'application/json'
-            },
-            data : data
-          };
+        //   var config = {
+        //     method: 'post',
+        //     url: 'https://api.thenextleg.io/v2/imagine',
+        //     headers: { 
+        //       'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+        //       'Content-Type': 'application/json'
+        //     },
+        //     data : data
+        //   };
   
-          axios(config)
-          .then(function (response) {
-            console.log(JSON.stringify(response.data));
-          //   setLoading(false)
-          })
-          .catch(function (error) {
-            console.log(error);
-            setLoading(false)
-          });
+        //   axios(config)
+        //   .then(function (response) {
+        //     console.log(response);
+        //     console.log(JSON.stringify(response.data));
+        //   //   setLoading(false)
+        //   })
+        //   .catch(function (error) {
+        //     console.log(error);
+        //     setLoading(false)
+        //   });
         }
 
   const resetText = () => {
         setUpdatedPageText(pageText)
         dispatch(setEditText(''))
     }
+  const editText = () => {
+    dispatch(setEditBarType('editText'))
+    dispatch(setName('editLeft'))
+  }
 
   const updateText = async () => {
     // console.log(selectedPageText, selectedPageId);
@@ -425,11 +434,11 @@ useEffect(() => {
   console.log('Characters--->>', characters)
 }, [characters ])
 
-useEffect(() => {
-  if (firstImagePromptIdea && !imageUrl){
-    getImage()
-  }
-}, [firstImagePromptIdea, imageUrl])
+// useEffect(() => {
+//   if (firstImagePromptIdea && !imageUrl){
+//     getImage()
+//   }
+// }, [firstImagePromptIdea, imageUrl])
 
 const getSmallImagePrompt = async() => {
   console.log(session, "STORYID",  currentStoryId )
@@ -529,32 +538,48 @@ const upscaleChosenImage = async() => {
   // });
     }
 
+    const editSmallImage = () => {
+      dispatch(setEditBarType('getImages'))
+      dispatch(setName('editLeft'))
+    }
+
 
 return (
-  <div className='bg-purple-500 h-5/6 w-full items-center overscroll-none'>
+  <div className='bg-gray-50 h-5/6 w-full items-center overscroll-none col-span-5'>
       
-    <div className="justify-center h-full bg-gray-50 ">
-      <div className="flex space-x-6 h-4/5 bg-gray-50 pt-6 px-6 -pb-12 ">
+    <div className="justify-center h-full  ">
+      <div className="flex space-x-6 h-4/5  pt-6 px-6 -pb-12 ">
         {audioUrl && playing && (
             <div className="react-player-wrapper" style={{ display: "none" }}>
                 <ReactPlayer url={audioUrl} playing={playing} onEnded={handleAudioEnded} />
            </div>
         )}
 
-          {editTextSelected === pageId  ? (
+          {/* {editTextSelected === pageId  ? (
               <div className="border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md">
-                <CustomTextEditor  />
+                <TextEditor />
               </div>
-          ):
-              // <div className="border-2 border-gray-300 border-dashed  h-4/5 w-3/5 bg-white drop-shadow-md">
+          ): */}
+              {/* // <div className="border-2 border-gray-300 border-dashed  h-4/5 w-3/5 bg-white drop-shadow-md"> */}
               <div
               ref={boxRef}
               className={`border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md ${
                 showText ? 'opacity-100' : 'opacity-0 scale-0 translate-y-[-50%] transition-all duration-300'
               }`}
             >
-                  <p ref={textRef} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-50`}>{pageText}</p>
-       
+
+{smallImageUrl && (
+            <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4" onClick={editSmallImage}>
+
+            <Image src={smallImageUrl} alt='/' className="flex-2" fill />
+            </div>
+          )}
+                  {/* <button onClick={() => dispatch(setEditTextPageId(pageId)) } ref={textRef} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-50`}>{pageText}</button> */}
+          <button onClick={editText} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button>
+                  
+                  
+            {!smallImageUrl && (
+                    <>
                   <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
                     onClick={() => getSmallImage(wildcardIdea, 'wildcard')}
                     >
@@ -571,31 +596,10 @@ return (
                     >
                       {objectIdea}
                   </button>
-       
-                {/* <div className={`bg-red-500 ${imageBoxHeight}]`}>
-                  {smallRoundImageUrl ?  (
-                  <div className='h-1/2 w-1/2 bottom-0 relative mx-auto py-4 z-10 ' >
-                    <Image src={smallRoundImageUrl} alt='/' fill className="mx-auto rounded-full" />
-                  </div>
-                 
-                ): 
-                    <button   
-                      className="bg-purple-500 text-white hover:bg-purple-300 p-4 rounded-lg"
-                      onClick={getSmallImagePrompt}
-                      >
-                        Get small image
-                    </button>
-                }
-              </div> */}
-              <div className={` ${imageBoxHeight} flex-1 w-full bg-green-700 `}>
-              {smallRoundImageUrl &&  (
-                  <div className='h-3/4 w-3/4 bottom-0 relative mx-auto z-10 ' >
-                    <Image src={smallRoundImageUrl} alt='/' fill className="mx-auto" />
-                  </div>
-              )}
-              </div>
-              </div>
-          }
+                  </>
+                  )}
+           
+        
 
                 {audioUrl && (
                 <div className="absolute bottom-20 w-full ">
@@ -607,7 +611,7 @@ return (
                   </div>
                   )}
 
-  
+  </div>
  <div className="h-4/5 w-3/5 relative" >
       <div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
           {/* {imageUrl &&  (
@@ -628,7 +632,7 @@ return (
         </div>
       )}
 
-      {imageUrl && (() => {
+      {imageUrl && !finalImageUrl && (() => {
           let bgPosition = 'top left';
           switch (currentQuadrant) {
             case 1:
@@ -658,6 +662,12 @@ return (
           );
         })()}
 
+        {finalImageUrl && (
+          <div className="h-full w-full relative">
+          <Image className="w-full h-full " fill src={finalImageUrl} alt='/' />
+          </div>
+        )}
+
         {/* {firstImagePromptIdea && !imageUrl && (
         <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
         onClick={getImage}
@@ -667,12 +677,13 @@ return (
         </button>
         )} */}
 
-      </div></div>
+      </div>
+      </div>
   
    
 </div>
       
-{imageUrl && (
+{imageUrl && !finalImageUrl && (
           <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant} selectImage={upscaleChosenImage} />
       )}
 </div>
@@ -712,6 +723,7 @@ return (
         <ImproveImagesBox />
       )}
 
+      {/* </div> */}
       </div>
     )
   }

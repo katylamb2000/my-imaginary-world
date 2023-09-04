@@ -2,7 +2,7 @@ import { ArrowLeftIcon as BackOutline, CheckBadgeIcon, CheckCircleIcon } from "@
 import { ArrowLeftIcon as BackSolid, CheckIcon,  CheckCircleIcon as SavedIcon } from "@heroicons/react/24/solid"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../app/GlobalRedux/store"
-import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice"
+import { setEditBarType, setSmallImageTop, setText } from "../app/GlobalRedux/Features/pageToEditSlice"
 import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice"
 import { setFont, setTextSize, setTextColor, setAlignment, setLineSpacing } from "../app/GlobalRedux/Features/pageToEditSlice";
 import { useEffect, useState } from "react"
@@ -10,6 +10,9 @@ import { doc, updateDoc } from "firebase/firestore"
 import { useSession } from "next-auth/react"
 import { db } from "../firebase"
 import { usePathname } from "next/navigation"
+import QuillToolbar from "./QuillToolbar"
+import TextEditorToolBar from "./TextEditorToolBar"
+
 
 function EditTextSideBar() {
 
@@ -22,16 +25,33 @@ function EditTextSideBar() {
       const fontColor = useSelector((state: RootState) => state.pageToEdit.textColor)
       const alignment = useSelector(( state: RootState) => state.pageToEdit.alignment)
       const storyId = useSelector((state: RootState) => state.viewStory.storyId)
+      const pageText = useSelector((state: RootState) => state.pageToEdit.text)
       const pageId = useSelector((state: RootState) => state.pageToEdit.id)
       const editBarType = useSelector((state: RootState) => state.pageToEdit.editBarType)
       const [hexColor, setHexColor] = useState<string | null>(null)
 
       const fontSizeSaved = useSelector((state: RootState) => state.pageToEdit.textSize)
       const [fontSize, setFontSize] = useState('text-md')
+      const [textSaved, setTextSaved] = useState<boolean>(false)
     
     const goBack = () => {
         dispatch(setEditBarType('main'))
     }
+
+    const saveText = async () => {
+      // console.log(selectedPageText, selectedPageId);
+      try{
+      if (!storyId || !pageId || !session) return;
+      const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
+      const updatedPage = await updateDoc(docRef, {
+        text: pageText
+      });
+      console.log(' this is the updated', updatedPage);
+      setTextSaved(true)
+      // dispatch(dispatch(setText(updatedPage?.data.text))
+    }catch(err){
+      console.log(err)
+    }}
 
     useEffect(() => {
         console.log('FONTSIZESVED', fontSizeSaved)
@@ -111,10 +131,10 @@ function EditTextSideBar() {
                 // onChange={(e) => setFontSize(e.target.value)}
                 className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
               >
-                <option value="text-xl">small</option>
-                <option value="text-2l">medium</option>
-                <option value="text-4xl">large</option>
-                <option value="text-6xl">huge</option>
+                <option value="text-md">small</option>
+                <option value="text-xl">medium</option>
+                <option value="text-2xl">large</option>
+                {/* <option value="text-4xl">huge</option> */}
               </select>
 
               <div>
@@ -190,26 +210,47 @@ function EditTextSideBar() {
 
             <div className="items-center space-y-2 w-full space-x-6 flex">
               <div className="w-1/5 ">
-                <label  htmlFor="alignment" className="font-semibold text-md 0">
+                <label className="font-semibold text-md 0">
                   Alignment:
                 </label>
               </div>
             <select
-              id="alignment"
-              value={alignment}
-              onChange={(e) => dispatch(setAlignment(e.target.value as 'left' | 'center' | 'right'))}
+     
+      
+              onChange={(e) => dispatch(setSmallImageTop(e.target.value))}
               className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
-
             >
-            <option value="left">Left</option>
-            <option value="center">Center</option>
-            <option value="right">Right</option>
+            <option value={'imageTop'}>Image on top</option>
+            <option value={'imageBottom'}>Text on Top</option>
             </select>
           </div>
+              
+      <div className="items-center space-y-2 w-full space-x-6 flex">
 
+              <div className="w-1/5 ">
+                <label  htmlFor="alignment" className="font-semibold text-md 0">
+                  Text:
+                </label>
+              </div>
+          <div className="w-full">
+            {/* <QuillToolbar /> */}
+            {/* <TextEditorToolBar /> */}
+            <textarea value={pageText} placeholder={pageText} onChange={(e) => dispatch(setText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
+          </div>
+            {textSaved ? (
+                  <SavedIcon className="w-8 h-8 text-green-500" />
+                  ): 
+                  <CheckCircleIcon className="w-8 h-8 text-gray-500" onClick={saveText} />
+            }
+     </div>
+
+           
+     <div>
+              </div>
+    </div>
 
             </div>
-        </div>
+
     </div>
   )
 }

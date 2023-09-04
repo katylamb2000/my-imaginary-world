@@ -6,7 +6,7 @@ import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
 import { 
   setId, setText, setImageUrl, setButtonId, setPreviousPageText, setNextPageText, setFormattedText, 
   setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, 
-  setFirstImagePromptIdea, setImprovedImageUrl, setEditBarType, setImageRequestSent, setFinalImageUrl
+  setFirstImagePromptIdea, setImprovedImageUrl, setEditBarType, setImageRequestSent, setFinalImageUrl, setSmallImageUrl, setTextColor
 } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setPageId } from "../app/GlobalRedux/Features/getPageImageModal";
 
@@ -45,31 +45,39 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [page, currentPageId])
 
     const viewPage = () => {
-        dispatch(setButtonId(page.data.buttonMessageId))
-        dispatch(setFinalImageUrl(page.data.finalImage_undefined))
-        dispatch(setImageUrl(page.data.imageUrl))
-        dispatch(setImprovedImageUrl(page.data.improvedImageUrl))
-        dispatch(setImageRequestSent(page.data.imageRequestSent))
-        const ideas = imageIdeas.find(imageIdeas => imageIdeas.data.pageNumber === index + 1);
-        dispatch(setWildcardIdea(page?.data?.wildCardImage))
-        dispatch(setObjectIdea(page?.data.object))
-        dispatch(setBackgroundIdea(ideas?.data.backgroundImage))
-        dispatch(setCharacterIdea(page?.data.characterCloseUp))
-        dispatch(setImagePrompt(page.data.details))
-        dispatch(setFirstImagePromptIdea(page.data.firstImagePromptIdea))
-        console.log("FIRST IMAGE PROMPT IDeas", page.data.firstImagePromptIdea)
-        console.log("IMAGE PROMPT", page.data.details)
+
+      if (page.data.tailwindTextColor){
+        dispatch(setTextColor(page.data.tailwindTextColor))
+      }
+      console.log('INDEX === viewoage', index)
+          dispatch(setSmallImageUrl(page.data.smallRoundImageUrl))
+          // dispatch(setFinalImageUrl(page.data.finalImage_undefined))
+          dispatch(setFinalImageUrl(page.data.finalImageUrl))
+          dispatch(setImageUrl(page.data.imageUrl))
+          dispatch(setImprovedImageUrl(page.data.improvedImageUrl))
+          dispatch(setImageRequestSent(page.data.imageRequestSent))
+          const ideas = imageIdeas.find(imageIdeas => imageIdeas.data.pageNumber === index + 1);
+          dispatch(setWildcardIdea(page?.data?.wildCardImage))
+          dispatch(setObjectIdea(page?.data.object))
+          dispatch(setBackgroundIdea(ideas?.data.backgroundImage))
+          dispatch(setCharacterIdea(page?.data.characterCloseUp))
+          dispatch(setImagePrompt(page.data.details))
+          dispatch(setFirstImagePromptIdea(page.data.firstImagePromptIdea))
+
         if (index == 0){
+          console.log('INDEX === 0', index)
           dispatch(setName('CoverPage'))
           dispatch(setEditBarType('editCover'))
           dispatch(setImageUrl(page.data.imageUrl))
           dispatch(setButtonId(page.data.buttonMessageId))
         }
         if (index !== 0){
+          console.log('INDEX !== 0', index)
           dispatch(setName('InsidePage'))
           dispatch(setEditBarType('main'))
         }
         if (!index){
+          console.log('no idex', index)
             dispatch(setName('CoverPage'))
             dispatch(setText(page.data.text))
             dispatch(setFormattedText(page.data.formattedText))

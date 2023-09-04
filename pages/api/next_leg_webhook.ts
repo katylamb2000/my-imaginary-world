@@ -3,7 +3,7 @@ import { adminDb } from '../../firebaseAdmin';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-
+  console.log('ALL Webhook data:', req.body);
   if (req.method === 'POST') {
     // Log the incoming data for debugging purposes
     console.log('ALL Webhook data:', req.body);

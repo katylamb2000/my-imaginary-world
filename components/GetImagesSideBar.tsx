@@ -12,6 +12,7 @@ import { SyncLoader } from 'react-spinners'
 import axios from 'axios'
 import { doc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase'
+import ImproveSmallImage from './ImproveSmallImage'
 
 
 function GetImagesSideBar() {
@@ -30,6 +31,8 @@ function GetImagesSideBar() {
     const style = useSelector((state: RootState) => state.pageToEdit.style)
     const [color, setColor] = useState("#c026d3");
     const [extractedCharacters, setExtractedCharacters] = useState<string | null>(null)
+    const  smallImageUrl = useSelector((state: RootState) => state.pageToEdit.smallImageUrl)
+    const [thoughts, setThoughts] = useState('')
 
     useEffect(() => {
       if (!story || !characters.length) return;
@@ -273,12 +276,18 @@ const getImage = async() => {
           </button>
       
     )}
-
+      {!smallImageUrl && (
         <button className='bg-pink-500 text-white hover:bg-pink-300 rounded-lg p-4 '
-                  onClick={handleGetSmallImageIdeas}
-          >
-            Get small image ideas
-        </button>
+        onClick={handleGetSmallImageIdeas}
+      >
+        Get small image ideas
+      </button>
+      )}
+
+      {smallImageUrl && (
+          <ImproveSmallImage />
+      )}    
+
     </div>
   )
 }
