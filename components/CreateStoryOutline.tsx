@@ -161,7 +161,7 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
 
           Our hero is ${heroDescription} - a character with a quirky twist that makes them unique and entertaining.
 
-          The story must be structured into exactly 14 pages and a title page. The structure should be as follows:
+          The story must be structured into exactly 14 pages plus a title page. The structure should be as follows:
 
           Title: 
 

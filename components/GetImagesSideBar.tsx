@@ -206,7 +206,7 @@ useEffect(() => {
 }, [storyId, pathname])
 
 const updatePageWithGettingImageStarted = async() => {
-  if (!session || storyId == '') return;
+  if (!session?.user?.email || !storyId || !pageId) return;
   try{
     const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
     const updatedPage = await updateDoc(docRef, {

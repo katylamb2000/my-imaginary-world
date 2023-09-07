@@ -15,6 +15,16 @@ module.exports = {
     
       
       },
+      colors: {
+        'sunset-pink': '#4f46e5',
+        'sunset-orange': '#db2777',
+      },
+      backgroundImage: theme => ({
+        'sunset-gradient': 'linear-gradient(to right, #FF6B6B, #FFB447)',
+
+
+
+      }),
     
     },
   },

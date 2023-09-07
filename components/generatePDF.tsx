@@ -57,9 +57,11 @@ function GeneratePDF({ storyId, story }: any) {
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   const createPDFOnServer = async () => {
+    console.log(story[0].data.text)
     try {
       const response = await axios.post('/api/generatePDF', {
         story: story,
+        title: 'i am the title',
         session: session
       }, {
         headers: {
@@ -86,7 +88,9 @@ function GeneratePDF({ storyId, story }: any) {
 
   return (
     <div>
-      {uploadProgress !== null ? <UploadProgress progress={uploadProgress} /> : <button onClick={createPDFOnServer}>Generate PDF</button>}
+      {uploadProgress !== null ? <UploadProgress progress={uploadProgress} /> : <button onClick={createPDFOnServer}>
+        Generate PDF
+      </button>}
     </div>
   );
 }

@@ -37,6 +37,7 @@ import ImproveImagesBox from "./ImproveImagesBox";
 import NextImageModal from "./NextImageModal";
 import { SyncLoader } from 'react-spinners'
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
+import NextSmallImageModal from "./NextSmallImageModal";
 
 
 
@@ -54,6 +55,7 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     // const audioRef = useRef<HTMLAudioElement | null>(new Audio());
     const style = useSelector((state: RootState) => state.pageToEdit.style)
     const pageText = useSelector((state: RootState) => state.pageToEdit.text)
+    const rightPageText = useSelector((state: RootState) => state.pageToEdit.rightPageText)
     const audioUrl = useSelector((state: RootState) => state.pageToEdit.audioUrl)
     const characters = useSelector((state: RootState) => state.characters.characters)
     const characterDescription = useSelector((state: RootState) => state.pageToEdit.characterDescription)
@@ -68,6 +70,7 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     // const [smallRoundImageUrl, setSmallRoundImageUrl] = useState('https://media.discordapp.net/attachments/1083423262681350234/1140985949216571463/katy2000_on_a_white_background_draw_two_friendly_aliens_in_the_5a7de73c-0857-4382-9cea-a6b4ade86a5b.png?width=1060&height=1060')
     // const [smallRoundImageUrl, setSmallRoundImageUrl] = useState('https://media.discordapp.net/attachments/1083423262681350234/1140984757778403368/katy2000_on_a_white_background_draw_a_giant_pruple_monster_in__acf329b5-6136-43e1-a2fb-c0b539c32fc8.png?width=1060&height=1060') 
     const buttonId = useSelector((state: RootState) => state.pageToEdit.buttonId)
+    const smallImageButtonId = useSelector((state: RootState) => state.pageToEdit.smallImageButtonId)
     // const editTextSelected = useSelector((state: RootState) => state.pageToEdit.editText)
     const editTextSelected = useSelector((state: RootState) => state.editTextModal.editTextPageId)
     const storyId = useSelector((state: RootState) => state.viewStory.storyId)
@@ -91,9 +94,7 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
 
     const [value, setValue] = useState(pageText)
     const [currentQuadrant, setCurrentQuadrant] = useState(1);
-    // const [value, setValue] = useState(`<p><strong class="ql-size-large" style="color: rgb(0, 153, 255);">Sophia</strong>, suddenly feeling more <em style="color: rgb(0, 153, 0);">brave</em> and <em style="color: rgb(0, 153, 0);">bold</em>, was just getting the knack of controlling the <u class="ql-size-large ql-font-monospace" style="color: rgb(102, 51, 153);">massive spaceship</u> when, without any warning, the floor beneath her began to <strong class="ql-size-huge" style="color: rgb(255, 51, 51);">shake</strong> and <em class="ql-size-huge" style="color: rgb(255, 51, 51);">shudder</em>.</p>
-    // <p>In a <strong class="ql-size-large" style="color: rgb(0, 102, 255);">flash</strong>, as if from thin air, <u class="ql-size-huge ql-font-monospace" style="color: rgb(204, 0, 204);">creatures</u> from another galaxy - <strong class="ql-size-huge" style="color: rgb(204, 0, 204);">aliens!</strong> - materialized out of nowhere!</p>`);
-    
+
     const [textSize, setTextSize] = useState<number>(24)
     const [loading, setLoading] = useState<boolean>(false)
     const [gettingSmallImage, setGettingSmallImage] = useState<boolean>(false)
@@ -124,22 +125,28 @@ const override: CSSProperties = {
   borderColor: "#c026d3",
 };
 
+useEffect(() => {
+  if (storyId || !pathname) return;
+  const regex = /^\/story\/([a-zA-Z0-9]+)$/;
+  const id = regex.exec(pathname);
+
+  if (id) {
+    const identifier = id[1];
+  //   setStoryId(identifier);  
+  dispatch(setStoryId(identifier))
+  } else {
+    console.log("No match");
+  }
+}, [pathname, storyId])
+
     useEffect(() => {
       const imageHeight = boxHeight - textHeight;
       const int = Math.floor(imageHeight)
       const string = int.toString()
       const ibh = `h-[${string}px]`
       setImageBoxHeight(ibh)
-      console.log('box height', boxHeight, 'text height', textHeight, 'imageBoxHeight', imageBoxHeight, 'string', string, ibh, int)
     }, [boxHeight, textHeight, imageBoxHeight])
   
-    useEffect(() => {
-      console.log('these are page stuffs ==> ', pageText, )
-      console.log('1st image ==> ', imageUrl )
-      console.log('improved image ==> ', improvedImageUrl)
-      console.log('final image', finalImageUrl) 
-    }, [imageUrl, pageText, improvedImageUrl])
-
 
     useEffect(() => {
       // When pageText or audioUrl changes, set showText to false to trigger the transition effect
@@ -171,6 +178,8 @@ useEffect(() => {
           console.log("No match");
         }
       }, [pathname])
+
+     
 
     const requestImage = async() => {
              console.log('trying to send sms')
@@ -288,15 +297,15 @@ useEffect(() => {
     dispatch(setName('editLeft'))
   }
 
-  const updateText = async () => {
-    // console.log(selectedPageText, selectedPageId);
-    if (!currentStoryId || !pageId || !session) return;
-    const docRef = doc(db, "users", session?.user?.email!, "storys", currentStoryId, "storyContent", pageId);
+  const updateText = async (text: string) => {
+    console.log("sotry id", storyId, pageId, session);
+    if (!storyId || !pageId || !session) return;
+    const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
     const updatedPage = await updateDoc(docRef, {
-      text: updatedPageText
+      text: text
     });
     console.log(' this is the updated', updatedPage);
-    dispatch(setEditText(''))
+    // dispatch(setEditText(''))
   };
 
 useEffect(() => {
@@ -349,6 +358,7 @@ useEffect(() => {
 
   const handleAudioEnded = () => {
     console.log("Audio has finished playing!",  storyPages, pageId);
+    if (!pageId) return;
     const currentPageNumber = parseInt(pageId.split("_")[1], 10);
     // Increment the currentPageNumber by 1
     const nextPageNumber = currentPageNumber + 1;
@@ -506,6 +516,45 @@ const lastQuadrant = () => {
   setCurrentQuadrant((prev) => (prev === 4 ? 1 : prev - 1));
 };
 
+const nextSmallQuadrant = () => {
+  setCurrentQuadrant((prev) => (prev === 4 ? 1 : prev + 1));
+};
+
+const lastSmallQuadrant = () => {
+  setCurrentQuadrant((prev) => (prev === 4 ? 1 : prev - 1));
+};
+
+const upscaleChosenSmallImage = async() => {
+        
+  const button = `U${currentQuadrant}`
+  console.log('Button', button)
+  var data = JSON.stringify({
+    button: button,
+    buttonMessageId: smallImageButtonId ,
+    ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'upscaleSmallImage', page: pageId },
+    webhookOverride: ""
+  });
+  
+  var config = {
+    method: 'post',
+    url: 'https://api.thenextleg.io/v2/button',
+    headers: { 
+      'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+      'Content-Type': 'application/json'
+    },
+    data : data
+  };
+  axios(config)
+  .then(function (response) {
+    console.log(JSON.stringify(response.data));
+
+  })
+  .catch(function (error) {
+    console.log(error);
+
+  });
+    }
+
 
 const upscaleChosenImage = async() => {
         
@@ -543,6 +592,14 @@ const upscaleChosenImage = async() => {
       dispatch(setName('editLeft'))
     }
 
+    useEffect(() => {
+      if (pageText.startsWith('undefined')) {
+        let text = pageText.replace('undefined', '').trim();
+        dispatch(setText(text))
+        updateText(text)
+    }
+    }, [pageText])
+
 
 return (
   <div className='bg-gray-50 h-5/6 w-full items-center overscroll-none col-span-5'>
@@ -568,18 +625,51 @@ return (
               }`}
             >
 
-{smallImageUrl && (
+{/* {smallImageUrl && (
             <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4" onClick={editSmallImage}>
 
             <Image src={smallImageUrl} alt='/' className="flex-2" fill />
             </div>
-          )}
+          )} */}
+
+{smallImageUrl  && (() => {
+          let bgPosition = 'top left';
+          switch (currentQuadrant) {
+            case 1:
+              bgPosition = 'top left';
+              break;
+            case 2:
+              bgPosition = 'top right';
+              break;
+            case 3:
+              bgPosition = 'bottom left';
+              break;
+            case 4:
+              bgPosition = 'bottom right';
+              break;
+            default:
+              bgPosition = 'top left';
+          }
+          return (
+            <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4" >
+            <div
+              className="w-full h-full bg-no-repeat bg-cover rounded-sm cursor-pointer"
+              style={{
+                backgroundImage: `url(${smallImageUrl})`,
+                backgroundPosition: bgPosition,
+                backgroundSize: '200% 200%'
+              }}
+            />
+
+          </div>
+          );
+        })()}
                   {/* <button onClick={() => dispatch(setEditTextPageId(pageId)) } ref={textRef} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-50`}>{pageText}</button> */}
           <button onClick={editText} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button>
                   
                   
             {!smallImageUrl && !gettingSmallImage && (
-                    <>
+                    <div className="overflow-scroll h-1/3">
                   <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
                     onClick={() => getSmallImage(wildcardIdea, 'wildcard')}
                     >
@@ -596,7 +686,7 @@ return (
                     >
                       {objectIdea}
                   </button>
-                  </>
+                  </div>
                   )}
 
                 {gettingSmallImage && (
@@ -625,6 +715,7 @@ return (
                   </div>
                   )}
 
+
   </div>
  <div className="h-4/5 w-3/5 relative" >
       <div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
@@ -646,40 +737,48 @@ return (
         </div>
       )}
 
-      {imageUrl && !finalImageUrl && (() => {
-          let bgPosition = 'top left';
-          switch (currentQuadrant) {
-            case 1:
-              bgPosition = 'top left';
-              break;
-            case 2:
-              bgPosition = 'top right';
-              break;
-            case 3:
-              bgPosition = 'bottom left';
-              break;
-            case 4:
-              bgPosition = 'bottom right';
-              break;
-            default:
-              bgPosition = 'top left';
-          }
-          return (
-            <div
-              className="w-full h-full bg-no-repeat bg-cover rounded-sm cursor-pointer"
-              style={{
-                backgroundImage: `url(${imageUrl})`,
-                backgroundPosition: bgPosition,
-                backgroundSize: '200% 200%'
-              }}
-            />
-          );
-        })()}
+{imageUrl && !finalImageUrl && (() => {
+    let bgPosition = 'top left';
+    switch (currentQuadrant) {
+      case 1:
+        bgPosition = 'top left';
+        break;
+      case 2:
+        bgPosition = 'top right';
+        break;
+      case 3:
+        bgPosition = 'bottom left';
+        break;
+      case 4:
+        bgPosition = 'bottom right';
+        break;
+      default:
+        bgPosition = 'top left';
+    }
+    return (
+      <div
+        className="w-full h-full bg-no-repeat bg-cover rounded-sm cursor-pointer relative" 
+        style={{
+          backgroundImage: `url(${imageUrl})`,
+          backgroundPosition: bgPosition,
+          backgroundSize: '200% 200%'
+        }}>
+          <p className="text-white absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4"> 
+            {rightPageText}
+          </p>
+      </div>
+    );
+  })()}
+
 
         {finalImageUrl && (
           <div className="h-full w-full relative">
           <Image className="w-full h-full " fill src={finalImageUrl} alt='/' />
           </div>
+        )}
+
+        {!finalImageUrl && !imageUrl && (
+          <button>Text looks good! Get image</button>
         )}
 
         {/* {firstImagePromptIdea && !imageUrl && (
@@ -696,11 +795,20 @@ return (
   
    
 </div>
-      
-{imageUrl && !finalImageUrl && (
-          <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant} selectImage={upscaleChosenImage} />
-      )}
-</div>
+
+
+  <div className="w-full h-24 bg-gray-50 space-x-4 flex">
+
+          {smallImageUrl && !finalImageUrl && (
+                <NextSmallImageModal nextSmallImage={nextSmallQuadrant} lastSmallImage={lastSmallQuadrant} selectSmallImage={upscaleChosenSmallImage} />
+            )}
+
+          {imageUrl && !finalImageUrl && (
+                    <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant} selectImage={upscaleChosenImage} />
+                )}
+    
+    </div>
+</div> 
 {/*  
       {showLayoutScrollbar && (
           <LayoutScrollbar />
@@ -738,6 +846,8 @@ return (
       )}
 
       {/* </div> */}
+
+   
       </div>
     )
   }

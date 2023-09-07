@@ -2,7 +2,7 @@ import { ArrowLeftIcon as BackOutline, CheckBadgeIcon, CheckCircleIcon } from "@
 import { ArrowLeftIcon as BackSolid, CheckIcon,  CheckCircleIcon as SavedIcon } from "@heroicons/react/24/solid"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../app/GlobalRedux/store"
-import { setEditBarType, setSmallImageTop, setText } from "../app/GlobalRedux/Features/pageToEditSlice"
+import { setEditBarType, setSmallImageTop, setText, setRightPageText } from "../app/GlobalRedux/Features/pageToEditSlice"
 import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice"
 import { setFont, setTextSize, setTextColor, setAlignment, setLineSpacing } from "../app/GlobalRedux/Features/pageToEditSlice";
 import { useEffect, useState } from "react"
@@ -26,13 +26,15 @@ function EditTextSideBar() {
       const alignment = useSelector(( state: RootState) => state.pageToEdit.alignment)
       const storyId = useSelector((state: RootState) => state.viewStory.storyId)
       const pageText = useSelector((state: RootState) => state.pageToEdit.text)
+      const rightPageText = useSelector((state: RootState) => state.pageToEdit.rightPageText)
       const pageId = useSelector((state: RootState) => state.pageToEdit.id)
       const editBarType = useSelector((state: RootState) => state.pageToEdit.editBarType)
       const [hexColor, setHexColor] = useState<string | null>(null)
-
+      const [tailwindColor, setTailwindColor] = useState<string | null>(null)
       const fontSizeSaved = useSelector((state: RootState) => state.pageToEdit.textSize)
       const [fontSize, setFontSize] = useState('text-md')
       const [textSaved, setTextSaved] = useState<boolean>(false)
+      const [rightPageTextSaved, setRightPageTextSaved] = useState<boolean>(false)
     
     const goBack = () => {
         dispatch(setEditBarType('main'))
@@ -52,6 +54,36 @@ function EditTextSideBar() {
     }catch(err){
       console.log(err)
     }}
+
+    const saveRightPageText = async () => {
+      // console.log(selectedPageText, selectedPageId);
+      try{
+      if (!storyId || !pageId || !session) return;
+      const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
+      const updatedPage = await updateDoc(docRef, {
+        rightPagetext: rightPageText
+      });
+      console.log(' this is the updated', updatedPage);
+      setRightPageTextSaved(true)
+      // dispatch(dispatch(setText(updatedPage?.data.text))
+    }catch(err){
+      console.log(err)
+    }}
+
+    const updateTextSize = async(size: string) => {
+      try{
+        if (!storyId || !pageId || !session) return;
+        const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
+        const updatedPage = await updateDoc(docRef, {
+          textSize: size
+        });
+        console.log(' this is the updated', updatedPage);
+        // setUpdatedTextSize(true)
+        // dispatch(dispatch(setText(updatedPage?.data.text))
+      }catch(err){
+        console.log(err)
+    }}
+  
 
     useEffect(() => {
         console.log('FONTSIZESVED', fontSizeSaved)
@@ -75,34 +107,50 @@ function EditTextSideBar() {
       
       if (color == 'text-red-500'){
         setHexColor('#ef4444')
+        setTailwindColor('text-red-500')
       }
       if (color == 'text-purple-500'){
         setHexColor('#a855f7')
+        setTailwindColor('text-purple-500')
       }
       if (color == 'text-green-500'){
         setHexColor('#22c55e')
+        setTailwindColor('text-green-500')
       }
       if (color == 'text-orange-500'){
         setHexColor('#f97316')
+        setTailwindColor('text-orange-500')
       }
       if (color == 'text-blue-500'){
         setHexColor('#3b82f6')
+        setTailwindColor('text-blue-500')
       }
       if (color == 'text-pink-500'){
         setHexColor('#ec4899')
+        setTailwindColor('text-pink-500')
       }
       dispatch(setTextColor(color))
-      try{
-        const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId );
-        const updatedPage = await updateDoc(docRef, {
-          tailwindTextColor: color,
-          hexTextColor: hexColor
-        });
-        console.log('pageText updated', updatedPage)
-      }catch(err){
-          console.log(err)
-      }
     }
+
+    useEffect( () => {
+        if (!hexColor || !tailwindColor) return;
+
+        const updateColors = async () => {
+          if (!session?.user?.email || !storyId || !pageId) return;
+        try{
+    
+          const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
+          const updatedPage = await updateDoc(docRef, {
+            tailwindTextColor: tailwindColor,
+            hexTextColor: hexColor
+          });
+          console.log('pageText updated', updatedPage)
+        }catch(err){
+            console.log(err)
+        }
+        };
+      updateColors()
+    }, [hexColor, tailwindColor])
 
   return (
     <div className="bg-white h-screen ml-2 mr-8">
@@ -127,7 +175,8 @@ function EditTextSideBar() {
               <select
                 id="font-size"
                 value={fontSizeSaved}
-                onChange={(e) => dispatch(setTextSize(e.target.value))}
+                // onChange={(e) => dispatch(setTextSize(e.target.value))}
+                onChange={(e) => updateTextSize(e.target.value)}
                 // onChange={(e) => setFontSize(e.target.value)}
                 className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
               >
@@ -167,6 +216,7 @@ function EditTextSideBar() {
             <option value="text-blue-500">Blue</option>
             <option value="text-orange-500">Orange</option>
             <option value="text-pink-500">Pink</option>
+            <option value="custom color">Custom color</option>
             </select>
           </div>
       
@@ -205,31 +255,27 @@ function EditTextSideBar() {
             <option value="leading-4">1.5</option>
             <option value="leading-9">Double</option>
             </select>
-          </div>
+        </div>
      
-
-            <div className="items-center space-y-2 w-full space-x-6 flex">
+        <div className="items-center space-y-2 w-full space-x-6 flex">
               <div className="w-1/5 ">
                 <label className="font-semibold text-md 0">
                   Alignment:
                 </label>
               </div>
             <select
-     
-      
               onChange={(e) => dispatch(setSmallImageTop(e.target.value))}
               className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5"
             >
             <option value={'imageTop'}>Image on top</option>
             <option value={'imageBottom'}>Text on Top</option>
             </select>
-          </div>
+        </div>
               
-      <div className="items-center space-y-2 w-full space-x-6 flex">
-
+    <div className="items-center space-y-2 w-full space-x-6 flex">
               <div className="w-1/5 ">
                 <label  htmlFor="alignment" className="font-semibold text-md 0">
-                  Text:
+                Left Page Text:
                 </label>
               </div>
           <div className="w-full">
@@ -244,14 +290,29 @@ function EditTextSideBar() {
             }
      </div>
 
-           
-     <div>
-              </div>
-    </div>
+     <div className="items-center space-y-2 w-full space-x-6 flex">
 
-            </div>
-
+<div className="w-1/5 ">
+  <label  htmlFor="alignment" className="font-semibold text-md 0">
+    Right Page Text:
+  </label>
+</div>
+<div className="w-full">
+{/* <QuillToolbar /> */}
+{/* <TextEditorToolBar /> */}
+<textarea value={rightPageText || ''} placeholder={rightPageText || 'move any text you want on the right page here. '} onChange={(e) => dispatch(setRightPageText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
+</div>
+{rightPageTextSaved ? (
+    <SavedIcon className="w-8 h-8 text-green-500" />
+    ): 
+    <CheckCircleIcon className="w-8 h-8 text-gray-500" onClick={saveRightPageText} />
+}
+          </div>
+        <div>
+      </div>
     </div>
+  </div>
+</div>
   )
 }
 

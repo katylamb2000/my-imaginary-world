@@ -192,8 +192,8 @@ interface PageData {
 
 interface CreatePDFProps {
   story: PageData[];
-  storyId: string;
-  fontSizeSize: number;
+  // storyId: string;
+  // fontSizeSize: number;
 }
 
 const wrapText = (text: string, fontSize: number, maxWidth: number, font: PDFFont): string => {
@@ -232,7 +232,8 @@ const wrapText = (text: string, fontSize: number, maxWidth: number, font: PDFFon
 
 
 
-const CreatePDF = ({ story, storyId, fontSizeSize }: CreatePDFProps) => {
+// const CreatePDF = ({ story, storyId, fontSizeSize }: CreatePDFProps) => {
+  const CreatePDF = ({ story }: CreatePDFProps) => {
   const router = useRouter();
   const { data: session } = useSession();
 

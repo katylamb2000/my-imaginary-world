@@ -3,7 +3,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export interface PageToEditSlice {
-    id: string,
+    id: string | null,
     text: string,
     textColor: string,
     textSize: string, 
@@ -40,7 +40,9 @@ export interface PageToEditSlice {
     signatureLineTwo: string,
     signatureTextColor: string,
     smallImageUrl: string | null,
-    smallImageTop: string
+    smallImageTop: string, 
+    rightPageText: string | null
+    smallImageButtonId: string | null
   
 }
 
@@ -82,7 +84,9 @@ const initialState: PageToEditSlice = {
     signatureLineTwo: '',
     signatureTextColor: 'text-pink-500',
     smallImageUrl: null, 
-    smallImageTop: 'imageTop'
+    smallImageTop: 'imageTop',
+    rightPageText: null,
+    smallImageButtonId: null
 }
 
 export const PageToEditSlice = createSlice({
@@ -203,6 +207,12 @@ export const PageToEditSlice = createSlice({
         setSmallImageTop: (state, action) => {
             state.smallImageTop = action.payload
         }, 
+        setRightPageText: (state, action) => {
+            state.rightPageText = action.payload
+        }, 
+        setSmallImageButtonId: (state, action) => {
+            state.smallImageButtonId = action.payload
+        }, 
 
     }
 });
@@ -212,7 +222,8 @@ export const {
     setHeroCharacterName, setStyle, setPreviousPageText, setNextPageText, setFormattedText, setAudioUrl, setWildcardIdea, setCharacterIdea,
     setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar, setEditBarType, setEditStage, 
     setbuttonMsgId, setImagePrompt, setFirstImagePromptIdea, setImprovedImageUrl, setShowEditTextIcon, setShowInputBox, setImageRequestSent,
-    setFinalImageUrl, setSignatureTextSize, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor, setSmallImageUrl, setSmallImageTop
+    setFinalImageUrl, setSignatureTextSize, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor, setSmallImageUrl, setSmallImageTop,
+    setRightPageText, setSmallImageButtonId
 } 
     = PageToEditSlice.actions;
 

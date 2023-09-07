@@ -376,8 +376,8 @@ const generateCoverImageIdeas = async() => {
             {suggestions && (
                 <div className='space-y-2'>
                 {/* <p  className='text-xl font font-semibold text-purple-600'>{introduction}</p> */}
-                {suggestions.map((suggestion: string) => (
-                <p className='text-purple-400 hover:underline cursor-pointer hover:text-purple-600 hover:text-lg' 
+                {suggestions.map((suggestion: string, index: number) => (
+                <p key={index} className='text-purple-400 hover:underline cursor-pointer hover:text-purple-600 hover:text-lg' 
                     onClick={() => updateTitle(suggestion)}
                 >
                     {suggestion}

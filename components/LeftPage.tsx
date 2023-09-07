@@ -45,9 +45,9 @@ const viewRight = () => {
     }`}
   > */}
 
-    {smallImageTop == 'imageTop' && (
+    {/* {smallImageTop == 'imageTop' && (
       <button onClick={() => dispatch(setEditTextPageId(pageId)) } className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button>
-    )}
+    )} */}
           {/* <button onClick={() => dispatch(setEditTextPageId(pageId)) } className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button> */}
 
 
@@ -57,9 +57,9 @@ const viewRight = () => {
       </div>
     )}
 
-      {smallImageTop == 'imageBottom' && (
+      {/* {smallImageTop == 'imageBottom' && (
             <button onClick={() => dispatch(setEditTextPageId(pageId)) } className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button>
-          )} 
+          )}  */}
 
   {/* <button onClick={() => dispatch(setEditTextPageId(pageId)) } className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button> */}
      

@@ -72,7 +72,10 @@ function EditSignatureBox() {
       if (color == 'text-pink-500'){
         setHexColor('#ec4899')
       }
+
       dispatch(setSignatureTextColor(color))
+      if (!session?.user?.email || !storyId || !pageId) return;
+    
       try{
         const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId );
         const updatedPage = await updateDoc(docRef, {

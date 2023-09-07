@@ -15,6 +15,7 @@
     "@headlessui/react": "^1.7.15",
     "@heroicons/react": "^2.0.16",
     "@leap-ai/sdk": "^0.0.119",
+    "@mui/base": "^5.0.0-beta.14",
     "@mui/icons-material": "^5.14.1",
     "@mui/material": "^5.14.1",
     "@pdfme/common": "^2.0.2",

@@ -200,7 +200,7 @@ export default async function createStory(
     console.log('responzo ===> ', response)
     // Save the story data to Firestore
 
-const { pages } = response.data || {}; // Handle undefined response.data
+const { pages, title } = response.data || {}; // Handle undefined response.data
 
     if (!pages) {
       res.status(400).json({ answer: { message: 'Invalid response data.' } });
@@ -208,6 +208,18 @@ const { pages } = response.data || {}; // Handle undefined response.data
     }
 
     const batch = adminDb.batch();
+
+    if (title) {
+      const titleRef = adminDb
+        .collection('users')
+        .doc(session.user.email)
+        .collection('storys')
+        .doc(storyId)
+        .collection('storyContent')
+        .doc('title');
+    
+      await titleRef.set({ text: title });
+    }
 
     pages.forEach((page, index) => {
       const pageRequest = {

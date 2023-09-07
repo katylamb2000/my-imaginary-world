@@ -110,6 +110,10 @@ function StoryPage() {
     }
   }, [pathname])
 
+  useEffect(() => {
+    console.log(storyBuilderActive)
+}, [storyBuilderActive])
+
 
   useEffect(() => {
     console.log('colum view', storyBuilderActive, sideBarCols, pageCols)
@@ -151,10 +155,15 @@ function StoryPage() {
               // updateColumnLayo
              break;
           case 'leftAndRightPage':
-              setPageCols(3);
-              setSideBarCols(3);
+            setPageCols(3);
+            setSideBarCols(3);
               // updateColumnLayo
               break;
+          case 'improveRightImage':
+            setPageCols(3);
+            setSideBarCols(3);
+                // updateColumnLayo
+            break;
       default:
         // Set default values here if needed
         setSideBarCols(1);
@@ -162,7 +171,12 @@ function StoryPage() {
         break;
     }
     console.log(storyBuilderActive, sideBarCols, pageCols)
-  }, [storyBuilderActive]);
+  }, [storyBuilderActive, sideBarCols, pageCols]);
+
+  useEffect(() => {
+    console.log('we are in the useeffect ==> ', storyBuilderActive, sideBarCols, pageCols)
+  }, [storyBuilderActive, sideBarCols, pageCols]);
+
   
 
   let aiAssitantMessages: QuerySnapshot<DocumentData> | undefined;
@@ -386,10 +400,7 @@ useEffect(() => {
 
   return (
     <div className="w-screen bg-gray-50 ">
-
-
       <div className="w-full grid grid-cols-7">
-
         <div className={`col-span-${sideBarCols}`}>
           {storyBuilderActive !== 'create story outline' && (
               <SideBar />
@@ -414,7 +425,17 @@ useEffect(() => {
          {storyBuilderActive === 'leftAndRightPage' && layoutSelected == 'default' && (
           <>
           
-          <LeftPage />
+          {/* <LeftPage /> */}
+          <div className="bg-green-500"> chat with gpt about improving the image</div>
+      
+        
+          </>
+        )} 
+
+          {storyBuilderActive === 'improveRightImage' && layoutSelected == 'default' && (
+          <>
+          
+          <RightPage />
       
         
           </>
