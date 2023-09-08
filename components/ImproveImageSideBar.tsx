@@ -6,25 +6,78 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { RootState } from "../app/GlobalRedux/store";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
+import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice";
+import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
+
+type StoryItem = {
+    name: string;
+    description: string;
+  };
 
 function ImproveImageSideBar() {
     const { data: session } = useSession() 
+    const dispatch = useDispatch()
+    // const characters = useSelector((state: RootState) => state.characters)
+    const charactersArray = useSelector((state: RootState) => state.viewStory.storyCharacters)
     const pageId = useSelector((state: RootState) => state.pageToEdit.id)
     const storyId = useSelector((state: RootState) => state.viewStory.storyId)
     const leftPagetext = useSelector((state: RootState) => state.pageToEdit.text)
     const rightPageText = useSelector((state: RootState) => state.pageToEdit.rightPageText)
     const firstImagePrompt = useSelector((state: RootState) => state.pageToEdit.firstImagePromptIdea)
+    const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name)
+    const editBarType = useSelector((state: RootState) => state.pageToEdit.editBarType)
+
     const [userFeedback, setUserFeedback] = useState<string>('')
     
     const goBack = () => {
-        console.log('go back')
+        console.log('go back ===>', storyBuilderActive)
+        console.log('go back ===>', editBarType)
+        if (pageId == 'page_1'){
+            dispatch(setEditBarType('editCover'))
+            dispatch(setName('CoverPage'))
+        }
+
+        if (pageId !== 'page_1'){
+            dispatch(setEditBarType('main'))
+            dispatch(setName('InsidePage'))
+        }
+        // if (storyBuilderActive){            
+            // setShowAddSignature(true)
+            // setShowEditFont(true)
+            // setShowGetImageIdeas(true)
+            // setShowGetTitleSuggestions(true)
+            // setShowWorkOnTitle(true)
+        // }else {
+            // dispatch(setEditBarType('main'))
+            // dispatch(setName('InsidePage'))
+      
     }
 
     const getImprovedImagePrompt = async() => {
-        const prompt = `i am using a A.I. image generator to create images for a childrens illustrated story book. You previously generated this prompt: ${firstImagePrompt}, for this page of the story: ${leftPagetext} ${rightPageText}, but the user has given this feedback: ${userFeedback}. please respond with an inproved prompt given this feedback. `
+        const characters = JSON.stringify(charactersArray);
+
+
+        // Parse the string into an array of objects
+        const data = JSON.parse(characters);
+        
+        // Convert the array of objects into the desired string format
+    
+        const resultString = data.map((item: StoryItem) => {
+            return `${item.name.slice(0, -1)}: ${item.description}`;
+          }).join(', ');
+        
+        console.log(resultString);
+
+        console.log(characters);
+        const prompt = `i am using a A.I. image generator to create images for a childrens illustrated story book. 
+        You previously generated this prompt: 
+        ${firstImagePrompt}, for this page of the story: ${leftPagetext} ${rightPageText},
+         but the user has given this feedback: ${userFeedback}. 
+         please respond with an inproved prompt given this feedback. 
+         For any characters feeatures please reference these character descriptions: ${characters} `
         console.log(firstImagePrompt)
         if (!session || !pageId || !storyId) return;
         try{
@@ -43,8 +96,10 @@ function ImproveImageSideBar() {
                 }),
             })
             console.log('response from api', response)
+            setUserFeedback('')
         }catch(err){
             console.log(err)
+            setUserFeedback('')
         }
     }
 

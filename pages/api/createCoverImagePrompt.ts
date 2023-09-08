@@ -106,7 +106,7 @@ const sendPromptToMidjourney = async (imagePrompt: string | undefined, storyId: 
   }
   const data = JSON.stringify({
       msg: imagePrompt,
-      ref: { storyId: storyId, userId: userEmail, action: 'response.coverImagePrompt', page: pageId },
+      ref: { storyId: storyId, userId: userEmail, action: 'improveSingleImagePrompt', page: pageId },
       webhookOverride: ""
   });
 

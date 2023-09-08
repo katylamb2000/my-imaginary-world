@@ -105,6 +105,30 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       });
      }
 
+     if (action === 'upscaleSmallImage') {
+      const docRef = adminDb
+        .collection('users')
+        .doc(userId)
+        .collection('storys')
+        .doc(storyId)
+        .collection('storyContent')
+        .doc(page);
+
+        // const finalImage = `finalImage_${type}`
+  
+      await docRef.update({
+      finalSmallImageUrl: imageUrl,
+      });
+      if (page == 'page_1'){
+        const docRef = adminDb
+        .collection('users')
+        .doc(userId)
+        .collection('storys')
+        .doc(storyId)
+       
+      }
+     }
+
     if (action === 'upscale') {
         const docRef = adminDb
           .collection('users')
@@ -114,10 +138,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           .collection('storyContent')
           .doc(page);
 
-          const finalImage = `finalImage_${type}`
+          // const finalImage = `finalImage_${type}`
     
         await docRef.update({
-          [finalImage]: imageUrl,
+        finalImageUrl: imageUrl,
         });
         if (page == 'page_1'){
           const docRef = adminDb

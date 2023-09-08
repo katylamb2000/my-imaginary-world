@@ -43,6 +43,10 @@ export interface PageToEditSlice {
     smallImageTop: string, 
     rightPageText: string | null
     smallImageButtonId: string | null
+    improvedImageButtonId: string | null,
+    titleColor: string,
+    titleSize: string, 
+    improvedSmallImageUrl: string | null
   
 }
 
@@ -86,7 +90,11 @@ const initialState: PageToEditSlice = {
     smallImageUrl: null, 
     smallImageTop: 'imageTop',
     rightPageText: null,
-    smallImageButtonId: null
+    smallImageButtonId: null,
+    improvedImageButtonId: null,
+    titleColor: 'text-white',
+    titleSize: 'text-5xl', 
+    improvedSmallImageUrl: null
 }
 
 export const PageToEditSlice = createSlice({
@@ -210,9 +218,21 @@ export const PageToEditSlice = createSlice({
         setRightPageText: (state, action) => {
             state.rightPageText = action.payload
         }, 
-        setSmallImageButtonId: (state, action) => {
+           setSmallImageButtonId: (state, action) => {
             state.smallImageButtonId = action.payload
         }, 
+        setImprovedImageButtonId: (state, action) => {
+            state.improvedImageButtonId = action.payload
+        }, 
+        setTitleColor: (state, action) => {
+            state.titleColor = action.payload
+        },
+        setTitleSize: (state, action) => {
+            state.titleSize = action.payload
+        },
+        setImaprovedSmallImageUrl: (state, action) => {
+            state.improvedSmallImageUrl = action.payload
+        },
 
     }
 });
@@ -223,7 +243,7 @@ export const {
     setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar, setEditBarType, setEditStage, 
     setbuttonMsgId, setImagePrompt, setFirstImagePromptIdea, setImprovedImageUrl, setShowEditTextIcon, setShowInputBox, setImageRequestSent,
     setFinalImageUrl, setSignatureTextSize, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor, setSmallImageUrl, setSmallImageTop,
-    setRightPageText, setSmallImageButtonId
+    setRightPageText, setSmallImageButtonId, setImprovedImageButtonId, setTitleColor, setTitleSize, setImaprovedSmallImageUrl
 } 
     = PageToEditSlice.actions;
 

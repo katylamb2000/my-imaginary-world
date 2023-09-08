@@ -460,13 +460,6 @@ const generateCoverImageIdeas = async() => {
                 <EditSignatureBox />
             )}
           
-            {/* {editStage == '1' && (
-                <GetBookCoverIdeas /> 
-            )}
-
-            {editStage == '2' && (
-                <ChooseImageVersion /> 
-            )}   */}
 
         </div>
 

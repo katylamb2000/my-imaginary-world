@@ -111,7 +111,7 @@ function StoryPage() {
   }, [pathname])
 
   useEffect(() => {
-    console.log(storyBuilderActive)
+    console.log('story builder active =====>>>>', storyBuilderActive)
 }, [storyBuilderActive])
 
 
@@ -392,11 +392,11 @@ useEffect(() => {
     console.log(updatedPage);
   };
 
-  useEffect(() => {
-    if (storyBuilderActive == 'view story' && !selectedPageId){
-      dispatch(setName('CoverPage'))
-    }
-  }, [storyBuilderActive, selectedPageId ])
+  // useEffect(() => {
+  //   if (storyBuilderActive == 'view story' && !selectedPageId){
+  //     dispatch(setName('CoverPage'))
+  //   }
+  // }, [storyBuilderActive, selectedPageId ])
 
   return (
     <div className="w-screen bg-gray-50 ">
@@ -432,12 +432,9 @@ useEffect(() => {
           </>
         )} 
 
-          {storyBuilderActive === 'improveRightImage' && layoutSelected == 'default' && (
+        {storyBuilderActive === 'improveRightImage' && layoutSelected == 'default' && (
           <>
-          
           <RightPage />
-      
-        
           </>
         )} 
 
@@ -509,3 +506,4 @@ export default StoryPage
   // session
 // }
 // }
+

@@ -6,7 +6,8 @@ import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
 import { 
   setId, setText, setImageUrl, setButtonId, setPreviousPageText, setNextPageText, setFormattedText, 
   setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, 
-  setFirstImagePromptIdea, setImprovedImageUrl, setEditBarType, setImageRequestSent, setFinalImageUrl, setSmallImageUrl, setTextColor
+  setFirstImagePromptIdea, setImprovedImageUrl, setEditBarType, setImageRequestSent, setFinalImageUrl, 
+  setSmallImageUrl, setTextColor, setRightPageText, setImprovedImageButtonId, setImaprovedSmallImageUrl
 } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setPageId } from "../app/GlobalRedux/Features/getPageImageModal";
 
@@ -34,6 +35,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     const currentPageId = useSelector((state: RootState) => state.pageToEdit.id);
     const [active, setActive] = useState<boolean>(false);
     const [url, setUrl] = useState<string | null>(null);
+    const [incomplete, setIncomplete] = useState<boolean>(true)
 
 
     useEffect(() => {
@@ -45,12 +47,15 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [page, currentPageId])
 
     const viewPage = () => {
-
+      console.log('this is button id', page.data.buttonMessageId)
       if (page.data.tailwindTextColor){
         dispatch(setTextColor(page.data.tailwindTextColor))
       }
       console.log('INDEX === viewoage', index)
+      dispatch(setButtonId(page.data.buttonMessageId))
           dispatch(setSmallImageUrl(page.data.smallRoundImageUrl))
+          dispatch(setImaprovedSmallImageUrl(page.data.improvedSmallImageUrl))
+          dispatch(setImprovedImageButtonId(page.data.improvedImageButtonMessageId))
           // dispatch(setFinalImageUrl(page.data.finalImage_undefined))
           dispatch(setFinalImageUrl(page.data.finalImageUrl))
           dispatch(setImageUrl(page.data.imageUrl))
@@ -98,6 +103,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
         else {
             dispatch(setId(page.id))
             dispatch(setText(page.data.text))
+            dispatch(setRightPageText(page.data.rightPagetext))
             dispatch(setAudioUrl(page.data.audioUrl))
             dispatch(setPreviousPageText(previousPage.data.text))
             dispatch(setNextPageText(previousPage.data.text))
@@ -147,8 +153,19 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
         }
     }, [page])
 
-  return (
-  <div className="transition-all duration-500 ease-in-out transform hover:scale-110 group ml-8">
+    useEffect(() => {
+      if (page.data.finalImageUrl  == undefined || !page.data.text){
+        console.log('we dont have a complete page', page.data.finalImageUrl, page.data.text)
+        setIncomplete(true)
+      }
+      if (page.data.finalImageUrl && page.data.text){
+        console.log('we a complete page', page.data.finalImageUrl, page.data.text)
+        setIncomplete(false)
+      }
+    }, [page])
+
+return (
+  <div className={`transition-all duration-500 ease-in-out transform hover:scale-110 group ml-8 ${incomplete ? 'bg-purple-500' : 'bg-purple-300'} `}>
     <button
       className={`w-24 h-18 mx-auto my-auto p-2 text-center bg-purple-300 hover:bg-purple-400 ${
         active ? 'bg-purple-600' : 'bg-purple-300'
@@ -171,6 +188,9 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
 
       <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
         {index == 0 ? title : index}
+      </p>
+      <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
+        {incomplete ? 'stuff missing' : 'complete'}
       </p>
     </button>
   </div>

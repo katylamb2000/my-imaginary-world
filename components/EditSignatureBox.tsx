@@ -106,6 +106,13 @@ function EditSignatureBox() {
             </label>
           </div>
           <input className="w-3/5 bg-white rounded-md h-10 p-2" onChange={(e) => dispatch(setSignatureLineOne(e.target.value))} value={signatureLineOne} />
+          <div>
+              {fontSizeSaved ? (
+              <SavedIcon className="w-8 h-8 text-gray-500" />
+              ): 
+              <CheckCircleIcon className="w-8 h-8 text-gray-500" />
+              }
+          </div>
         </div>
 
         <div className="items-center space-y-2 w-full space-x-6 flex">
@@ -138,12 +145,11 @@ function EditSignatureBox() {
             </select>
 
             <div>
-              {fontSizeSaved ? (
-              <SavedIcon className="w-8 h-8 text-gray-500" />
-              ): 
-              <CheckCircleIcon className="w-8 h-8 text-gray-500" />
-              }
-
+                {fontSizeSaved ? (
+                <SavedIcon className="w-8 h-8 text-gray-500" />
+                ): 
+                <CheckCircleIcon className="w-8 h-8 text-gray-500" />
+                }
             </div>
         </div>
 

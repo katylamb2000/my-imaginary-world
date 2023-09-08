@@ -99,7 +99,7 @@ function HomePage() {
     
 return (
     
-<div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-purple-100"> 
+<div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-gray-50"> 
     {storys?.docs.map(story => {
         const storyData = story.data();
         const mappedStory: Story = {

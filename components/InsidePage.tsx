@@ -38,6 +38,9 @@ import NextImageModal from "./NextImageModal";
 import { SyncLoader } from 'react-spinners'
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import NextSmallImageModal from "./NextSmallImageModal";
+import GetImageButton from "./GetImageButton";
+import GetSmallImagesButton from "./GetSmallImagesButton";
+import ImageGridButtons from "./ImageGridButtons";
 
 
 
@@ -112,11 +115,26 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
 
     const [textHeight, setTextHeight] = useState(0);
     const [boxHeight, setBoxHeight] = useState(0);
-   
+    const [showGrid, setShowGrid] = useState(false)
+
     const textRef = useRef<HTMLParagraphElement | null>(null);
     const boxRef = useRef<HTMLDivElement | null>(null);
+   
 
     const [color, setColor] = useState("#c026d3");
+
+    const [url, setUrl] = useState<string | null>(null)
+
+    useEffect(() => {
+      if (!imageUrl && !improvedImageUrl){
+        setUrl(null)
+      }
+      else if (imageUrl && !improvedImageUrl){
+        setUrl(imageUrl)
+      } else if (improvedImageUrl){
+        setUrl(improvedImageUrl)
+      }
+    }, [improvedImageUrl, imageUrl])
 
 
 const override: CSSProperties = {
@@ -444,11 +462,7 @@ useEffect(() => {
   console.log('Characters--->>', characters)
 }, [characters ])
 
-// useEffect(() => {
-//   if (firstImagePromptIdea && !imageUrl){
-//     getImage()
-//   }
-// }, [firstImagePromptIdea, imageUrl])
+
 
 const getSmallImagePrompt = async() => {
   console.log(session, "STORYID",  currentStoryId )
@@ -556,36 +570,7 @@ const upscaleChosenSmallImage = async() => {
     }
 
 
-const upscaleChosenImage = async() => {
-        
-  const button = `U${currentQuadrant}`
-  console.log('Button', button)
-  var data = JSON.stringify({
-    button: button,
-    buttonMessageId: buttonId ,
-    ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'upscale', page: pageId },
-    webhookOverride: ""
-  });
-  
-  var config = {
-    method: 'post',
-    url: 'https://api.thenextleg.io/v2/button',
-    headers: { 
-      'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
-      'Content-Type': 'application/json'
-    },
-    data : data
-  };
-  axios(config)
-  .then(function (response) {
-    console.log(JSON.stringify(response.data));
 
-  })
-  .catch(function (error) {
-    console.log(error);
-
-  });
-    }
 
     const editSmallImage = () => {
       dispatch(setEditBarType('getImages'))
@@ -624,15 +609,7 @@ return (
                 showText ? 'opacity-100' : 'opacity-0 scale-0 translate-y-[-50%] transition-all duration-300'
               }`}
             >
-
-{/* {smallImageUrl && (
-            <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4" onClick={editSmallImage}>
-
-            <Image src={smallImageUrl} alt='/' className="flex-2" fill />
-            </div>
-          )} */}
-
-{smallImageUrl  && (() => {
+      {smallImageUrl  && (() => {
           let bgPosition = 'top left';
           switch (currentQuadrant) {
             case 1:
@@ -718,12 +695,10 @@ return (
 
   </div>
  <div className="h-4/5 w-3/5 relative" >
-      <div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
-          {/* {imageUrl &&  (
-            <Image src={improvedImageUrl || imageUrl || 'https://media.discordapp.net/attachments/1083423262681350234/1140985949216571463/katy2000_on_a_white_background_draw_two_friendly_aliens_in_the_5a7de73c-0857-4382-9cea-a6b4ade86a5b.png?width=1060&height=1060'} fill alt='/'  />
       
-        )} */}
-      {!imageUrl && loading && (
+<div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
+   
+      {!url && loading && (
         <div className="w-full h-full items-center justify-center text-center my-24">
               <SyncLoader
               color={color}
@@ -737,7 +712,7 @@ return (
         </div>
       )}
 
-{imageUrl && !finalImageUrl && (() => {
+{showGrid && url && !finalImageUrl && (() => {
     let bgPosition = 'top left';
     switch (currentQuadrant) {
       case 1:
@@ -759,7 +734,7 @@ return (
       <div
         className="w-full h-full bg-no-repeat bg-cover rounded-sm cursor-pointer relative" 
         style={{
-          backgroundImage: `url(${imageUrl})`,
+          backgroundImage: `url(${url})`,
           backgroundPosition: bgPosition,
           backgroundSize: '200% 200%'
         }}>
@@ -770,6 +745,12 @@ return (
     );
   })()}
 
+
+{imageUrl && !showGrid && (
+          <div className="h-full w-full relative">
+          <Image className="w-full h-full " fill src={imageUrl} alt='/' />
+          </div>
+        )}
 
         {finalImageUrl && (
           <div className="h-full w-full relative">
@@ -799,13 +780,21 @@ return (
 
   <div className="w-full h-24 bg-gray-50 space-x-4 flex">
 
-          {smallImageUrl && !finalImageUrl && (
+          {smallImageUrl ?  (
                 <NextSmallImageModal nextSmallImage={nextSmallQuadrant} lastSmallImage={lastSmallQuadrant} selectSmallImage={upscaleChosenSmallImage} />
-            )}
+            ): 
+                <GetSmallImagesButton />
+            }
 
-          {imageUrl && !finalImageUrl && (
-                    <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant} selectImage={upscaleChosenImage} />
-                )}
+          {url && !finalImageUrl ?  (
+            showGrid ? (
+              <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant}  setShowGrid={setShowGrid} showGrid={showGrid} />
+            ):
+              <ImageGridButtons />
+                ): 
+                    <GetImageButton />
+                
+                }
     
     </div>
 </div> 

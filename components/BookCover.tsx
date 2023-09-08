@@ -19,10 +19,11 @@ import NextImageModal from './NextImageModal';
 function BookCover() {
   const dispatch = useDispatch();
   const pathname = usePathname();
-  const title = useSelector((state: RootState) => state.pageToEdit.text);
-  const textColor = useSelector((state: RootState) => state.pageToEdit.textColor);
+  const pageText = useSelector((state: RootState) => state.pageToEdit.text);
+  const storyTitle = useSelector((state: RootState) => state.viewStory.title);
+  const textColor = useSelector((state: RootState) => state.pageToEdit.titleColor);
   const signatureTextColor = useSelector((state: RootState) => state.pageToEdit.signatureTextColor);
-  const textSize = useSelector((state: RootState) => state.pageToEdit.textSize);
+  const textSize = useSelector((state: RootState) => state.pageToEdit.titleSize);
   const signatureTextSize = useSelector((state: RootState) => state.pageToEdit.signatureTextSize)
   const pageId = useSelector((state: RootState) => state.pageToEdit.id);
   const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl);
@@ -34,10 +35,27 @@ function BookCover() {
   const signatureLineOne = useSelector((state: RootState) => state.pageToEdit.signatureLineOne)
   const signatureLineTwo = useSelector((state: RootState) => state.pageToEdit.signatureLineTwo)
 
+  const [title, setTitle] = useState('')
+
   const [titleUpdated, setTitleUpdated] = useState<boolean>(false);
   const storyId = useSelector((state: RootState) => state.viewStory.storyId);
   const { data: session } = useSession();
   const [currentQuadrant, setCurrentQuadrant] = useState(1);
+
+  useEffect(() => {
+    console.log('i am BOOKCOVER!!!!!!', 'st', storyTitle, 't', title,'pt',  pageText)
+  }, [title, storyTitle, pageText]
+  )
+
+  useEffect(() => {
+    if (!storyTitle && !pageText) return;
+    if (storyTitle){ 
+      setTitle(storyTitle)
+    }
+    else if (!storyTitle && pageText){
+      setTitle(pageText)
+    }
+  }, [pageText, storyTitle])
 
   useEffect(() => {
     if (!pathname) return;
@@ -137,14 +155,14 @@ function BookCover() {
             style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
             // onClick={editText}
             >
-            {title || 'title'}
+            {title}
           </h1>
         ) : (
           <div className='mx-auto my-[250px] z-20 cursor-pointer flex items-center justify-center'>
             <textarea
               placeholder={title || 'title'}
               className={`placeholder:text-4xl placeholder:font-bold placeholder:${textColor} pl-12 h-96 text-4xl ${textColor} font-bold `}
-              value={title || 'title'}
+              value={title}
               onChange={(e) => dispatch(setText(e.target.value))}
             />
             {titleUpdated ? (

@@ -48,11 +48,25 @@ function EditTextSideBar() {
       const updatedPage = await updateDoc(docRef, {
         text: pageText
       });
-      console.log(' this is the updated', updatedPage);
+      console.log('this is the updated', updatedPage);
       setTextSaved(true)
+      if (pageId == 'page_1') {
+        saveTitle()
+      }
       // dispatch(dispatch(setText(updatedPage?.data.text))
     }catch(err){
       console.log(err)
+    }}
+
+    const saveTitle = async () => {
+      try{
+        if (!storyId || !pageId || !session) return;
+        const docRef = doc(db, "users", session?.user?.email!, "storys", storyId);
+        const updatedPage = await updateDoc(docRef, {
+          title: pageText
+        });
+      }catch(err){
+        console.log(err)
     }}
 
     const saveRightPageText = async () => {
@@ -273,41 +287,59 @@ function EditTextSideBar() {
         </div>
               
     <div className="items-center space-y-2 w-full space-x-6 flex">
-              <div className="w-1/5 ">
-                <label  htmlFor="alignment" className="font-semibold text-md 0">
-                Left Page Text:
-                </label>
-              </div>
-          <div className="w-full">
+       
+  
+                {pageId == 'page_1' ? (
+                  <div className="w-1/5 ">
+                  <label  htmlFor="alignment" className="font-semibold text-md 0">
+                    Title:
+                  </label>
+                  </div>
+                ): 
+                <div className="w-1/5 ">
+                  <label  htmlFor="alignment" className="font-semibold text-md 0">
+                    Left Page Text:
+                 </label>
+                </div>
+                }
+           
+ 
+          {/* <div > */}
             {/* <QuillToolbar /> */}
             {/* <TextEditorToolBar /> */}
-            <textarea value={pageText} placeholder={pageText} onChange={(e) => dispatch(setText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
-          </div>
+            {pageId == 'page_1' ? (
+              <input type='text' value={pageText} placeholder={pageText} onChange={(e) => dispatch(setText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 px-2" aria-multiline />
+            ): 
+              <textarea value={pageText} placeholder={pageText} onChange={(e) => dispatch(setText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
+            }
+            {/* </div> */}
             {textSaved ? (
                   <SavedIcon className="w-8 h-8 text-green-500" />
                   ): 
-                  <CheckCircleIcon className="w-8 h-8 text-gray-500" onClick={saveText} />
+                  <CheckCircleIcon className="w-8 h-8 text-gray-400" onClick={saveText} />
             }
      </div>
 
-     <div className="items-center space-y-2 w-full space-x-6 flex">
 
-<div className="w-1/5 ">
-  <label  htmlFor="alignment" className="font-semibold text-md 0">
-    Right Page Text:
-  </label>
-</div>
-<div className="w-full">
-{/* <QuillToolbar /> */}
-{/* <TextEditorToolBar /> */}
-<textarea value={rightPageText || ''} placeholder={rightPageText || 'move any text you want on the right page here. '} onChange={(e) => dispatch(setRightPageText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
-</div>
-{rightPageTextSaved ? (
-    <SavedIcon className="w-8 h-8 text-green-500" />
-    ): 
-    <CheckCircleIcon className="w-8 h-8 text-gray-500" onClick={saveRightPageText} />
-}
-          </div>
+{pageId !== 'page_1' && (
+    <div className="items-center space-y-2 w-full space-x-6 flex">
+          <div className="w-1/5 ">
+            <label  htmlFor="alignment" className="font-semibold text-md 0">
+              Right Page Text:
+            </label>
+        </div>
+
+        <div className="w-full">
+          <textarea value={rightPageText || ''} placeholder={rightPageText || 'move any text you want on the right page here. '} onChange={(e) => dispatch(setRightPageText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
+        </div>
+          {rightPageTextSaved ? (
+            <SavedIcon className="w-8 h-8 text-green-500" />
+            ): 
+            <CheckCircleIcon className="w-8 h-8 text-gray-500" onClick={saveRightPageText} />
+          }
+    </div>
+)}
+
         <div>
       </div>
     </div>

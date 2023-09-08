@@ -4,7 +4,7 @@ import { RootState } from "../app/GlobalRedux/store";
 import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice";
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 
-function NextImageModal({ nextImage, lastImage, selectImage }: any) {
+function NextImageModal({ nextImage, lastImage, selectImage , setShowGrid, showGrid}: any) {
   const dispatch = useDispatch()
   const pageId = useSelector((state: RootState) => state.pageToEdit.id);
   const viewPage = useSelector((state: RootState) => state.storyBuilderActive.name)
@@ -14,6 +14,8 @@ function NextImageModal({ nextImage, lastImage, selectImage }: any) {
     dispatch(setEditBarType('improveRightImage'))
     dispatch(setName('editRightPage'))
   }
+
+
 
   return (
     <div className={` w-3/4`}>
@@ -29,8 +31,8 @@ function NextImageModal({ nextImage, lastImage, selectImage }: any) {
           </button>
 
           <div className={`flex ${viewPage == 'InsidePage' && 'flex-col'} items-center space-y-2`}>
-            <button className="px-6 py-2 rounded-md text-white bg-purple-400 hover:bg-purple-600" onClick={selectImage}>
-              Use this image
+            <button className="px-6 py-2 rounded-md text-white bg-purple-400 hover:bg-purple-600" onClick={() => setShowGrid(!showGrid)}>
+              Use on of these images
             </button>
             <button 
               onClick={() => openImproveImageSidebar()}
