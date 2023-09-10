@@ -9,7 +9,8 @@ import {
   setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, 
   setFirstImagePromptIdea, setImprovedImageUrl, setEditBarType, setImageRequestSent, setFinalImageUrl, 
   setSmallImageUrl, setTextColor, setRightPageText, setImprovedImageButtonId, setImprovedSmallImageUrl,
-  setSmallImageButtonId
+  setSmallImageButtonId,
+  setRightPageLoading
 } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setPageId } from "../app/GlobalRedux/Features/getPageImageModal";
 
@@ -53,6 +54,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
 
     const viewPage = () => {
       console.log('this is button id', page.data.buttonMessageId)
+      dispatch(setRightPageLoading(page.data.rightPageLoading))
       if (page.data.tailwindTextColor){
         dispatch(setTextColor(page.data.tailwindTextColor))
       }

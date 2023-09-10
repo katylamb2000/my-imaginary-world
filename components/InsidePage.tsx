@@ -41,6 +41,8 @@ import NextSmallImageModal from "./NextSmallImageModal";
 import GetImageButton from "./GetImageButton";
 import GetSmallImagesButton from "./GetSmallImagesButton";
 import ImageGridButtons from "./ImageGridButtons";
+import { DeliveryReceiptListInstance } from "twilio/lib/rest/conversations/v1/conversation/message/deliveryReceipt";
+import { ArrowSmallRightIcon, ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
 
 
 
@@ -84,7 +86,7 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     const newFontSize = useSelector((state: RootState) => state.pageToEdit.textSize)
     const newFontStyle = useSelector((state: RootState) => state.pageToEdit.font)
     const formattedText = useSelector((state: RootState) => state.pageToEdit.formattedText);
-
+    const rightPageLoading = useSelector((state: RootState) => state.pageToEdit.rightPageLoading)
     const firstImagePromptIdea = useSelector((state: RootState) => state.pageToEdit.firstImagePromptIdea)
 
     const wildcardIdea = useSelector((state: RootState) => state.pageToEdit.wildcardIdea)
@@ -594,6 +596,21 @@ const upscaleChosenSmallImage = async() => {
     }
     }, [pageText])
 
+    const switchImages = async() => {
+      console.log('left page img ==> ', smallRoundImageUrl, 'rightPage img -->', '1', imageUrl, '2',improvedImageUrl, '3', finalImageUrl)
+      if (!session || !storyId || !pageId) return;
+      try{
+      const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
+      const updatedPage = await updateDoc(docRef, {
+        smallRoundImageUrl: url,
+        finalImageUrl: smallImageUrl
+      });
+      console.log(updatedPage)
+    }catch(err){
+      console.log(err)
+    }
+  }
+
 
 return (
   <div className='bg-gray-50 h-5/6 w-full items-center overscroll-none col-span-5'>
@@ -714,8 +731,8 @@ return (
       
 <div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
    
-      {!url && loading && (
-        <div className="w-full h-full items-center justify-center text-center my-24 ">
+{!url && loading && (
+    <div className="w-full h-full items-center justify-center text-center my-24 ">
               <SyncLoader
               color={color}
               loading={loading}
@@ -726,9 +743,9 @@ return (
             />
             <p className={`text-fuchsia-600`}>Your image is being created</p>
         </div>
-      )}
+  )}
 
-{showGrid && url && !finalImageUrl && (() => {
+{showGrid && url && !finalImageUrl  && !rightPageLoading && (() => {
     let bgPosition = 'top left';
     switch (currentQuadrant) {
       case 1:
@@ -762,7 +779,7 @@ return (
   })()}
 
 
-{imageUrl && !showGrid && !finalImageUrl && !improvedImageUrl && (
+{imageUrl && !showGrid && !finalImageUrl && !improvedImageUrl && !rightPageLoading && (
   <div className="h-full w-full relative bg-gray-100">
     <Image className="w-full h-full z-10" fill src={imageUrl} alt='/' />
     <p className="text-black absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
@@ -771,7 +788,7 @@ return (
   </div>
 )}
 
-{!showGrid && !finalImageUrl && improvedImageUrl && (
+{!showGrid && !finalImageUrl && improvedImageUrl && !rightPageLoading && (
   <div className="h-full w-full relative bg-gray-100">
     <Image className="w-full h-full z-10" fill src={improvedImageUrl} alt='/' />
     <p className="text-black absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
@@ -781,13 +798,27 @@ return (
 )}
 
 
-  {finalImageUrl && (
+  {finalImageUrl && !rightPageLoading && (
       <div className="h-full w-full relative">
           <Image className="w-full h-full z-10 " fill src={finalImageUrl} alt='/' />
           <p className="text-white absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
             {rightPageText}
           </p>
       </div>
+    )}
+
+    {rightPageLoading && (
+      <div className="w-full h-full items-center text-center">
+        <SyncLoader
+           color={color}
+           loading={loading}
+           cssOverride={override}
+           size={15}
+           aria-label="Loading Spinner"
+           data-testid="loader"
+         />
+         <p>Your image is on its way!</p>
+         </div>
     )}
 
    
@@ -822,6 +853,10 @@ return (
             ):
               <ImageGridButtons setCurrentQuadrant={setCurrentQuadrant} setShowGrid={setShowGrid} />
            ) }
+
+        <div className='bg-white flew-col items-center text-center'>
+          <ArrowsRightLeftIcon className="text-purple-500 h-12 w-12"  onClick={switchImages}/>
+        </div>
     
         {!imageUrl && !improvedImageUrl && !finalImageUrl ? (
           <GetImageButton />

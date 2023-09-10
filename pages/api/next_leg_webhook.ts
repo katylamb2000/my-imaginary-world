@@ -77,14 +77,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         .doc(storyId)
         .collection('storyContent')
         .doc(page);
-
-        const imagePromptKey = `imagePrompt_${type}`; // Create the dynamic key
-
   
       await docRef.update({
 
         smallRoundImageUrl: imageUrl,
-        imagePromptContent: content,
+        smallImagePromptContent: content,
         smallImageButtonId: buttonMessageId,
 
       });
@@ -142,6 +139,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     
         await docRef.update({
         finalImageUrl: imageUrl,
+        rightPageLoading: false
         });
         if (page == 'page_1'){
           const docRef = adminDb

@@ -6,6 +6,8 @@ import { RootState } from "../app/GlobalRedux/store";
 import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice";
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import { useSession } from "next-auth/react";
+import { db } from "../firebase";
+import { doc, updateDoc } from "firebase/firestore";
 // import EnhancePhotoIcon from '@mui/icons-material/EnhancePhoto';
 
 function ImageGridButtons({ nextImage, lastImage, selectImage , setShowGrid, showGrid, setCurrentQuadrant}: any) {
@@ -60,13 +62,27 @@ console.log('Button', button, buttonId, btnId)
         var num = parseInt(button.replace(/\D/g,''));
 
       setCurrentQuadrant(num)
-      setShowGrid(true)
+      setShowGrid(false)
+      updatePageLoading()
   
     })
     .catch(function (error) {
       console.log(error);
       console.log(error.response.data)
+      setShowGrid(true)
     });
+  }
+
+  const updatePageLoading = async() => {
+    try{
+      if (!storyId || !pageId || !session) return;
+      const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
+      await updateDoc(docRef, {
+        rightPageLoading: true
+      });
+    }catch(err){
+      console.log(err)
+    }
   }
 
   const improveImages = () => {

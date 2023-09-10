@@ -81,6 +81,24 @@ export default async function createStory(
         throw new Error('Cover Image Prompt not found in response');
       }
     }
+
+    if (promptType === 'improvedSmallImagePrompt') {
+      if ('coverImagePrompt' in response) {
+        const improvedPrompt = response.coverImagePrompt;
+        await adminDb
+          .collection("users")
+          .doc(session.user.email)
+          .collection('storys')
+          .doc(storyId)
+          .collection('storyContent')
+          .doc(pageId)
+          .update({
+            improvedImagePrompt: improvedPrompt
+          });
+      } else {
+        throw new Error('Cover Image Prompt not found in response');
+      }
+    }
     
 
 

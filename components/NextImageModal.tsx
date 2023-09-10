@@ -15,13 +15,8 @@ function NextImageModal({ nextImage, lastImage, selectImage , setShowGrid, showG
     dispatch(setName('editRightPage'))
   }
 
-
-
   return (
     <div className={` w-3/4`}>
-      {/* {isFullPageWidth && viewPage !== 'editRightPage' && (
-        <div className="col-span-1 " />
-      )} */}
       <div
         className={`w-full h-28 flex items-center justify-center shadow-xl rounded-md bg-white`}
       >
