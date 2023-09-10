@@ -3,11 +3,13 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/GlobalRedux/store";
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
+import { setPagesComplete, setStoryComplete } from "../app/GlobalRedux/Features/viewStorySlice";
 import { 
   setId, setText, setImageUrl, setButtonId, setPreviousPageText, setNextPageText, setFormattedText, 
   setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, 
   setFirstImagePromptIdea, setImprovedImageUrl, setEditBarType, setImageRequestSent, setFinalImageUrl, 
-  setSmallImageUrl, setTextColor, setRightPageText, setImprovedImageButtonId, setImaprovedSmallImageUrl
+  setSmallImageUrl, setTextColor, setRightPageText, setImprovedImageButtonId, setImprovedSmallImageUrl,
+  setSmallImageButtonId
 } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setPageId } from "../app/GlobalRedux/Features/getPageImageModal";
 
@@ -17,7 +19,9 @@ type Props = {
     index: number, 
     previousPage: any | null,
     nextPage: any | null
-    imageIdeas: ImageIdea[];
+    imageIdeas: ImageIdea[]
+    pageLength: number,
+    onPageComplete: (pageId: string) => void;
 };
 
 type ImageIdea = {
@@ -26,17 +30,18 @@ type ImageIdea = {
       wildCardImage: string, 
       object: string, 
       characterCloseUp: string, 
-      backgroundImage: string
+      backgroundImage: string,
+
     }}
 
-function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imageIdeas }: Props) {
+function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imageIdeas, pageLength, onPageComplete }: Props) {
     const dispatch = useDispatch()
     const pageActive = useSelector((state: RootState) => state.storyBuilderActive.name);
+    const pagesComplete = useSelector((state: RootState) => state.viewStory.pagesComplete)
     const currentPageId = useSelector((state: RootState) => state.pageToEdit.id);
     const [active, setActive] = useState<boolean>(false);
     const [url, setUrl] = useState<string | null>(null);
     const [incomplete, setIncomplete] = useState<boolean>(true)
-
 
     useEffect(() => {
       if (currentPageId !== page.id ) return; 
@@ -54,7 +59,8 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
       console.log('INDEX === viewoage', index)
       dispatch(setButtonId(page.data.buttonMessageId))
           dispatch(setSmallImageUrl(page.data.smallRoundImageUrl))
-          dispatch(setImaprovedSmallImageUrl(page.data.improvedSmallImageUrl))
+          dispatch(setSmallImageButtonId(page.data.smallImageButtonId))
+          dispatch(setImprovedSmallImageUrl(page.data.improvedSmallImageUrl))
           dispatch(setImprovedImageButtonId(page.data.improvedImageButtonMessageId))
           // dispatch(setFinalImageUrl(page.data.finalImage_undefined))
           dispatch(setFinalImageUrl(page.data.finalImageUrl))
@@ -154,15 +160,30 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [page])
 
     useEffect(() => {
+      console.log('what is PAGE ID ==> ', page.id)
       if (page.data.finalImageUrl  == undefined || !page.data.text){
         console.log('we dont have a complete page', page.data.finalImageUrl, page.data.text)
         setIncomplete(true)
+   
       }
       if (page.data.finalImageUrl && page.data.text){
-        console.log('we a complete page', page.data.finalImageUrl, page.data.text)
+     
         setIncomplete(false)
+
+        onPageComplete(page.id)
+        // dispatch(setPagesComplete(pagesComplete + 1))
+
       }
-    }, [page])
+    }, [page, pagesComplete])
+
+  
+    useEffect(() => {
+      console.log(pagesComplete, pageLength)
+        if (pagesComplete == pageLength){
+          dispatch(setStoryComplete(true))
+          // setIncomplete(false)
+        }
+    }, [pageLength, pagesComplete, incomplete])
 
 return (
   <div className={`transition-all duration-500 ease-in-out transform hover:scale-110 group ml-8 ${incomplete ? 'bg-purple-500' : 'bg-purple-300'} `}>
@@ -179,8 +200,11 @@ return (
 
         {index !== null && (
           <div className="w-8 h-8 border border-gray-200 bg-white rounded-sm shadow-md relative">
-            {page.data.imageUrl && (
+            {page.data.imageUrl && !page.data.finalImageUrl && (
               <Image src={page.data.imageUrl} alt="/" fill className="rounded-lg" />
+            )}
+                {page.data.finalImageUrl && (
+              <Image src={page.data.finalImageUrl} alt="/" fill className="rounded-lg" />
             )}
           </div>
         )}

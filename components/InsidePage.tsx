@@ -97,7 +97,7 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
 
     const [value, setValue] = useState(pageText)
     const [currentQuadrant, setCurrentQuadrant] = useState(1);
-
+    const [btnId, setBtnId] = useState()
     const [textSize, setTextSize] = useState<number>(24)
     const [loading, setLoading] = useState<boolean>(false)
     const [gettingSmallImage, setGettingSmallImage] = useState<boolean>(false)
@@ -116,6 +116,8 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
     const [textHeight, setTextHeight] = useState(0);
     const [boxHeight, setBoxHeight] = useState(0);
     const [showGrid, setShowGrid] = useState(false)
+    const [showSmallImageGrid, setShowSmallImageGrid] = useState(false)
+    const [smallImagePrompt, setSmallImagePrompt] = useState<string | null> (null)
 
     const textRef = useRef<HTMLParagraphElement | null>(null);
     const boxRef = useRef<HTMLDivElement | null>(null);
@@ -142,6 +144,12 @@ const override: CSSProperties = {
   margin: "0 auto",
   borderColor: "#c026d3",
 };
+
+useEffect(() => {
+    setShowGrid(false)
+}, [pageId])
+
+
 
 useEffect(() => {
   if (storyId || !pathname) return;
@@ -542,9 +550,10 @@ const upscaleChosenSmallImage = async() => {
         
   const button = `U${currentQuadrant}`
   console.log('Button', button)
+
   var data = JSON.stringify({
     button: button,
-    buttonMessageId: smallImageButtonId ,
+    buttonMessageId: btnId,
     ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'upscaleSmallImage', page: pageId },
     webhookOverride: ""
   });
@@ -609,7 +618,7 @@ return (
                 showText ? 'opacity-100' : 'opacity-0 scale-0 translate-y-[-50%] transition-all duration-300'
               }`}
             >
-      {smallImageUrl  && (() => {
+      {showSmallImageGrid && smallImageUrl  && (() => {
           let bgPosition = 'top left';
           switch (currentQuadrant) {
             case 1:
@@ -641,11 +650,18 @@ return (
           </div>
           );
         })()}
+
+        {!showSmallImageGrid && smallImageUrl && smallImageButtonId && (
+            <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4" >
+              <Image src={smallImageUrl} className='w-full h-full' fill alt='/' />
+            </div>
+        )}
+
                   {/* <button onClick={() => dispatch(setEditTextPageId(pageId)) } ref={textRef} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-50`}>{pageText}</button> */}
           <button onClick={editText} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button>
                   
                   
-            {!smallImageUrl && !gettingSmallImage && (
+            {!smallImageUrl && !gettingSmallImage || !smallImageButtonId && (
                     <div className="overflow-scroll h-1/3">
                   <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
                     onClick={() => getSmallImage(wildcardIdea, 'wildcard')}
@@ -667,7 +683,7 @@ return (
                   )}
 
                 {gettingSmallImage && (
-                  <div>
+                  <div className="w-full h-full items-center text-center">
                        <SyncLoader
                     color={color}
                     loading={loading}
@@ -699,7 +715,7 @@ return (
 <div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
    
       {!url && loading && (
-        <div className="w-full h-full items-center justify-center text-center my-24">
+        <div className="w-full h-full items-center justify-center text-center my-24 ">
               <SyncLoader
               color={color}
               loading={loading}
@@ -746,21 +762,35 @@ return (
   })()}
 
 
-{imageUrl && !showGrid && (
-          <div className="h-full w-full relative">
-          <Image className="w-full h-full " fill src={imageUrl} alt='/' />
-          </div>
-        )}
+{imageUrl && !showGrid && !finalImageUrl && !improvedImageUrl && (
+  <div className="h-full w-full relative bg-gray-100">
+    <Image className="w-full h-full z-10" fill src={imageUrl} alt='/' />
+    <p className="text-black absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
+    {rightPageText}
+    </p>
+  </div>
+)}
 
-        {finalImageUrl && (
-          <div className="h-full w-full relative">
-          <Image className="w-full h-full " fill src={finalImageUrl} alt='/' />
-          </div>
-        )}
+{!showGrid && !finalImageUrl && improvedImageUrl && (
+  <div className="h-full w-full relative bg-gray-100">
+    <Image className="w-full h-full z-10" fill src={improvedImageUrl} alt='/' />
+    <p className="text-black absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
+    {rightPageText}
+    </p>
+  </div>
+)}
 
-        {!finalImageUrl && !imageUrl && (
-          <button>Text looks good! Get image</button>
-        )}
+
+  {finalImageUrl && (
+      <div className="h-full w-full relative">
+          <Image className="w-full h-full z-10 " fill src={finalImageUrl} alt='/' />
+          <p className="text-white absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
+            {rightPageText}
+          </p>
+      </div>
+    )}
+
+   
 
         {/* {firstImagePromptIdea && !imageUrl && (
         <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
@@ -783,19 +813,21 @@ return (
           {smallImageUrl ?  (
                 <NextSmallImageModal nextSmallImage={nextSmallQuadrant} lastSmallImage={lastSmallQuadrant} selectSmallImage={upscaleChosenSmallImage} />
             ): 
-                <GetSmallImagesButton />
+                <GetSmallImagesButton  />
             }
 
-          {url && !finalImageUrl ?  (
+          {url && !finalImageUrl && (
             showGrid ? (
-              <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant}  setShowGrid={setShowGrid} showGrid={showGrid} />
+              <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant}  setShowGrid={setShowGrid} showGrid={showGrid}  />
             ):
-              <ImageGridButtons />
-                ): 
-                    <GetImageButton />
-                
-                }
+              <ImageGridButtons setCurrentQuadrant={setCurrentQuadrant} setShowGrid={setShowGrid} />
+           ) }
     
+        {!imageUrl && !improvedImageUrl && !finalImageUrl ? (
+          <GetImageButton />
+        ): 
+          <div className="w-3/4" />
+        }
     </div>
 </div> 
 {/*  

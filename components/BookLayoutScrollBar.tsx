@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useSelector } from "react-redux"
 import { RootState } from "../app/GlobalRedux/store"
 import BookLayoutCover from "./BookLayoutCover"
@@ -15,6 +15,18 @@ function BookLayoutScrollBar({ storyPages, imageIdeas }: Props) {
 
   // const pageId = useSelector((state: RootState) => state.pageToEdit.id)
   const pageIdString = useSelector((state: RootState) => state.pageToEdit.id)
+  const [completedPages, setCompletedPages] = useState<number>(0);
+  const completedPageIds = useRef<Set<string>>(new Set()); // New useRef variable
+
+  const handlePageComplete = (pageId: string) => {
+    completedPageIds.current.add(pageId);
+    setCompletedPages(completedPageIds.current.size);
+  };
+
+  useEffect(() => {
+      console.log('>>>>>>', completedPages)
+  }, [completedPages])
+
 
   useEffect(() => {
     if (!pageIdString) return;
@@ -34,6 +46,8 @@ function BookLayoutScrollBar({ storyPages, imageIdeas }: Props) {
       }
     }
   }, [pageIdString]);
+
+  
 
 
 
@@ -58,6 +72,8 @@ function BookLayoutScrollBar({ storyPages, imageIdeas }: Props) {
                 index={index}
                 key={index}
                 imageIdeas={imageIdeas}
+                pageLength={storyPages.length}
+                onPageComplete={handlePageComplete}
               />
             </div>
           );

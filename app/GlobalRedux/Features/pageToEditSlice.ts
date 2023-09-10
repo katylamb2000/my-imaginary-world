@@ -46,7 +46,7 @@ export interface PageToEditSlice {
     improvedImageButtonId: string | null,
     titleColor: string,
     titleSize: string, 
-    improvedSmallImageUrl: string | null
+    improvedSmallImageUrl: string | null,
   
 }
 
@@ -230,10 +230,10 @@ export const PageToEditSlice = createSlice({
         setTitleSize: (state, action) => {
             state.titleSize = action.payload
         },
-        setImaprovedSmallImageUrl: (state, action) => {
+        setImprovedSmallImageUrl: (state, action) => {
             state.improvedSmallImageUrl = action.payload
         },
-
+     
     }
 });
 
@@ -243,7 +243,7 @@ export const {
     setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar, setEditBarType, setEditStage, 
     setbuttonMsgId, setImagePrompt, setFirstImagePromptIdea, setImprovedImageUrl, setShowEditTextIcon, setShowInputBox, setImageRequestSent,
     setFinalImageUrl, setSignatureTextSize, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor, setSmallImageUrl, setSmallImageTop,
-    setRightPageText, setSmallImageButtonId, setImprovedImageButtonId, setTitleColor, setTitleSize, setImaprovedSmallImageUrl
+    setRightPageText, setSmallImageButtonId, setImprovedImageButtonId, setTitleColor, setTitleSize, setImprovedSmallImageUrl, 
 } 
     = PageToEditSlice.actions;
 

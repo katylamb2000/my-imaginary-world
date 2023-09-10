@@ -85,8 +85,8 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
 
         smallRoundImageUrl: imageUrl,
         imagePromptContent: content,
-        buttonMessageId,
-        buttons
+        smallImageButtonId: buttonMessageId,
+
       });
      }
 

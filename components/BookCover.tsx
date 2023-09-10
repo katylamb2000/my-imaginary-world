@@ -27,15 +27,19 @@ function BookCover() {
   const signatureTextSize = useSelector((state: RootState) => state.pageToEdit.signatureTextSize)
   const pageId = useSelector((state: RootState) => state.pageToEdit.id);
   const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl);
+  const finalImageUrl = useSelector((state: RootState) => state.pageToEdit.finalImageUrl);
+  const improvedImageUrl = useSelector((state: RootState) => state.pageToEdit.improvedImageUrl);
   const coverImage = useSelector((state: RootState) => state.viewStory.coverImage);
   const buttonId = useSelector((state: RootState) => state.pageToEdit.buttonId);
   const [currentStoryId, setCurrentStoryId] = useState<string | null>();
   const showInputBox = useSelector((state: RootState) => state.pageToEdit.showInputBox);
-  const finalImageUrl = useSelector((state: RootState) => state.pageToEdit.finalImageUrl);
+
   const signatureLineOne = useSelector((state: RootState) => state.pageToEdit.signatureLineOne)
   const signatureLineTwo = useSelector((state: RootState) => state.pageToEdit.signatureLineTwo)
 
   const [title, setTitle] = useState('')
+  const [showGrid, setShowGrid] = useState(false)
+  const [url, setUrl] = useState<string | null>(null)
 
   const [titleUpdated, setTitleUpdated] = useState<boolean>(false);
   const storyId = useSelector((state: RootState) => state.viewStory.storyId);
@@ -46,6 +50,21 @@ function BookCover() {
     console.log('i am BOOKCOVER!!!!!!', 'st', storyTitle, 't', title,'pt',  pageText)
   }, [title, storyTitle, pageText]
   )
+
+  useEffect(() => {
+      if (imageUrl && !finalImageUrl && !improvedImageUrl){
+        setUrl(imageUrl)
+      }
+      if (imageUrl && !finalImageUrl && improvedImageUrl){
+        setUrl(improvedImageUrl)
+      }
+      if (imageUrl && finalImageUrl && improvedImageUrl){
+        setUrl(finalImageUrl)
+      }
+      if (!imageUrl && !finalImageUrl && !improvedImageUrl){
+        setUrl(null)
+      }
+  }, [imageUrl, finalImageUrl, improvedImageUrl])
 
   useEffect(() => {
     if (!storyTitle && !pageText) return;
@@ -174,7 +193,7 @@ function BookCover() {
         )}
 
         {/* {!finalImageUrl && (() => { */}
-        { (() => {
+        {showGrid && (() => {
           let bgPosition = 'top left';
           switch (currentQuadrant) {
             case 1:
@@ -196,7 +215,7 @@ function BookCover() {
             <div
               className="w-full h-full bg-no-repeat bg-cover rounded-sm cursor-pointer"
               style={{
-                backgroundImage: `url(${imageUrl})`,
+                backgroundImage: `url(${url})`,
                 backgroundPosition: bgPosition,
                 backgroundSize: '200% 200%'
               }}

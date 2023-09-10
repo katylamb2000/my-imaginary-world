@@ -50,10 +50,12 @@ function EditPageBar() {
     const toggleGetImagesModuleStatus = useSelector((state: RootState) => state.getImagesModal.status)
     const subscriber = useSelector((state: RootState) => state.userDetails.isSubscriber)
     const storyComplete = useSelector((state: RootState) => state.viewStory.storyComplete)
+    const pagesComplete = useSelector((state: RootState) => state.viewStory.pagesComplete)
+
     
     useEffect(() => {
-        console.log('======', selectedPageId, selectedPageText)
-    }, [selectedPageId, selectedPageText])
+        console.log('======', storyComplete, pagesComplete)
+    }, [storyComplete, pagesComplete])
 
     useEffect(() => {
         if (!pathname) return;
@@ -180,8 +182,11 @@ const updateFontSize = async() => {
     }
 
     const goToCheckOut = () => {
-        router.push('/orders')
+     
+        // router.push('/orders')
     }
+
+
 
     const createPDF = () => {
         dispatch(setName('createPDF'))

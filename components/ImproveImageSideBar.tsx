@@ -28,13 +28,15 @@ function ImproveImageSideBar() {
     const rightPageText = useSelector((state: RootState) => state.pageToEdit.rightPageText)
     const firstImagePrompt = useSelector((state: RootState) => state.pageToEdit.firstImagePromptIdea)
     const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name)
+    const image = useSelector((state: RootState) => state.pageToEdit.editBarType)
     const editBarType = useSelector((state: RootState) => state.pageToEdit.editBarType)
-
+    const [messageSent, setMessageSent] = useState(false)
     const [userFeedback, setUserFeedback] = useState<string>('')
-    
+    console.log(image, storyBuilderActive)
     const goBack = () => {
         console.log('go back ===>', storyBuilderActive)
         console.log('go back ===>', editBarType)
+        setMessageSent(false)
         if (pageId == 'page_1'){
             dispatch(setEditBarType('editCover'))
             dispatch(setName('CoverPage'))
@@ -57,6 +59,9 @@ function ImproveImageSideBar() {
     }
 
     const getImprovedImagePrompt = async() => {
+
+
+
         const characters = JSON.stringify(charactersArray);
 
 
@@ -72,7 +77,7 @@ function ImproveImageSideBar() {
         console.log(resultString);
 
         console.log(characters);
-        const prompt = `i am using a A.I. image generator to create images for a childrens illustrated story book. 
+        const prompt = `I am using a A.I. image generator to create images for a childrens illustrated story book. 
         You previously generated this prompt: 
         ${firstImagePrompt}, for this page of the story: ${leftPagetext} ${rightPageText},
          but the user has given this feedback: ${userFeedback}. 
@@ -97,6 +102,7 @@ function ImproveImageSideBar() {
             })
             console.log('response from api', response)
             setUserFeedback('')
+            setMessageSent(true)
         }catch(err){
             console.log(err)
             setUserFeedback('')
@@ -112,8 +118,9 @@ function ImproveImageSideBar() {
                     <BackwardIcon className="h-8 w-8 text-purple-600 hover:text-purple-400 transition-colors duration-200" />
                     <span className="font-semibold text-lg">Go back</span>
                 </div>
-
-                <h2 className='text-purple-500 font-bold text-xl py-4 border-b border-gray-300 pb-2 mb-4'>What are your thoughts on these image choices?</h2>
+        {messageSent == false ? (
+            <>
+            <h2 className='text-purple-500 font-bold text-xl py-4 border-b border-gray-300 pb-2 mb-4'>What are your thoughts on these image choices?</h2>
                 <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -171,17 +178,31 @@ function ImproveImageSideBar() {
                 />
 
        
-<div className="flex items-center justify-evenly absolute right-14 mt-4">
+            <div className="flex items-center justify-evenly absolute right-14 mt-4">
                     <button className="p-2">
                         <CameraIcon className="h-6 w-6 text-purple-600 hover:text-purple-400" />
                     </button>
                     <button className="p-2">
                         <MicrophoneIcon className="h-6 w-6 text-purple-600 hover:text-purple-400" />
                     </button>
-                    <button className="p-2" onClick={getImprovedImagePrompt}>
-                        <PaperAirplaneIcon className="h-6 w-6 text-purple-600 hover:text-purple-400" />
-                    </button>
+            {storyBuilderActive == 'editLeft' ? (
+                <button className="p-2" onClick={getImprovedImagePrompt}>
+                    <PaperAirplaneIcon className="h-6 w-6 text-green-600 hover:text-purple-400" />
+                </button>
+                    ): 
+                <button className="p-2" onClick={getImprovedImagePrompt}>
+                    <PaperAirplaneIcon className="h-6 w-6 text-purple-600 hover:text-purple-400" />
+                </button>
+                    }
+              
                 </div>
+            </>
+        ) : (
+            <div>
+                <h2 className='text-purple-500 font-bold text-xl py-4 border-b border-gray-300 pb-2 mb-4'>Sounds good. I'll have another crack at it</h2>
+            </div>
+        )}
+
             </div>
         </div>
     )

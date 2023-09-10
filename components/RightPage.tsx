@@ -13,6 +13,7 @@ function RightPage() {
     const { data: session } = useSession()
     const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl)
     const finalImageUrl = useSelector((state: RootState) => state.pageToEdit.finalImageUrl)
+    const improvedImageUrl = useSelector((state: RootState) => state.pageToEdit.improvedImageUrl)
     const buttonId = useSelector((state: RootState) => state.pageToEdit.buttonMsgId)
     const storyId = useSelector((state: RootState) => state.viewStory.storyId)
     const pageId = useSelector((state: RootState) => state.pageToEdit.id)
@@ -73,7 +74,7 @@ function RightPage() {
         
 <div className="border-2 border-gray-300 border-dashed h-[600px] w-[600px] bg-white drop-shadow-md text-center items-center relative mt-6 ">
 
-{imageUrl && !finalImageUrl && (() => {
+{/* {imageUrl && !finalImageUrl && (() => {
           let bgPosition = 'top left';
           switch (currentQuadrant) {
             case 1:
@@ -101,7 +102,15 @@ function RightPage() {
               }}
             />
           );
-        })()}
+        })()} */}
+        {imageUrl && !finalImageUrl && !improvedImageUrl && (
+          <Image src={imageUrl} alt='/' className='h-full w-full z-10' fill />
+        )}
+
+      {improvedImageUrl && !finalImageUrl && (
+          <Image src={improvedImageUrl} alt='/' className='h-full w-full z-10' fill />
+        )}
+  
     </div>
     
     {imageUrl && !finalImageUrl && (
