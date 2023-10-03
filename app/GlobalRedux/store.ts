@@ -17,6 +17,7 @@ import userDetailsReducer from './Features/userDetailsSlice';
 import getPageImageModalReducer from './Features/getPageImageModal';
 import layoutReducer from './Features/layoutSlice'
 import designCoverModalReducer from './Features/designCoverModalSlice'
+import pageLoadingReducer from './Features/pageLoadingSlice'
 
 export const store  = configureStore({
     reducer: {
@@ -35,7 +36,8 @@ export const store  = configureStore({
         editTextModal: editTextModalReducer,
         userDetails: userDetailsReducer,
         layout: layoutReducer,
-        designCoverModal: designCoverModalReducer
+        designCoverModal: designCoverModalReducer,
+        pageLoading: pageLoadingReducer
     }
 })
 

@@ -43,6 +43,11 @@ import GetSmallImagesButton from "./GetSmallImagesButton";
 import ImageGridButtons from "./ImageGridButtons";
 import { DeliveryReceiptListInstance } from "twilio/lib/rest/conversations/v1/conversation/message/deliveryReceipt";
 import { ArrowSmallRightIcon, ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
+import { page } from "pdfkit";
+import BottomBar from "./BottomBar";
+import SmallImageIdeas from "./SmallImageIdeas";
+import InsidePageLeft from "./InsidePageLeft";
+import InsidePageRight from "./InsidePageRight";
 
 
 
@@ -123,8 +128,6 @@ function InsidePage({ storyPages, imageIdeas }: Props) {
 
     const textRef = useRef<HTMLParagraphElement | null>(null);
     const boxRef = useRef<HTMLDivElement | null>(null);
-   
-
     const [color, setColor] = useState("#c026d3");
 
     const [url, setUrl] = useState<string | null>(null)
@@ -151,7 +154,9 @@ useEffect(() => {
     setShowGrid(false)
 }, [pageId])
 
-
+useEffect(()=> {
+  console.log(wildcardIdea, objectIdea, characterIdea)
+},[wildcardIdea, objectIdea, characterIdea] )
 
 useEffect(() => {
   if (storyId || !pathname) return;
@@ -175,7 +180,6 @@ useEffect(() => {
       setImageBoxHeight(ibh)
     }, [boxHeight, textHeight, imageBoxHeight])
   
-
     useEffect(() => {
       // When pageText or audioUrl changes, set showText to false to trigger the transition effect
       setShowText(false);
@@ -237,7 +241,6 @@ useEffect(() => {
     }
   
     const getImage = async() => {
-      console.log('imagePrompt', imagePrompt, currentStoryId, session?.user?.email, pageId)
       setLoading(true)
         // let enhancedPageText = pageText;
         // enhancedPageText = enhancedPageText.replace(new RegExp(heroCharacterName, 'g'), `${heroCharacterName} (${characterDescription})`);
@@ -283,11 +286,8 @@ useEffect(() => {
 
 
       const getSmallImage = async(idea: string | null, type: string) => {
-        console.log('auth token', process.env.next_leg_api_token)
-        console.log( 'props to be sent ===> ', currentStoryId, session?.user?.email, pageId, type)
         setGettingSmallImage(true)
         const prompt = `in the style of ${style} for a childrens book illustrate ${idea} on a white background`
-        console.log('OTTTTTOOOO ===> PROMPT ---->>>', prompt)
           var data = JSON.stringify({
             msg: prompt,
             ref: { storyId: currentStoryId, userId: session!.user!.email, action: 'imagineSmallImage', page: pageId, type: type  },
@@ -306,7 +306,6 @@ useEffect(() => {
   
           axios(config)
           .then(function (response) {
-            console.log(response);
             console.log(JSON.stringify(response.data));
             setGettingSmallImage(false)
           })
@@ -320,27 +319,23 @@ useEffect(() => {
         setUpdatedPageText(pageText)
         dispatch(setEditText(''))
     }
-  const editText = () => {
-    dispatch(setEditBarType('editText'))
-    dispatch(setName('editLeft'))
-  }
+
 
   const updateText = async (text: string) => {
-    console.log("sotry id", storyId, pageId, session);
+
     if (!storyId || !pageId || !session) return;
     const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
     const updatedPage = await updateDoc(docRef, {
       text: text
     });
-    console.log(' this is the updated', updatedPage);
+
     // dispatch(setEditText(''))
   };
 
 useEffect(() => {
     if (fullPageImageUrl) return;
-    console.log(characters)
+
     if (!fullPageImageUrl && !characters.length){
-        console.log('get the characters for this story. ', characters, characters.length)
         // fetchStoryCharacters()
     }
 }, [fullPageImageUrl, characters])
@@ -358,7 +353,6 @@ useEffect(() => {
       const highlightedText = selection.toString();
       dispatch(updateTextString(highlightedText))
       setHighlightedText(highlightedText);
-      console.log(highlightedText);
     }
   };
 
@@ -379,20 +373,17 @@ useEffect(() => {
     const updatedPage = await updateDoc(docRef, {
       formatedText: formattedText,
     });
-    console.log('Updated page:', updatedPage);
-  
+    
     dispatch(setEditText(''));
   };
 
   const handleAudioEnded = () => {
-    console.log("Audio has finished playing!",  storyPages, pageId);
     if (!pageId) return;
     const currentPageNumber = parseInt(pageId.split("_")[1], 10);
     // Increment the currentPageNumber by 1
     const nextPageNumber = currentPageNumber + 1;
     // Construct the next page name
     const nextPageId = `page_${nextPageNumber}`;
-    console.log("go to ====>>", nextPageId)
     const nextPage = storyPages.find((page: any) => page.id === nextPageId);
     dispatch(setId(nextPage.id))
     dispatch(setText(nextPage.data.text))
@@ -443,6 +434,10 @@ useEffect(() => {
 //   }
 // }, [audioUrl]);
 
+useEffect(() => {
+  console.log('right page loading ===>>', rightPageLoading)
+}, [rightPageLoading])
+
 const play = useCallback(() => {
   // console.log(audioRef, audioUrl)
       setPlaying(true);
@@ -468,16 +463,9 @@ const playPauseClicked = () => {
   setPlaying(!playing)
 }
 
-useEffect(() => {
-  console.log('Characters--->>', characters)
-}, [characters ])
-
-
-
 const getSmallImagePrompt = async() => {
-  console.log(session, "STORYID",  currentStoryId )
   if (!session || currentStoryId == '') return;
-  console.log(session, "STORYID",  currentStoryId )
+
   setLoading(true)
 
   const imageDescriptionsPrompt = 
@@ -551,8 +539,6 @@ const lastSmallQuadrant = () => {
 const upscaleChosenSmallImage = async() => {
         
   const button = `U${currentQuadrant}`
-  console.log('Button', button)
-
   var data = JSON.stringify({
     button: button,
     buttonMessageId: btnId,
@@ -580,15 +566,13 @@ const upscaleChosenSmallImage = async() => {
   });
     }
 
-
-
-
-    const editSmallImage = () => {
-      dispatch(setEditBarType('getImages'))
-      dispatch(setName('editLeft'))
-    }
+  const editSmallImage = () => {
+    dispatch(setEditBarType('getImages'))
+    dispatch(setName('editLeft'))
+  }
 
     useEffect(() => {
+      if (pageText == undefined) return;
       if (pageText.startsWith('undefined')) {
         let text = pageText.replace('undefined', '').trim();
         dispatch(setText(text))
@@ -611,300 +595,24 @@ const upscaleChosenSmallImage = async() => {
     }
   }
 
-
 return (
-  <div className='bg-gray-50 h-5/6 w-full items-center overscroll-none col-span-5'>
       
-    <div className="justify-center h-full  ">
-      <div className="flex space-x-6 h-4/5  pt-6 px-6 -pb-12 ">
-        {audioUrl && playing && (
+  <div className="justify-center h-full w-full bg-gray-50  col-span-6 ">
+      <div className="flex space-x-6 h-[500px] pt-6 px-auto bg-gray-50  items-center place-content-center ">
+        {/* {audioUrl && playing && (
             <div className="react-player-wrapper" style={{ display: "none" }}>
                 <ReactPlayer url={audioUrl} playing={playing} onEnded={handleAudioEnded} />
            </div>
-        )}
-
-          {/* {editTextSelected === pageId  ? (
-              <div className="border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md">
-                <TextEditor />
-              </div>
-          ): */}
-              {/* // <div className="border-2 border-gray-300 border-dashed  h-4/5 w-3/5 bg-white drop-shadow-md"> */}
-              <div
-              ref={boxRef}
-              className={`border-2 border-gray-300 border-dashed h-4/5 w-3/5 bg-white drop-shadow-md ${
-                showText ? 'opacity-100' : 'opacity-0 scale-0 translate-y-[-50%] transition-all duration-300'
-              }`}
-            >
-      {showSmallImageGrid && smallImageUrl  && (() => {
-          let bgPosition = 'top left';
-          switch (currentQuadrant) {
-            case 1:
-              bgPosition = 'top left';
-              break;
-            case 2:
-              bgPosition = 'top right';
-              break;
-            case 3:
-              bgPosition = 'bottom left';
-              break;
-            case 4:
-              bgPosition = 'bottom right';
-              break;
-            default:
-              bgPosition = 'top left';
-          }
-          return (
-            <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4" >
-            <div
-              className="w-full h-full bg-no-repeat bg-cover rounded-sm cursor-pointer"
-              style={{
-                backgroundImage: `url(${smallImageUrl})`,
-                backgroundPosition: bgPosition,
-                backgroundSize: '200% 200%'
-              }}
-            />
-
-          </div>
-          );
-        })()}
-
-        {!showSmallImageGrid && smallImageUrl && smallImageButtonId && (
-            <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4" >
-              <Image src={smallImageUrl} className='w-full h-full' fill alt='/' />
-            </div>
-        )}
-
-                  {/* <button onClick={() => dispatch(setEditTextPageId(pageId)) } ref={textRef} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-50`}>{pageText}</button> */}
-          <button onClick={editText} className={`${newFontSize} ${newFontColor} m-4 p-4 font-mystery leading-loose my-auto z-10 mb-6`}>{pageText}</button>
-                  
-                  
-            {!smallImageUrl && !gettingSmallImage || !smallImageButtonId && (
-                    <div className="overflow-scroll h-1/3">
-                  <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-                    onClick={() => getSmallImage(wildcardIdea, 'wildcard')}
-                    >
-                      {wildcardIdea}
-                  </button>
-                  <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-                    onClick={() => getSmallImage(characterIdea, 'character')}
-                    >
-                      {characterIdea}
-                  </button>
-
-                  <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-                    onClick={() => getSmallImage(objectIdea, 'object')}
-                    >
-                      {objectIdea}
-                  </button>
-                  </div>
-                  )}
-
-                {gettingSmallImage && (
-                  <div className="w-full h-full items-center text-center">
-                       <SyncLoader
-                    color={color}
-                    loading={loading}
-                    cssOverride={override}
-                    size={15}
-                    aria-label="Loading Spinner"
-                    data-testid="loader"
-                  />
-                  <p>Your small image is on its way!</p>
-                  </div>
-                )}
-           
-        
-
-                {audioUrl && (
-                <div className="absolute bottom-20 w-full ">
-                  {playing ? (
-                    <PauseCircleIcon className="h-8 w-8 text-green-500 absolute left-10"  onClick={pause} />
-                  ):
-                    <PlayCircleIcon className="h-8 w-8 text-green-500 absolute left-10" onClick={play} />
-                  }
-                  </div>
-                  )}
-
-
-  </div>
- <div className="h-4/5 w-3/5 relative" >
-      
-<div className="border-2 border-gray-300 border-dashed h-full w-full bg-white drop-shadow-md relative">
-   
-{!url && loading && (
-    <div className="w-full h-full items-center justify-center text-center my-24 ">
-              <SyncLoader
-              color={color}
-              loading={loading}
-              cssOverride={override}
-              size={15}
-              aria-label="Loading Spinner"
-              data-testid="loader"
-            />
-            <p className={`text-fuchsia-600`}>Your image is being created</p>
-        </div>
-  )}
-
-{showGrid && url && !finalImageUrl  && !rightPageLoading && (() => {
-    let bgPosition = 'top left';
-    switch (currentQuadrant) {
-      case 1:
-        bgPosition = 'top left';
-        break;
-      case 2:
-        bgPosition = 'top right';
-        break;
-      case 3:
-        bgPosition = 'bottom left';
-        break;
-      case 4:
-        bgPosition = 'bottom right';
-        break;
-      default:
-        bgPosition = 'top left';
-    }
-    return (
-      <div
-        className="w-full h-full bg-no-repeat bg-cover rounded-sm cursor-pointer relative" 
-        style={{
-          backgroundImage: `url(${url})`,
-          backgroundPosition: bgPosition,
-          backgroundSize: '200% 200%'
-        }}>
-          <p className="text-white absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4"> 
-            {rightPageText}
-          </p>
-      </div>
-    );
-  })()}
-
-
-{imageUrl && !showGrid && !finalImageUrl && !improvedImageUrl && !rightPageLoading && (
-  <div className="h-full w-full relative bg-gray-100">
-    <Image className="w-full h-full z-10" fill src={imageUrl} alt='/' />
-    <p className="text-black absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
-    {rightPageText}
-    </p>
-  </div>
-)}
-
-{!showGrid && !finalImageUrl && improvedImageUrl && !rightPageLoading && (
-  <div className="h-full w-full relative bg-gray-100">
-    <Image className="w-full h-full z-10" fill src={improvedImageUrl} alt='/' />
-    <p className="text-black absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
-    {rightPageText}
-    </p>
-  </div>
-)}
-
-
-  {finalImageUrl && !rightPageLoading && (
-      <div className="h-full w-full relative">
-          <Image className="w-full h-full z-10 " fill src={finalImageUrl} alt='/' />
-          <p className="text-white absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-20"> 
-            {rightPageText}
-          </p>
-      </div>
-    )}
-
-    {rightPageLoading && (
-      <div className="w-full h-full items-center text-center">
-        <SyncLoader
-           color={color}
-           loading={loading}
-           cssOverride={override}
-           size={15}
-           aria-label="Loading Spinner"
-           data-testid="loader"
-         />
-         <p>Your image is on its way!</p>
-         </div>
-    )}
-
-   
-
-        {/* {firstImagePromptIdea && !imageUrl && (
-        <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-        onClick={getImage}
-        >
-           {firstImagePromptIdea}
-           {imagePrompt}
-        </button>
         )} */}
-
+          <InsidePageLeft />
+          <InsidePageRight />
       </div>
-      </div>
-  
-   
-</div>
+
+      <BottomBar />
+      
+  </div> 
 
 
-  <div className="w-full h-24 bg-gray-50 space-x-4 flex">
-
-          {smallImageUrl ?  (
-                <NextSmallImageModal nextSmallImage={nextSmallQuadrant} lastSmallImage={lastSmallQuadrant} selectSmallImage={upscaleChosenSmallImage} />
-            ): 
-                <GetSmallImagesButton  />
-            }
-
-          {url && !finalImageUrl && (
-            showGrid ? (
-              <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant}  setShowGrid={setShowGrid} showGrid={showGrid}  />
-            ):
-              <ImageGridButtons setCurrentQuadrant={setCurrentQuadrant} setShowGrid={setShowGrid} />
-           ) }
-
-        <div className='bg-white flew-col items-center text-center'>
-          <ArrowsRightLeftIcon className="text-purple-500 h-12 w-12"  onClick={switchImages}/>
-        </div>
-    
-        {!imageUrl && !improvedImageUrl && !finalImageUrl ? (
-          <GetImageButton />
-        ): 
-          <div className="w-3/4" />
-        }
-    </div>
-</div> 
-{/*  
-      {showLayoutScrollbar && (
-          <LayoutScrollbar />
-        )}
-
-          {highlightedText && (
-              <button 
-                onClick={saveUpdatedText}
-                className="text-purple-400 p-4 rounded-lg hover:shadow-xl hover:text-purple-600 border-2 border-purple-400 hover:border-purple-600">
-                Update text
-              </button>
-
-            )} */}
-               {/* {imageUrlType == 'choices' && (
-        <SelectImageToUpscaleBar />
-      )} */}
-      {/* {firstImagePromptIdea && imageUrl && happyToSelectImage == 'not clicked' &&  (
-          <div className="w-1/3 bg-fuchsia-400 rounded-sm  drop-shadow-2xl p-6 absolute bottom-10 right-56 ">
-            <p className="text-white text-lg">Are you happy to use one of these images? </p>
-            <div className="flex gap-4 py-2 mx-10">
-              <button className="bg-white text-fuchsia-700 hover:text-white hover:bg-fuchsia-700 rounded-lg hover:drop-shadow-2xl  p-4 " onClick={() => setHappyToSelectImage(true)}>YES!!!!!!</button>
-              <button className="bg-white text-fuchsia-700 hover:text-white hover:bg-fuchsia-700 rounded-lg hover:drop-shadow-2xl p-4  " onClick={() => setHappyToSelectImage(false)}>NOOOOO!!</button>
-            </div>
-          </div>
-      )} */}
-  
-      {/* <FlipPage /> */}
-
-      {happyToSelectImage == true && (
-           <SelectImageToUpscaleBar />
-      )}
-
-      {!happyToSelectImage && (
-        <ImproveImagesBox />
-      )}
-
-      {/* </div> */}
-
-   
-      </div>
     )
   }
   

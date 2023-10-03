@@ -2,8 +2,8 @@ import { ArrowLeftIcon as BackOutline, CheckBadgeIcon, CheckCircleIcon } from "@
 import { ArrowLeftIcon as BackSolid, CheckIcon,  CheckCircleIcon as SavedIcon } from "@heroicons/react/24/solid"
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../app/GlobalRedux/store"
-import { setEditBarType, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor } from "../app/GlobalRedux/Features/pageToEditSlice"
-import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice"
+import { setEditBarType, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor, setText } from "../app/GlobalRedux/Features/pageToEditSlice"
+import { setStoryId, setTitle } from "../app/GlobalRedux/Features/viewStorySlice"
 import { setFont, setSignatureTextSize, setTextColor, setAlignment, setLineSpacing } from "../app/GlobalRedux/Features/pageToEditSlice";
 import { useEffect, useState } from "react"
 import { doc, updateDoc } from "firebase/firestore"
@@ -11,14 +11,14 @@ import { useSession } from "next-auth/react"
 import { db } from "../firebase"
 import { usePathname } from "next/navigation"
 
-function EditSignatureBox() {
+function EditTitleBox() {
 
       const dispatch = useDispatch()
       const { data: session } = useSession()
       const pathname = usePathname()
       const font = useSelector((state: RootState) => state.pageToEdit.font)
-      const signatureLineOne = useSelector((state: RootState) => state.pageToEdit.signatureLineOne)
-      const signatureLineTwo = useSelector((state: RootState) => state.pageToEdit.signatureLineTwo)
+      const storyTitle = useSelector((state: RootState) => state.viewStory.title)
+      const pageText = useSelector((state: RootState) => state.pageToEdit.text)
       const lineSpacing = useSelector((state: RootState) => state.pageToEdit.lineSpacing)
       const fontColor = useSelector((state: RootState) => state.pageToEdit.signatureTextColor)
       const alignment = useSelector(( state: RootState) => state.pageToEdit.alignment)
@@ -29,12 +29,13 @@ function EditSignatureBox() {
 
       const fontSizeSaved = useSelector((state: RootState) => state.pageToEdit.signatureTextSize)
       const [fontSize, setFontSize] = useState('text-md')
-      const [sl1Saved, setSl1Saved] = useState(false)
-      const [sl2Saved, setSl2Saved] = useState(false)
+      const [localTitle, setLocalTitle] = useState<string>('')
+      const [titleSaved, setTitleSaved] = useState(false)
     
     const goBack = () => {
         dispatch(setEditBarType('main'))
     }
+
 
     useEffect(() => {
         console.log('save font size to db', fontSizeSaved)
@@ -53,6 +54,20 @@ function EditSignatureBox() {
         console.log("No match");
       }
     }, [pathname])
+
+
+  useEffect(() => {
+    console.log(storyTitle, pageText)
+    if (!storyTitle && !pageText){
+      setLocalTitle('Title')
+    }
+    if (storyTitle){ 
+      setLocalTitle(storyTitle)
+    }
+    else if (!storyTitle && pageText){
+      setLocalTitle(pageText)
+    }
+  }, [pageText, storyTitle])
 
     const updateTextColor = async(color: string) => {
       
@@ -90,31 +105,20 @@ function EditSignatureBox() {
       }
     }
 
-    const saveSignatureLineOne = async() => {
-      if (!storyId || !session) return;
-      try{
-          const docRef = doc(db, "users", session?.user?.email!, "storys", storyId);
-          const updatedPage = await updateDoc(docRef, {
-            signatureLineOne: signatureLineOne
-          });
-          setSl1Saved(true)
-      }catch(err){
-          console.log(err)
-      }
+    const saveTitle = async() => {
+        if (!session?.user?.email || !storyId ) return;
+        try{
+            const docRef = doc(db, "users", session?.user?.email!, "storys", storyId );
+            const updatedPage = await updateDoc(docRef, {
+              title: localTitle,
+            });
+            setTitleSaved(true)
+            console.log('pageText updated', updatedPage)
+          }catch(err){
+              console.log(err)
+          }
     }
 
-  const saveSignatureLineTwo = async() => {
-    if (!storyId || !session) return;
-    try{
-        const docRef = doc(db, "users", session?.user?.email!, "storys", storyId);
-        const updatedPage = await updateDoc(docRef, {
-          signatureLineTwo: signatureLineTwo
-        });
-        setSl2Saved(true)
-    }catch(err){
-        console.log(err)
-    }
-  }
   return (
     <div className="bg-white h-screen ml-2 mr-8">
     <div className="space-y-6 w-full pt-8">
@@ -130,34 +134,15 @@ function EditSignatureBox() {
       <div className="items-center space-y-2 w-full space-x-6 flex">
           <div className="w-1/5 ">
           <label htmlFor="font-size" className="font-semibold text-md 0">
-              Line one:
+              Title:
             </label>
           </div>
-          <input className="w-3/5 bg-white rounded-md h-10 p-2" onChange={(e) => dispatch(setSignatureLineOne(e.target.value))} value={signatureLineOne} />
+          <input className="w-3/5 bg-white rounded-md h-10 p-2" placeholder={localTitle} onChange={(e) => dispatch(setTitle(e.target.value))} value={localTitle} />
           <div>
-              {sl1Saved ? (
+              {titleSaved ? (
               <SavedIcon className="w-8 h-8 text-green-500" />
               ): 
-              <CheckCircleIcon onClick={saveSignatureLineOne} className="w-8 h-8 text-gray-500" />
-              }
-          </div>
-        </div>
-
-        <div className="items-center space-y-2 w-full space-x-6 flex">
-          <div className="w-1/5 ">
-          <label htmlFor="font-size" className="font-semibold text-md 0">
-               Line two:
-            </label>
-          </div>
-          <input className="w-3/5 bg-white rounded-md h-10 p-2" onChange={(e) => dispatch(setSignatureLineTwo(e.target.value))} value={signatureLineTwo} />
-          <div>
-              {sl2Saved ? (
-              <SavedIcon className="w-8 h-8 text-green-500" />
-              ): 
-              <button onClick={saveSignatureLineTwo}>
-                  <CheckCircleIcon className="w-8 h-8 text-gray-500" />
-              </button>
-         
+              <CheckCircleIcon className="w-8 h-8 text-gray-300" onClick={saveTitle} />
               }
           </div>
         </div>
@@ -214,7 +199,7 @@ function EditSignatureBox() {
           </select>
         </div>
     
-        {/* <div className="items-center space-y-2 w-full space-x-6 flex">
+        <div className="items-center space-y-2 w-full space-x-6 flex">
             <div className="w-1/5 ">
               <label htmlFor="font" className="font-semibold text-md 0">
               Font:
@@ -231,7 +216,7 @@ function EditSignatureBox() {
           <option value="font-caesar">Caesar</option>
           <option value="font-handlee">Handlee</option>
         </select>
-      </div> */}
+      </div>
 
           </div>
       </div>
@@ -239,4 +224,4 @@ function EditSignatureBox() {
 )
 }
 
-export default EditSignatureBox
+export default EditTitleBox

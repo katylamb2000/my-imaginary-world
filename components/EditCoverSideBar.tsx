@@ -11,11 +11,13 @@ import { doc, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
 import { usePathname } from 'next/navigation'
-import { setStoryId } from '../app/GlobalRedux/Features/viewStorySlice'
+import { setStoryId, setTitle } from '../app/GlobalRedux/Features/viewStorySlice'
 import RootLayout from '../app/layout'
 import axios from 'axios'
 import EditTextSideBar from './EditTextSideBar'
 import EditSignatureBox from './EditSignatureBox'
+import EditTitleBox from './EditTitleBox'
+import useEnhancedEffect from '@mui/material/utils/useEnhancedEffect'
 
 function EditCoverSideBar() {
     const dispatch = useDispatch()
@@ -26,8 +28,11 @@ function EditCoverSideBar() {
     const heroName = useSelector((state: RootState) => state.pageToEdit.heroCharacterName)
     // const characters = useSelector((state: RootState) => state.characters.characters)
     const characters = useSelector((state: RootState) => state.viewStory.storyCharacters)
-
+    const pageText = useSelector((state: RootState) => state.pageToEdit.text)
+    const storyTitle = useSelector((state: RootState) => state.viewStory.title)
     const style = useSelector((state: RootState) => state.pageToEdit.style)
+    const titleIdeas = useSelector((state: RootState) => state.viewStory.titleIdeas)
+    const selectedTitle = useSelector((state: RootState) => state.viewStory.selectedTitle)
 
     const [editStage, setEditStage] = useState('1')
     const [promptType, setPromptType] = useState<string | null>()
@@ -48,6 +53,11 @@ function EditCoverSideBar() {
     const [showGetTitleSuggestions, setShowGetTitleSuggestions] = useState(true)
     const [extractedCharacters, setExtractedCharacters] = useState<string | null>(null)
     const [titleSugggestionsDone, setTitleSuggestionsDone] = useState<boolean>(true)
+    const [loadingGettingCoverImage, setLoadingGettingCoverImage] = useState(false)
+    const [imageSuggestionChosen, setImageSuggestionChosen] = useState<null | string>(null)
+
+    useEnhancedEffect(() => {
+    }, [selected, showWorkOnTitle, showAddSignature, showEditFont, showGetImageIdeas, showGetTitleSuggestions])
     
     useEffect(() => {
         if (!pathname) return;
@@ -63,6 +73,17 @@ function EditCoverSideBar() {
         }
       }, [pathname])
 
+      useEffect(() => {
+        console.log(storyTitle, pageText)
+        if (!storyTitle && !pageText) return;
+        if (storyTitle){ 
+          setTitle(storyTitle)
+        }
+        else if (!storyTitle && pageText){
+          setTitle(pageText)
+        }
+      }, [pageText, storyTitle])
+
     const goBack = () => {
         if (!showAddSignature || !showEditFont || !showGetImageIdeas || !showGetTitleSuggestions || !showWorkOnTitle){
             setShowAddSignature(true)
@@ -77,11 +98,12 @@ function EditCoverSideBar() {
     }
 
     const workOnTitle = () => {
-        console.log('get ai to generate some title ideas. ')
         setSelected('workOnTitle')
-        dispatch(setShowInputBox(true))
+        dispatch(setShowInputBox(false))
         setShowAddSignature(false)
         setShowGetImageIdeas(false)
+        setShowEditFont(false)
+        setShowGetTitleSuggestions(false)
     }
 
     useEffect(() => {
@@ -92,24 +114,25 @@ function EditCoverSideBar() {
     }, [sendGenerateTitleIdeas])
 
     const talkToChatGPTNotGettingImagePrompt = async() => {
-        console.log('this is the story', story)
+        if (!session){
+            console.log('got no session')
+        }
         // setMessages([...messages, { role: "user", content: userMessage }]);
         const getTitleIdeasPrompt = `For the story ${story}, I want you to generate a list of 10 creative title ideas that will appeal to a child called ${heroName}. Generate your response in the form of a list like this: 
         1. title one, 
         2. title two, 
         3, title three etc`
         try{
-        const response = await fetch('/api/aiChatGPTAssistant', {
+        const response = await fetch('/api/createCoverImagePrompt', {
             method: 'POST', 
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                userMessage: messages,
-                promptType: promptType,
+                prompt: getTitleIdeasPrompt,
+                promptType: 'titleIdeas',
                 storyId: storyId, 
-                pageId: 'page_1', 
-                userId: session!.user!.email
+                session: session
             }),
         })
           const responseData = await response.json();
@@ -124,7 +147,7 @@ function EditCoverSideBar() {
 }
 
 const generateCoverImageIdeas = async() => {
-    console.log('this is the story', story)
+
     // setMessages([...messages, { role: "user", content: userMessage }]);
     const getTitleIdeasPrompt = `For the story ${story}, I want you to generate a list of 10 creative title ideas that will appeal to a child called ${heroName}. Generate your response in the form of a list like this: 
     1. title one, 
@@ -172,12 +195,10 @@ const generateCoverImageIdeas = async() => {
         if (coverImageSuggestions) {
         // const firstPart = titleSuggestions.split('\n')[0]; 
         // setIntroduction(firstPart);
-            console.log("CIS", coverImageSuggestions.coverImagePrompt)
-        const splitDescriptions = coverImageSuggestions.coverImagePrompt.split(/\d+\.\s/).slice(1);
-
-
-            setImageSuggestions(splitDescriptions);
       
+        const splitDescriptions = coverImageSuggestions.coverImagePrompt.split(/\d+\.\s/).slice(1);
+            setImageSuggestions(splitDescriptions);
+
         }
     }, [coverImageSuggestions]);
 
@@ -266,19 +287,20 @@ const generateCoverImageIdeas = async() => {
 
         useEffect(() => {
             if (!story || !characters.length) return;
-            console.log('story characters ===> ', characters)
+     
             let descriptions = characters
             .map(character => `${character.name}: ${character.description}`);
             // return descriptions.join(' ');
             const charctersDescriptions = descriptions.join(' ');
-            console.log(charctersDescriptions)
+
             setExtractedCharacters(charctersDescriptions)
           }, [story, characters])
 
         const generatePromptToSendToMidjourney = async(idea: string) => {
-            if (!session || storyId == '') return;
-            console.log(session, "STORYID",  storyId)
-            // setLoading(true)
+            if (!session || storyId == '') return;  
+            setLoadingGettingCoverImage(true)
+            setImageSuggestionChosen(idea)
+            // dispatch(setLoadingGettingCoverImage(true))
             // const extractedCharacters = extractCharactersFromStory();
             const prompt = 
             `
@@ -307,12 +329,12 @@ const generateCoverImageIdeas = async() => {
                   prompt: prompt,
                   session: session,
                   storyId: storyId, 
-                  pageId: 'page_1'
+                //   pageId: 'page_1'
       
               }),
           })
           const responseData = await response.json();
-          console.log('response from api', responseData)
+         
           getImage(responseData)
  
         }catch(err){
@@ -327,7 +349,7 @@ const generateCoverImageIdeas = async() => {
    
           var data = JSON.stringify({
             msg: coverPrompt.coverImagePrompt,
-            ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: 'page_1' },
+            ref: { storyId: storyId, userId: session!.user!.email, action: 'imagineCoverImage', page: 'page_1' },
             webhookOverride: ""
           });
           
@@ -360,6 +382,18 @@ const generateCoverImageIdeas = async() => {
             setShowGetTitleSuggestions(false)
             setShowWorkOnTitle(false)
         }
+
+        const useThisTitle = async() => {
+            console.log('use this title', selectedTitle)
+            try {
+                const docRef = doc(db, "users", session?.user?.email!, "storys", storyId);
+                const updatedTitle = await updateDoc(docRef, {
+                  title: selectedTitle
+                });
+              } catch (err) {
+                console.log(err);
+              }
+        }
             
   return (
     
@@ -387,21 +421,33 @@ const generateCoverImageIdeas = async() => {
                 </div>
             )}
 
-            {imageSuggestions && (
+            {imageSuggestions && !loadingGettingCoverImage && (
                 <div className='space-y-2'>
-                {/* <p  className='text-xl font font-semibold text-purple-600'>{introduction}</p> */}
-                {imageSuggestions.map((suggestion: string) => (
-                <p  className='text-purple-400 hover:underline cursor-pointer hover:text-purple-600 hover:text-lg' 
-                    onClick={() => generatePromptToSendToMidjourney(suggestion)}
-                >
-                    {suggestion}
-                </p>
-               )) }
-
+                    {/* <p  className='text-xl font font-semibold text-purple-600'>{introduction}</p> */}
+                    {imageSuggestions.map((suggestion: string) => (
+                    <p  className='text-purple-400 hover:underline cursor-pointer hover:text-purple-600 hover:text-lg' 
+                        onClick={() => generatePromptToSendToMidjourney(suggestion)}
+                    >
+                        {suggestion}
+                    </p>
+                )) }
                 </div>
             )}
 
-            {showGetTitleSuggestions && (
+        {imageSuggestionChosen && loadingGettingCoverImage && (
+                <div className='space-y-2'>
+                    {/* <p  className='text-xl font font-semibold text-purple-600'>{introduction}</p> */}
+                    {imageSuggestions.map((suggestion: string) => (
+                    <p  className='text-purple-400 hover:underline cursor-pointer hover:text-purple-600 hover:text-lg' 
+                        onClick={() => generatePromptToSendToMidjourney(suggestion)}
+                    >
+                        {suggestion}
+                    </p>
+                )) }
+                </div>
+            )}
+
+            {/* {showGetTitleSuggestions && (
                 <div  className={`${selected == 'getTitleSuggestions' ? 'bg-purple-600': 'bg-white'} h-18 w-full  border-b-2 border-purple-300 hover:bg-purple-300 group group-hover:drop-shadow-xl transition duration-200  `} >
                     {titleSugggestionsDone ? (
                         <div className={`flex text-white group-hover:font-semibold p-4 w-full justify-between  ${selected == 'getTitleSuggestions' ? 'text-white' : 'text-purple-500'} `}>
@@ -417,8 +463,15 @@ const generateCoverImageIdeas = async() => {
                      
                     }
                     </div>
-                    )}
+                    )} */}
                 </div>
+
+                {/* <div className={`flex text-white group-hover:font-semibold p-4 w-full justify-between  ${selected == 'getTitleSuggestions' ? 'text-white' : 'text-purple-500'} `}>
+                        <button className={` text-purple-500 font-semibold  ${selected == 'getTitleSuggestions' ? 'text-white' : 'text-purple-500'} `} >
+                            Edit Title 
+                        </button>
+                        <CheckCircleIcon className='h-16 w-16 z-50 text-green-500 pl-8' />
+                </div> */}
 
             {showGetImageIdeas && (
                 <div  className={`${selected == 'getImageIdeas' ? 'bg-purple-600': 'bg-white'} h-18 w-full  border-b-2 border-purple-300 hover:bg-purple-300 group group-hover:drop-shadow-xl transition duration-200  `} onClick={getImageIdeas}>
@@ -435,7 +488,23 @@ const generateCoverImageIdeas = async() => {
                     </button>
                 </div>
             )}
-         
+            
+            {!storyTitle && !titleIdeas ? (
+                <div  className={`${selected == 'addSignature' ? 'bg-purple-600': 'bg-white'} h-18 w-full  border-b-2 border-purple-300 hover:bg-purple-300 group group-hover:drop-shadow-xl transition duration-200  `} onClick={editSignature}>
+                    {/* <button className={` group-hover:text-white group-hover:font-semibold p-4  ${selected == 'addSignature' ? 'text-white' : 'text-purple-500'} `} > */}
+                    <button className={` group-hover:text-white group-hover:font-semibold p-4 text-purple-500  `} onClick={getTitleSuggestions} >
+                        Get Title Ideas
+                    </button>
+                </div>
+            ): 
+            <div  className={`${selected == 'addSignature' ? 'bg-purple-600': 'bg-white'} h-18 w-full  border-b-2 border-purple-300 hover:bg-purple-300 group group-hover:drop-shadow-xl transition duration-200  `}>
+            {/* <button className={` group-hover:text-white group-hover:font-semibold p-4  ${selected == 'addSignature' ? 'text-white' : 'text-purple-500'} `} > */}
+                <button className={` group-hover:text-white group-hover:font-semibold p-4 text-white  `} onClick={useThisTitle} >
+                   Use this title
+                </button>
+            </div>
+            }
+             
             {showWorkOnTitle && (
                 <div  className={`${selected == 'workOnTitle' ? 'bg-purple-600': 'bg-white'} h-18 w-full  border-b-2 border-purple-300 hover:bg-purple-300 group group-hover:drop-shadow-xl transition duration-200  `} onClick={workOnTitle}>
                     <button className={` group-hover:text-white group-hover:font-semibold p-4  ${selected == 'workOnTitle' ? 'text-white' : 'text-purple-500'} `} >
@@ -450,6 +519,10 @@ const generateCoverImageIdeas = async() => {
                         Edit the cover font
                     </button>
                 </div>
+            )}
+
+            {!showAddSignature && !showEditFont && !showGetImageIdeas && !showGetTitleSuggestions && showWorkOnTitle && (
+                <EditTitleBox />
             )}
 
             {showEditFont && !showAddSignature && !showGetImageIdeas && !showGetTitleSuggestions && !showWorkOnTitle && (

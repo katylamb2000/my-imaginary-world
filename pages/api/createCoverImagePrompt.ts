@@ -42,6 +42,25 @@ export default async function createStory(
   const response: ResponseType = await createCoverImagePromptHelper(prompt);
   console.log(response)
 
+  if (promptType == 'titleIdeas'){
+    if ('coverImagePrompt' in response && !response.coverImagePrompt) {
+      throw new Error('message' in response ? (response.message as string) : "Received invalid data from the imageQuery");
+    }
+
+    console.log('we are in title ideas ===>')
+    
+        await adminDb
+              .collection("users")
+              .doc(session.user.email)
+              .collection('storys')
+              .doc(storyId)
+           
+              .update({
+                titleIdeas: response
+              });
+      
+  }
+
   if (promptType == 'coverImage'){
     if ('coverImagePrompt' in response && !response.coverImagePrompt) {
       throw new Error('message' in response ? (response.message as string) : "Received invalid data from the imageQuery");
@@ -52,8 +71,8 @@ export default async function createStory(
               .doc(session.user.email)
               .collection('storys')
               .doc(storyId)
-              .collection('storyContent')
-              .doc('page_1')
+              // .collection('storyContent')
+              // .doc('page_1')
               .update({
                 coverImagePrompt: response
               });
@@ -122,6 +141,7 @@ const sendPromptToMidjourney = async (imagePrompt: string | undefined, storyId: 
   if (!imagePrompt) {
       throw new Error("Image prompt is undefined.");
   }
+  if (promptType == 'titleIdeas') return;
   const data = JSON.stringify({
       msg: imagePrompt,
       ref: { storyId: storyId, userId: userEmail, action: 'improveSingleImagePrompt', page: pageId },

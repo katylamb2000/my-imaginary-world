@@ -74,16 +74,17 @@ function MainCharacterFundamentalsForm() {
 
 const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-
   updateCharacterDetails()
 };
 
 const updateCharacterDetails = async () => {
   setLoading(true)
   try{
-  if (!characterId) return;
-  const docRef = doc(db, "users", session?.user?.email!, "characters", characterId);
-  const updatedCharacter = await updateDoc(docRef, {
+  // if (!characterId) return;
+  // const docRef = doc(db, "users", session?.user?.email!, "characters");
+  const newCharacter = await addDoc(collection(db, "users", session?.user?.email!, 'characters'), {
+
+  // const newCharacter = await addDoc(docRef, {
     userId: session?.user?.email!,
     createdAt: serverTimestamp(), 
     name: characterName, 
@@ -95,15 +96,13 @@ const updateCharacterDetails = async () => {
     clothing: clothing,
     age: age
   });
-  console.log(updatedCharacter);
+  console.log(newCharacter);
 
   // router.push(`/story/${doc.id}`)
   createStory()
 }catch(err){
   console.log(err)
 }}
-
-
 
 const createStory = async() => {
   try{
@@ -112,6 +111,7 @@ const createStory = async() => {
       createdAt: serverTimestamp(), 
       fullImagePrompt: null
   });
+  setLoading(false)
     dispatch(setName('create story outline'))
     router.push(`/story/${doc.id}`)
   }catch (err){
@@ -240,10 +240,9 @@ const getProgress = async(messageId: string) => {
 }
 
 return (
-  <div className="bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4">
+  <div className="bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4 w-screen">
     {imageOptions.length == 0 ? (
 
-  
   <div className="max-w-md w-full space-y-8">
     <div>
       <h1 className="text-3xl font-extrabold text-white text-center">

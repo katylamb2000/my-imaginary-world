@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { usePathname } from "next/navigation"
 import { HomeIcon, MapIcon, BriefcaseIcon, MagnifyingGlassCircleIcon, StarIcon  } from "@heroicons/react/24/solid";
-
+import GeneratePDF from "./generatePDF";
 import { signOut } from 'next-auth/react'
 import { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
@@ -16,9 +16,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import axios from "axios";
 import { setEditBarType, setId, setImageUrl } from "../app/GlobalRedux/Features/pageToEditSlice";
-import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice";
+import { setStoryId, setTitle } from "../app/GlobalRedux/Features/viewStorySlice";
 import { useSelect } from "@mui/base";
 import { RootState } from "../app/GlobalRedux/store";
+import { setIsLoading } from "../app/GlobalRedux/Features/pageLoadingSlice";
+import { path } from "pdfkit";
 const stripePromise = loadStripe(process.env.stripe_public_key || '');
 
 function Header(){ 
@@ -40,6 +42,8 @@ function Header(){
     const [loggingOut, setLoggingOut] = useState(false)
     // console.log("session", session)
 
+    const storyComplete = useSelector((state: RootState) => state.viewStory.storyComplete)
+
     const [user, loading, error] = useDocument(
       session?.user?.email
         ? doc(db, 'users', session.user.email)
@@ -47,7 +51,10 @@ function Header(){
     );
 
     useEffect(() => {
-    
+      console.log("STORY COMPLETE", storyComplete)
+    }, [storyComplete])
+
+    useEffect(() => {
       if (user?.data()?.isAdmin){
         setAdmin(true)
       }
@@ -86,7 +93,6 @@ function Header(){
             : null
         );
     
-
         useEffect(() => {
           if (!story?.data()?.pdf) return;
           // console.log('story', story.data())
@@ -117,7 +123,12 @@ function Header(){
       dispatch(setName(''))
       dispatch(setEditBarType('main'))
       dispatch(setStoryId(null))
-      router.push('/')
+      dispatch(setTitle(null))
+      console.log("Pathname", pathname)
+      if (pathname !== '/'){
+        dispatch(setIsLoading(true))
+        router.push('/')
+      }
     }
 
   const logout = () => {
@@ -171,6 +182,11 @@ return(
         />
           )
 } */}
+
+{storyComplete && (
+  // <GeneratePDF />
+  <button onClick={() => console.log("set something to generate pdf in page")}>Generate PDF</button>
+)}
 
 {session && session.user?.image ? (
   <img 

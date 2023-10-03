@@ -82,7 +82,7 @@ function GeneratePDF({ storyId, story }: any) {
       URL.revokeObjectURL(link.href); // Clean up the object URL to free resources
 
     } catch (err) {
-      console.error(err);
+      console.error('are we gettting the error here??? ===', err);
     }
   }
 

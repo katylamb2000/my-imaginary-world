@@ -15,6 +15,7 @@ import SideBar from "../components/SideBar"
 import axios from "axios"
 import { setUsername, setIsSubscriber } from "./GlobalRedux/Features/userDetailsSlice"
 import { addCharacters } from "./GlobalRedux/Features/characterSlice"
+import { setIsLoading } from "./GlobalRedux/Features/pageLoadingSlice"
 
 interface Story {
   id: string,
@@ -33,9 +34,15 @@ function HomePage() {
     const dispatch = useDispatch()
     const { data: session } = useSession()
 
+    console.log('CHARACTERS', characters)
+
     const [charactersSnapshot, characterLoading, characterError] = useCollection(
       session && collection(db, 'users', session?.user?.email!, 'characters'),
     );
+
+    useEffect(() => {
+      dispatch(setIsLoading(false))
+    }, [])
     
     useEffect(() => {
       if (!charactersSnapshot) return;
@@ -54,14 +61,16 @@ function HomePage() {
           createdAt: serverTimestamp(), 
           fullImagePrompt: null
       });
-      if (characters.length){
-        console.log('characters ==> ', characters)
+      // if (characters.length){
+      //   console.log('characters ==> ', characters)
+      //   dispatch(setName('create story outline'))
+      //   router.push(`/story/${doc.id}`)
+      // }
+      // else if (!characters.length){
+      //   console.log('first we need to create a character. ')
         dispatch(setName('create story outline'))
         router.push(`/story/${doc.id}`)
-      }
-      else if (!characters.length){
-        console.log('first we need to create a character. ')
-      }
+      // }
     }
 
     const createFirstCharacter = async() => {
@@ -99,7 +108,7 @@ function HomePage() {
     
 return (
     
-<div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-gray-50"> 
+<div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 min-h-screen overflow-y-scroll p-12 text-white bg-gray-100"> 
     {storys?.docs.map(story => {
         const storyData = story.data();
         const mappedStory: Story = {
@@ -114,7 +123,7 @@ return (
         return <StoryThumbnail key={story.id} id={story.id} story={mappedStory} />;
     
       })}     
-    {characters.length == 0 ? (
+    {/* {characters.length == 0 ? (
           <button
           className='w-48 h-48 rounded-sm bg-purple-500 hover:bg-purple-300 flex items-center justify-center text-2xl font-bold transition-colors duration-200'
           onClick={createFirstCharacter}
@@ -130,7 +139,14 @@ return (
           Start a new story
 
       </button>
-}
+} */}
+
+    <button
+        className='w-48 h-48 rounded-sm bg-purple-500 hover:bg-purple-300 flex items-center justify-center text-2xl font-bold transition-colors duration-200'
+        onClick={createNewStory}
+      >
+          Start a new story
+    </button>
 </div>
 
 

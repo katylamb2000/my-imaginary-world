@@ -167,17 +167,17 @@ function EditTextSideBar() {
     }, [hexColor, tailwindColor])
 
   return (
-    <div className="bg-white h-screen ml-2 mr-8">
-      <div className="space-y-6 w-full pt-8">
+    <div className="bg-purple-400 h-full overflow-y-scroll ml-2 mr-8">
+      <div className=" w-full pt-8">
         {editBarType !== 'editCover' && (
-            <div className="flex space-x-2 group cursor-pointer w-full">
-              <BackOutline className="h-8 w-8 font-bold text-purple-600 group-hover:text-purple-400 " onClick={goBack} />
-              <p className="h-8 w-8 text-sm text-purple-600 group-hover:text-purple-400">Go Back</p>
+            <div className="flex space-x-2 group cursor-pointer w-full items-center p-2">
+              <BackOutline className="h-8 w-8 font-bold text-white group-hover:text-purple-800 " onClick={goBack} />
+              <p className="text-sm text-white group-hover:text-purple-800">Go Back</p>
             </div>
         )}
    
 
-        <div className="bg-purple-400 rounded-sm shadow-lg p-6 space-y-6">
+        <div className="bg-purple-400 rounded-sm shadow-lg p-4 space-y-6">
 
           <div className="items-center space-y-2 w-full space-x-6 flex">
             <div className="w-1/5 ">
@@ -327,11 +327,11 @@ function EditTextSideBar() {
             <label  htmlFor="alignment" className="font-semibold text-md 0">
               Right Page Text:
             </label>
-        </div>
+          </div>
 
-        <div className="w-full">
-          <textarea value={rightPageText || ''} placeholder={rightPageText || 'move any text you want on the right page here. '} onChange={(e) => dispatch(setRightPageText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
-        </div>
+        {/* <div className="w-full"> */}
+          <textarea value={rightPageText || ''} placeholder={rightPageText || 'Move any text you want on the right page here. '} onChange={(e) => dispatch(setRightPageText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
+        {/* </div> */}
           {rightPageTextSaved ? (
             <SavedIcon className="w-8 h-8 text-green-500" />
             ): 

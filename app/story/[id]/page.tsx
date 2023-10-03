@@ -19,7 +19,7 @@ import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector, useDispatch } from "react-redux"
 import { setbuttonMsgId, setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
 import { addCharacters, addCharacter } from "../../GlobalRedux/Features/characterSlice"
-import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters } from '../../GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters, setTitleIdeas } from '../../GlobalRedux/Features/viewStorySlice'
 import { setName } from '../../GlobalRedux/Features/storyBuilderActiveSlice'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
@@ -45,6 +45,7 @@ import GeneratePDF from "../../../components/generatePDF"
 import TextPage from "../../../components/LeftPage"
 import LeftPage from "../../../components/LeftPage"
 import RightPage from "../../../components/RightPage"
+import { setIsLoading } from "../../GlobalRedux/Features/pageLoadingSlice"
 
 interface PageData {
   id: string | null;
@@ -90,11 +91,12 @@ function StoryPage() {
   const editTextId = useSelector((state: RootState) => state.editTextModal.editTextPageId)
   const openEditorToobar = useSelector((state: RootState) => state.editTextModal.editTextPageId)
   const heroImagePrompt = useSelector((state: RootState) => state.viewCharacter.characterImagePrompt)
+  const storyComplete = useSelector((state: RootState) => state.viewStory.storyComplete)
   const [pageSelected, setPageSelected] = useState<string | null>(null)
   const userEmail = session?.user?.email;
   const storyIdValue = storyId;
   const [sideBarCols, setSideBarCols] = useState(1)
-  const [pageCols, setPageCols] = useState(5)
+  const [pageCols, setPageCols] = useState(6)
 
 
   useEffect(() => {
@@ -114,60 +116,72 @@ function StoryPage() {
     console.log('story builder active =====>>>>', storyBuilderActive)
 }, [storyBuilderActive])
 
+useEffect(() => {
+  dispatch(setIsLoading(false))
+}, [])
 
   useEffect(() => {
     console.log('colum view', storyBuilderActive, sideBarCols, pageCols)
     switch (storyBuilderActive) {
       case 'CreatePDF':
         setSideBarCols(1);
-        setPageCols(5);
+        setPageCols(6);
         // updateColumnLayout(1, 5);
         break;
       case 'InsidePage':
         console.log("CHANGED TO INSIDE PAGE!")
         setSideBarCols(1);
-        setPageCols(5);
+        setPageCols(6);
         // updateColumnLayout(1, 5);
         break;
       case 'improveStory':
         setSideBarCols(3);
-        setPageCols(3);
+        setPageCols(4);
         // updateColumnLayo
         break;
       case 'CoverPage':
         setPageCols(3);
-        setSideBarCols(3);
+        setSideBarCols(4);
         // updateColumnLayo
         break;
       case 'editText':
           setPageCols(3);
-          setSideBarCols(3);
+          setSideBarCols(4);
           // updateColumnLayo
           break;
         case 'editLeft':
             setPageCols(3);
-            setSideBarCols(3);
+            setSideBarCols(4);
             // updateColumnLayo
             break;
           case 'editRightPage':
             setPageCols(3);
-            setSideBarCols(3);
+            setSideBarCols(4);
               // updateColumnLayo
              break;
           case 'leftAndRightPage':
             setPageCols(3);
-            setSideBarCols(3);
+            setSideBarCols(4);
               // updateColumnLayo
               break;
           case 'improveRightImage':
             setPageCols(3);
-            setSideBarCols(3);
+            setSideBarCols(4);
                 // updateColumnLayo
             break;
+            case 'improveLeftImage':
+              setPageCols(3);
+              setSideBarCols(4);
+                  // updateColumnLayo
+              break;
+          case 'showCreateCharacterForm':
+            setPageCols(7);
+            setSideBarCols(0);
+    
       default:
         // Set default values here if needed
         setSideBarCols(1);
-        setPageCols(5);
+        setPageCols(6);
         break;
     }
     console.log(storyBuilderActive, sideBarCols, pageCols)
@@ -263,6 +277,9 @@ useEffect(() => {
     const buttonMsgId = story?.data()?.buttonMessageId
     dispatch(setbuttonMsgId(buttonMsgId))
 
+    const titleIdeas = story?.data()?.titleIdeas?.coverImagePrompt
+    dispatch(setTitleIdeas(titleIdeas))
+
     const storyComplete = story?.data()?.storyComplete
 
 }, [story])
@@ -351,14 +368,28 @@ useEffect(() => {
 useEffect(() => {
     if (!storyContent) return;
 
-    const sortedPages = storyContent.docs
-      .map(doc => ({
+  //   const sortedPages = storyContent.docs
+  //     .map(doc => ({
+  //       id: doc.id,
+  //       data: doc.data(),
+  //     }))
+  //     .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
+  //   setSortedStoryContent(sortedPages);
+  //   console.log('SORTED', sortedPages)
+  //   console.log('UNSORTED', storyContent.docs)
+  // }, [storyContent]);
+
+  const sortedPages = storyContent.docs
+    .map(doc => ({
         id: doc.id,
         data: doc.data(),
-      }))
-      .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
+    }))
+    .sort((a, b) => parseInt(a.id.split('_')[1]) - parseInt(b.id.split('_')[1]));
     setSortedStoryContent(sortedPages);
-  }, [storyContent]);
+    console.log('SORTED', sortedPages)
+    console.log('UNSORTED', storyContent.docs)
+      }, [storyContent]);
+
 
   useEffect(() => {
     let pageNumber = 1;
@@ -398,18 +429,27 @@ useEffect(() => {
   //   }
   // }, [storyBuilderActive, selectedPageId ])
 
+  useEffect(() => {
+    console.log(sideBarCols, pageCols)
+  }, [sideBarCols, pageCols])
+
   return (
-    <div className="w-screen bg-gray-50 ">
-      <div className="w-full grid grid-cols-7">
+    <div className="w-screen bg-gray-50 grid grid-cols-7">
+      {/* <div className="w-full "> */}
+      {storyBuilderActive !== 'create story outline' && storyBuilderActive !== 'showCreateCharacterForm' && (
+
         <div className={`col-span-${sideBarCols}`}>
-          {storyBuilderActive !== 'create story outline' && (
-              <SideBar />
-            )}
+              {/* // <SideBar /> */}
+              <BookLayoutScrollBar storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} story={story} />
+       
         </div>
         
+        )}
+    {storyBuilderActive !== 'create story outline' && storyBuilderActive !== 'showCreateCharacterForm' && (
+
     <div className={`col-span-${pageCols} overflow-y-scroll bg-gray-50 `}>
 
-        {storyBuilderActive === 'InsidePage' && layoutSelected == 'default' && (
+        {storyBuilderActive === 'InsidePage' &&  (
           <InsidePage storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
         )} 
 
@@ -421,14 +461,9 @@ useEffect(() => {
           <RightPage />
         )} 
 
-
-         {storyBuilderActive === 'leftAndRightPage' && layoutSelected == 'default' && (
+      {storyBuilderActive === 'leftAndRightPage' && layoutSelected == 'default' && (
           <>
-          
-          {/* <LeftPage /> */}
           <div className="bg-green-500"> chat with gpt about improving the image</div>
-      
-        
           </>
         )} 
 
@@ -438,28 +473,70 @@ useEffect(() => {
           </>
         )} 
 
-         {storyBuilderActive === 'improveStory' && layoutSelected == 'default' && (
-          <ImproveStoryPage storyPages={sortedStoryContent} />
+        {storyBuilderActive === 'improveLeftImage' && layoutSelected == 'default' && (
+          <>
+          <LeftPage />
+          </>
         )} 
 
-        {storyBuilderActive === 'CoverPage' && (
-       
+      {storyBuilderActive === 'improveStory' && layoutSelected == 'default' && (
+          <ImproveStoryPage storyPages={sortedStoryContent} />
+      )} 
+
+      {storyBuilderActive === 'CoverPage' && (
           <BookCover />
-
         )}
 
-        {storyBuilderActive == 'create story outline' && (
-          <CreateStoryOutline characters={characters || []} />
-        )}
+
     </div>
+    )}
+
+    {storyBuilderActive == 'create story outline' && (
         
-        <div className="col-span-1">
+        <CreateStoryOutline characters={characters || []} />
+     )}
+
+    {storyBuilderActive == 'showCreateCharacterForm' && (
+        <MainCharacterFundamentalsForm />
+      )}
+        
+        {/* <div className="col-span-1">
             {storyBuilderActive !== 'create story outline' && (
                 <BookLayoutScrollBar storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} />
             )}
-        </div>
+        </div> */}
  
-        </div>
+        {/* </div> */}
+
+        {storyBuilderActive == 'editRightPage' && (
+          <div className="col-span-3">
+          <SideBar />
+          </div>
+        )}
+
+        {storyBuilderActive == 'editLeft' && (
+          <div className="col-span-3">
+          <SideBar />
+          </div>
+        )}
+
+        {storyBuilderActive == 'improveRightImage' && (
+          <div className="col-span-3">
+          <SideBar />
+          </div>
+        )}
+
+        {storyBuilderActive == 'improveLeftImage' && (
+          <div className="col-span-3 bg-gray-50">
+          <SideBar />
+          </div>
+        )}
+
+{storyBuilderActive == 'CoverPage' && (
+          <div className="col-span-3 bg-gray-50">
+          <SideBar />
+          </div>
+        )}
 
         {storyBuilderActive == 'add character' && (
           <MainCharacterFundamentalsForm />
@@ -481,11 +558,16 @@ useEffect(() => {
           <p>Add villain</p>
         )}
 
-        {storyBuilderActive == 'create story outline' && (
+        {/* {storyBuilderActive == 'create story outline' && (
           <CharacterScrollBar characters={characters} />
-        )}
-
+        )} */}
+{/* 
         {storyBuilderActive == 'createPDF' && storyId && (
+          <GeneratePDF story={sortedStoryContent} storyId={storyId} />
+        )} */}
+
+
+    {storyComplete && (
           <GeneratePDF story={sortedStoryContent} storyId={storyId} />
         )}
 

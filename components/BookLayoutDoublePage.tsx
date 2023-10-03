@@ -3,14 +3,13 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/GlobalRedux/store";
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
-import { setPagesComplete, setStoryComplete } from "../app/GlobalRedux/Features/viewStorySlice";
+import { setPagesComplete, setStoryComplete, setCompletedPages, setTitleIdeas } from "../app/GlobalRedux/Features/viewStorySlice";
 import { 
   setId, setText, setImageUrl, setButtonId, setPreviousPageText, setNextPageText, setFormattedText, 
   setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, 
   setFirstImagePromptIdea, setImprovedImageUrl, setEditBarType, setImageRequestSent, setFinalImageUrl, 
   setSmallImageUrl, setTextColor, setRightPageText, setImprovedImageButtonId, setImprovedSmallImageUrl,
-  setSmallImageButtonId,
-  setRightPageLoading
+  setSmallImageButtonId, setRightPageLoading, setMidjourneyInitialRequestResponse, setFinalSmallImageUrl
 } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setPageId } from "../app/GlobalRedux/Features/getPageImageModal";
 
@@ -23,6 +22,8 @@ type Props = {
     imageIdeas: ImageIdea[]
     pageLength: number,
     onPageComplete: (pageId: string) => void;
+    pageId: string,
+    storyPagesLength: number
 };
 
 type ImageIdea = {
@@ -35,16 +36,19 @@ type ImageIdea = {
 
     }}
 
-function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imageIdeas, pageLength, onPageComplete }: Props) {
+function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imageIdeas, pageLength, onPageComplete, pageId, storyPagesLength }: Props) {
     const dispatch = useDispatch()
+
     const pageActive = useSelector((state: RootState) => state.storyBuilderActive.name);
+    const completedPagesArray = useSelector((state: RootState) => state.viewStory.completedPages)
     const pagesComplete = useSelector((state: RootState) => state.viewStory.pagesComplete)
     const currentPageId = useSelector((state: RootState) => state.pageToEdit.id);
     const [active, setActive] = useState<boolean>(false);
     const [url, setUrl] = useState<string | null>(null);
     const [incomplete, setIncomplete] = useState<boolean>(true)
-
+    
     useEffect(() => {
+      console.log('page text ===> ', page.data.wildcardImage)
       if (currentPageId !== page.id ) return; 
       if ( page.data.imageUrl){
         dispatch(setImageUrl(page.data.imageUrl))
@@ -52,19 +56,49 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
       }
     }, [page, currentPageId])
 
+    useEffect(() => {
+      if (storyPagesLength == completedPagesArray.length){
+        dispatch(setStoryComplete(true))
+      }
+    }, [storyPagesLength, completedPagesArray])
+
     const viewPage = () => {
-      console.log('this is button id', page.data.buttonMessageId)
-      dispatch(setRightPageLoading(page.data.rightPageLoading))
+      console.log('this must be something to do with index = 0', index)
+      if (page.data.midjourneyInitialRequestResponse){
+        dispatch(setMidjourneyInitialRequestResponse(page.data.midjourneyInitialRequestResponse))
+      }
+      if (!page.data.midjourneyInitialRequestResponse){
+        dispatch(setMidjourneyInitialRequestResponse(false))
+      }
+  
+      if (!page.data.rightPageLoading){
+        dispatch(setRightPageLoading(false))
+      }
+      else if (page.data.rightPageLoading){
+        dispatch(setRightPageLoading(true))
+      }
       if (page.data.tailwindTextColor){
         dispatch(setTextColor(page.data.tailwindTextColor))
       }
-      console.log('INDEX === viewoage', index)
-      dispatch(setButtonId(page.data.buttonMessageId))
+        if (page.data.page && !page.data.text){
+          dispatch(setText(page.data.page))
+          console.log('PAGE +++> ', page.data.page)
+        }
+        else if (page.data.text){
+          dispatch(setText(page.data.text))
+        }
+          dispatch(setButtonId(page.data.buttonMessageId))
+          if (!page.data.smallRoundImageUrl){
+            dispatch(setSmallImageUrl(null))
+          }
           dispatch(setSmallImageUrl(page.data.smallRoundImageUrl))
           dispatch(setSmallImageButtonId(page.data.smallImageButtonId))
           dispatch(setImprovedSmallImageUrl(page.data.improvedSmallImageUrl))
           dispatch(setImprovedImageButtonId(page.data.improvedImageButtonMessageId))
-          // dispatch(setFinalImageUrl(page.data.finalImage_undefined))
+          if (!page.data.finalSmallImageUrl){
+            dispatch(setFinalSmallImageUrl(null))
+          }
+          dispatch(setFinalSmallImageUrl(page.data.finalSmallImageUrl))
           dispatch(setFinalImageUrl(page.data.finalImageUrl))
           dispatch(setImageUrl(page.data.imageUrl))
           dispatch(setImprovedImageUrl(page.data.improvedImageUrl))
@@ -77,43 +111,25 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
           dispatch(setImagePrompt(page.data.details))
           dispatch(setFirstImagePromptIdea(page.data.firstImagePromptIdea))
 
-        if (index == 0){
-          console.log('INDEX === 0', index)
-          dispatch(setName('CoverPage'))
-          dispatch(setEditBarType('editCover'))
-          dispatch(setImageUrl(page.data.imageUrl))
-          dispatch(setButtonId(page.data.buttonMessageId))
-        }
-        if (index !== 0){
-          console.log('INDEX !== 0', index)
+        // if (index == 0){
+        //   // dispatch(setText(page.data.text))
+        //   dispatch(setName('CoverPage'))
+        //   dispatch(setEditBarType('editCover'))
+        //   dispatch(setImageUrl(page.data.imageUrl))
+        //   dispatch(setButtonId(page.data.buttonMessageId))
+        // }
+
+      
           dispatch(setName('InsidePage'))
           dispatch(setEditBarType('main'))
-        }
-        if (!index){
-          console.log('no idex', index)
-            dispatch(setName('CoverPage'))
-            dispatch(setText(page.data.text))
-            dispatch(setFormattedText(page.data.formattedText))
+       
             dispatch(setId(page.id))
-            dispatch(setImageUrl(page.data.imageUrl))
-            dispatch(setButtonId(page.data.buttonMessageId))
-            if (url) {
-                // dispatch(setImageUrl(url))
-                dispatch(setButtonId(page.data.buttonMessageId))
-                dispatch(setImageUrl(page.data.imageUrl))
-            }
-            if (!url) {
-                // dispatch(setImageUrl(''))
-                dispatch(setButtonId(''))
-                dispatch(setImageUrl(page.data.imageUrl))
-            }
-        }
-        else {
-            dispatch(setId(page.id))
-            dispatch(setText(page.data.text))
+            // dispatch(setText(page.data.text))
             dispatch(setRightPageText(page.data.rightPagetext))
             dispatch(setAudioUrl(page.data.audioUrl))
-            dispatch(setPreviousPageText(previousPage.data.text))
+            if (previousPage){
+              dispatch(setPreviousPageText(previousPage.data.text))
+            }
             dispatch(setNextPageText(previousPage.data.text))
             dispatch(setName('InsidePage'))
             dispatch(setImageUrl(page.data.imageUrl))
@@ -126,7 +142,7 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
                 dispatch(setButtonId(''))
                 dispatch(setImageUrl(page.data.imageUrl))
             }
-        }
+        
      }
 
     useEffect(() => {
@@ -162,65 +178,64 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [page])
 
     useEffect(() => {
-      console.log('what is PAGE ID ==> ', page.id)
+
       if (page.data.finalImageUrl  == undefined || !page.data.text){
-        console.log('we dont have a complete page', page.data.finalImageUrl, page.data.text)
+
         setIncomplete(true)
    
       }
       if (page.data.finalImageUrl && page.data.text){
      
-        setIncomplete(false)
+          setIncomplete(false)
+            console.log('should be adding ', pageId, 'to completed oages')
+            dispatch(setCompletedPages(pageId)) // Add the string to the array
+
 
         onPageComplete(page.id)
         // dispatch(setPagesComplete(pagesComplete + 1))
-
       }
     }, [page, pagesComplete])
 
   
+
+      
     useEffect(() => {
-      console.log(pagesComplete, pageLength)
-        if (pagesComplete == pageLength){
-          dispatch(setStoryComplete(true))
-          // setIncomplete(false)
-        }
-    }, [pageLength, pagesComplete, incomplete])
+      console.log('PAGES COMPLETE', completedPagesArray)
+  }, [completedPagesArray])
 
 return (
-  <div className={`transition-all duration-500 ease-in-out transform hover:scale-110 group ml-8 ${incomplete ? 'bg-purple-500' : 'bg-purple-300'} `}>
-    <button
-      className={`w-24 h-18 mx-auto my-auto p-2 text-center bg-purple-300 hover:bg-purple-400 ${
-        active ? 'bg-purple-600' : 'bg-purple-300'
-      } transition-colors duration-200 rounded-sm shadow-lg`}
-      onClick={viewPage}
-    >
-      <div className={`flex space-x-1 p-2 border-2 border-transparent transition-all duration-200 ${active ? 'border-purple-700' : ''}`}>
-        <div className="w-8 h-8 border border-gray-200 bg-white rounded-sm shadow-md flex items-center justify-center">
-          {index !== null && page.data && page.data.page !== '' && <p className="text-gray-400">...</p>}
-        </div>
 
-        {index !== null && (
-          <div className="w-8 h-8 border border-gray-200 bg-white rounded-sm shadow-md relative">
-            {page.data.imageUrl && !page.data.finalImageUrl && (
-              <Image src={page.data.imageUrl} alt="/" fill className="rounded-lg" />
-            )}
-                {page.data.finalImageUrl && (
-              <Image src={page.data.finalImageUrl} alt="/" fill className="rounded-lg" />
-            )}
-          </div>
-        )}
+<div className={`transition-transform duration-500 ease-in-out transform hover:scale-110 group ${active ? 'bg-purple-500' : 'bg-purple-300'}`}>
+  <button
+    onClick={viewPage}
+    className={`flex flex-col justify-center items-center w-full h-18 mx-auto p-2 text-center ${active ? 'bg-purple-600' : 'bg-purple-300'} hover:bg-purple-400 transition-colors duration-200 rounded-sm`}
+  >
+    <div className={`flex space-x-1 p-2 border-2 border-transparent transition-all duration-200 ${active ? 'border-purple-700' : ''}`}>
+      <div className="flex items-center justify-center w-8 h-8 border border-gray-200 bg-white rounded-sm">
+        {index !== null && page.data && page.data.page !== '' && <p className="text-gray-400">...</p>}
       </div>
 
-      <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
-        {index == 0 ? title : index}
-      </p>
-      <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
-        {incomplete ? 'stuff missing' : 'complete'}
-      </p>
-    </button>
-  </div>
+      {index !== null && (
+        <div className="relative w-8 h-8 border border-gray-200 bg-white rounded-sm">
+          {page.data.imageUrl && !page.data.finalImageUrl && (
+            <Image src={page.data.imageUrl} alt="/" className="rounded-lg object-fill" fill />
+          )}
+          {page.data.finalImageUrl && (
+            <Image src={page.data.finalImageUrl} alt="/" className="rounded-lg object-fill" fill />
+          )}
+        </div>
+      )}
+    </div>
 
+    <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
+      {/* {index === 0 ? title : index} */}
+      {index + 1}
+    </p>
+    <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
+      {incomplete ? 'stuff missing' : 'complete'}
+    </p>
+  </button>
+</div>
 
 
   )

@@ -10,7 +10,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '../pages/api/auth/[...nextauth]'
 import { Providers } from './GlobalRedux/provider';
 import ClientProvider from '../components/ClientProvider'
-// import NextNProgress from 'nextjs-progressbar';
+import NextNProgress from 'nextjs-progressbar';
 import { 
   Roboto, Mystery_Quest, Caesar_Dressing, Quicksand, Indie_Flower, Amatic_SC, Patrick_Hand,  
 } from "next/font/google"
@@ -38,7 +38,6 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
     const session = await getServerSession(authOptions)
-
 
   return (
     <html lang="en">

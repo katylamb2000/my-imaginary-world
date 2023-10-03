@@ -361,12 +361,12 @@ const wrapText = (text: string, fontSize: number, maxWidth: number, font: PDFFon
       >
         Create PDF
       </button>
-      <button
+      {/* <button
         className="p-4 rounded-lg bg-purple-500 text-white text-center my-6 hover:shadow-xl hover:bg-purple-600"
         onClick={goToGelatoStore}
       >
         Add products
-      </button>
+      </button> */}
     </div>
   );
 };

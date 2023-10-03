@@ -47,7 +47,9 @@ export interface PageToEditSlice {
     titleColor: string,
     titleSize: string, 
     improvedSmallImageUrl: string | null,
-    rightPageLoading: boolean
+    rightPageLoading: boolean, 
+    midjourneyInitialRequestResponse: boolean,
+    finalSmallImageUrl: string | null
   
 }
 
@@ -93,10 +95,12 @@ const initialState: PageToEditSlice = {
     rightPageText: null,
     smallImageButtonId: null,
     improvedImageButtonId: null,
-    titleColor: 'text-white',
+    titleColor: 'text-gray-600',
     titleSize: 'text-5xl', 
     improvedSmallImageUrl: null,
-    rightPageLoading: false
+    rightPageLoading: false, 
+    midjourneyInitialRequestResponse: false,
+    finalSmallImageUrl: null
 }
 
 export const PageToEditSlice = createSlice({
@@ -238,6 +242,12 @@ export const PageToEditSlice = createSlice({
         setRightPageLoading: (state, action) => {
             state.rightPageLoading = action.payload
         },
+        setMidjourneyInitialRequestResponse: (state, action) => {
+            state.midjourneyInitialRequestResponse = action.payload
+        },
+        setFinalSmallImageUrl: (state, action) => {
+            state.finalSmallImageUrl = action.payload
+        }
      
     }
 });
@@ -248,7 +258,8 @@ export const {
     setBackgroundIdea, setObjectIdea, setFont, setLineSpacing, setAlignment, setShowLayoutScrollbar, setEditBarType, setEditStage, 
     setbuttonMsgId, setImagePrompt, setFirstImagePromptIdea, setImprovedImageUrl, setShowEditTextIcon, setShowInputBox, setImageRequestSent,
     setFinalImageUrl, setSignatureTextSize, setSignatureLineOne, setSignatureLineTwo, setSignatureTextColor, setSmallImageUrl, setSmallImageTop,
-    setRightPageText, setSmallImageButtonId, setImprovedImageButtonId, setTitleColor, setTitleSize, setImprovedSmallImageUrl, setRightPageLoading
+    setRightPageText, setSmallImageButtonId, setImprovedImageButtonId, setTitleColor, setTitleSize, setImprovedSmallImageUrl, setRightPageLoading,
+    setMidjourneyInitialRequestResponse, setFinalSmallImageUrl
 } 
     = PageToEditSlice.actions;
 

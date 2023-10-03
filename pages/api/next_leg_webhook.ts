@@ -58,11 +58,27 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         .doc(page);
 
         // const imagePromptKey = `imagePrompt_${type}`; // Create the dynamic key
-
-  
       await docRef.update({
         // [imagePromptKey]: imageUrl,
         imageUrl: imageUrl,
+        // imagePromptContent: content,
+        buttonMessageId: buttonMessageId,
+        // buttons: buttons
+      });
+     }
+
+     if (action === 'imagineCoverImage') {
+      const docRef = adminDb
+        .collection('users')
+        .doc(userId)
+        .collection('storys')
+        .doc(storyId)
+     
+
+        // const imagePromptKey = `imagePrompt_${type}`; // Create the dynamic key
+      await docRef.update({
+        // [imagePromptKey]: imageUrl,
+        coverImageUrl: imageUrl,
         // imagePromptContent: content,
         buttonMessageId: buttonMessageId,
         // buttons: buttons

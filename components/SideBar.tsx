@@ -20,7 +20,7 @@ function SideBar() {
   }, [show])
 
   return (
-    <div className="bg-white h-screen ml-2 mr-8 drop-shadow-2xl">
+    <div className="bg-white h-screen ml-2 mr-8 drop-shadow-2xl w-full">
       
       {show == 'main' && (
           <EditPageBar />
@@ -45,6 +45,11 @@ function SideBar() {
       {show == 'improveRightImage' && (
         <ImproveImageSideBar />
       )} 
+
+{show == 'improveLeftImage' && (
+        <ImproveImageSideBar />
+      )} 
+
 
     </div>
   )

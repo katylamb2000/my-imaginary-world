@@ -7,10 +7,11 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { RootState } from "../app/GlobalRedux/store";
 import { useSelector, useDispatch } from "react-redux";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice";
+import { setAudioUrl, setEditBarType } from "../app/GlobalRedux/Features/pageToEditSlice";
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
+import ImageUpscaleChoiceGrid from "./ImageUpscaleChoiceGrid";
 
 type StoryItem = {
     name: string;
@@ -28,11 +29,21 @@ function ImproveImageSideBar() {
     const rightPageText = useSelector((state: RootState) => state.pageToEdit.rightPageText)
     const firstImagePrompt = useSelector((state: RootState) => state.pageToEdit.firstImagePromptIdea)
     const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name)
-    const image = useSelector((state: RootState) => state.pageToEdit.editBarType)
     const editBarType = useSelector((state: RootState) => state.pageToEdit.editBarType)
+
+    const mainImageChoices = useSelector((state: RootState) => state.pageToEdit.imageUrl)
+    const improvedMainImageChoices = useSelector((state: RootState) => state.pageToEdit.improvedImageUrl)
+    const finalMainImage = useSelector((state: RootState) => state.pageToEdit.finalImageUrl)
+
+    const smallImageChoices = useSelector((state: RootState) => state.pageToEdit.smallImageUrl)
+    const improvedSmallImageChoices = useSelector((state: RootState) => state.pageToEdit.improvedSmallImageUrl)
+    const finalSmallImage = useSelector((state: RootState) => state.pageToEdit.finalSmallImageUrl)
+
     const [messageSent, setMessageSent] = useState(false)
     const [userFeedback, setUserFeedback] = useState<string>('')
-    console.log(image, storyBuilderActive)
+    const [url, setUrl] = useState<string | null>(null)
+    const [imageType, setImageType] = useState<string | null>(null)
+
     const goBack = () => {
         console.log('go back ===>', storyBuilderActive)
         console.log('go back ===>', editBarType)
@@ -45,37 +56,65 @@ function ImproveImageSideBar() {
         if (pageId !== 'page_1'){
             dispatch(setEditBarType('main'))
             dispatch(setName('InsidePage'))
-        }
-        // if (storyBuilderActive){            
-            // setShowAddSignature(true)
-            // setShowEditFont(true)
-            // setShowGetImageIdeas(true)
-            // setShowGetTitleSuggestions(true)
-            // setShowWorkOnTitle(true)
-        // }else {
-            // dispatch(setEditBarType('main'))
-            // dispatch(setName('InsidePage'))
-      
+        }   
     }
 
+    useEffect(() => {
+        console.log('story builder active ====>,', storyBuilderActive, '1', mainImageChoices, '2', improvedMainImageChoices, '3',  finalMainImage, '4', smallImageChoices, '5', improvedSmallImageChoices, '6',  finalSmallImage)
+        if (storyBuilderActive == 'improveLeftImage') {
+            if (!finalSmallImage && !improvedSmallImageChoices && smallImageChoices){
+                setUrl(smallImageChoices)
+                setImageType('smallImageChoices')
+            }
+            else if (!finalSmallImage && improvedSmallImageChoices){
+                setUrl(improvedSmallImageChoices)
+                setImageType('improvedSmallImageChoices')
+            }
+            else if (finalSmallImage){
+                setUrl(finalSmallImage)
+                setImageType('finalSmallImage')
+            }
+        }
+        if (storyBuilderActive == 'improveRightImage') {
+            if (!finalMainImage && !improvedMainImageChoices && mainImageChoices){
+                setUrl(mainImageChoices)
+                setImageType('mainImageChoices')
+            }
+            else if (!finalMainImage && improvedMainImageChoices){
+                setUrl(improvedMainImageChoices)
+                setImageType('improvedMainImageChoices')
+            }
+            else if (finalMainImage){
+                setUrl(finalMainImage)
+                setImageType('finalMainImage')
+            }
+        }
+        if (storyBuilderActive == 'CoverPage') {
+            if (!finalMainImage && !improvedMainImageChoices && mainImageChoices){
+                setUrl(mainImageChoices)
+                setImageType('mainImageChoices')
+            }
+            else if (!finalMainImage && improvedMainImageChoices){
+                setUrl(improvedMainImageChoices)
+                setImageType('improvedMainImageChoices')
+            }
+            else if (finalMainImage){
+                setUrl(finalMainImage)
+                setImageType('finalMainImage')
+            }
+        }
+    }, [storyBuilderActive, mainImageChoices, improvedMainImageChoices, finalMainImage, smallImageChoices, improvedSmallImageChoices, finalSmallImage ])
+
     const getImprovedImagePrompt = async() => {
-
-
-
         const characters = JSON.stringify(charactersArray);
-
-
         // Parse the string into an array of objects
         const data = JSON.parse(characters);
-        
         // Convert the array of objects into the desired string format
-    
         const resultString = data.map((item: StoryItem) => {
             return `${item.name.slice(0, -1)}: ${item.description}`;
           }).join(', ');
         
         console.log(resultString);
-
         console.log(characters);
         const prompt = `I am using a A.I. image generator to create images for a childrens illustrated story book. 
         You previously generated this prompt: 
@@ -110,14 +149,19 @@ function ImproveImageSideBar() {
     }
 
     return (
-        <div className="bg-gray-100 h-screen ml-2 mr-8 overflow-y-scroll p-6 shadow-lg rounded-lg">
+        <div className="bg-gray-100 h-screen ml-2 mr-8 overflow-y-scroll p-6 shadow-lg rounded-lg w-full">
 
             <div className='w-full'>
 
                 <div className='flex items-center space-x-4 text-purple-500 py-4 hover:bg-gray-200 p-2 rounded-md transition-all duration-200 cursor-pointer' onClick={goBack}>
                     <BackwardIcon className="h-8 w-8 text-purple-600 hover:text-purple-400 transition-colors duration-200" />
-                    <span className="font-semibold text-lg">Go back</span>
+                    {/* <span className="font-semibold text-lg">Go back</span> */}
+                    <span> <h2 className="text-4xl"> Improve Image </h2></span>
                 </div>
+            {/* {!finalImageUrl} */}
+                <p>IMage type: {imageType}</p>
+                <ImageUpscaleChoiceGrid />
+
         {messageSent == false ? (
             <>
             <h2 className='text-purple-500 font-bold text-xl py-4 border-b border-gray-300 pb-2 mb-4'>What are your thoughts on these image choices?</h2>

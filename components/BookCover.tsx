@@ -6,15 +6,16 @@ import Image from 'next/image';
 import { useSelector, useDispatch } from 'react-redux';
 import { useSession } from 'next-auth/react';
 import { RootState } from '../app/GlobalRedux/store';
-import { setText, setId, setShowInputBox } from '../app/GlobalRedux/Features/pageToEditSlice';
+import { setText, setId, setShowInputBox, setEditBarType } from '../app/GlobalRedux/Features/pageToEditSlice';
 import { updateModalStatus } from '../app/GlobalRedux/Features/improveImagesModalSlice';
-import { setStoryId } from '../app/GlobalRedux/Features/viewStorySlice';
+import { setSelectedTitle, setStoryId } from '../app/GlobalRedux/Features/viewStorySlice';
 import { usePathname } from 'next/navigation';
 import { CheckCircleIcon } from '@heroicons/react/24/outline';
-import { CheckCircleIcon as CheckDone } from '@heroicons/react/24/solid';
+import { ArrowDownCircleIcon, CheckCircleIcon as CheckDone } from '@heroicons/react/24/solid';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import NextImageModal from './NextImageModal';
+import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice';
 
 function BookCover() {
   const dispatch = useDispatch();
@@ -33,15 +34,18 @@ function BookCover() {
   const buttonId = useSelector((state: RootState) => state.pageToEdit.buttonId);
   const [currentStoryId, setCurrentStoryId] = useState<string | null>();
   const showInputBox = useSelector((state: RootState) => state.pageToEdit.showInputBox);
-
+  const titleIdeas = useSelector((state: RootState) => state.viewStory.titleIdeas)
   const signatureLineOne = useSelector((state: RootState) => state.pageToEdit.signatureLineOne)
   const signatureLineTwo = useSelector((state: RootState) => state.pageToEdit.signatureLineTwo)
 
   const [title, setTitle] = useState('')
   const [showGrid, setShowGrid] = useState(false)
   const [url, setUrl] = useState<string | null>(null)
+  const [introduction, setIntroduction] = useState()
+  const [titleSuggestions, setTitleSuggestions] = useState<any>(null)
 
   const [titleUpdated, setTitleUpdated] = useState<boolean>(false);
+  const [suggestionIndex, setSuggestionIndex] = useState<number>(0)
   const storyId = useSelector((state: RootState) => state.viewStory.storyId);
   const { data: session } = useSession();
   const [currentQuadrant, setCurrentQuadrant] = useState(1);
@@ -66,15 +70,16 @@ function BookCover() {
       }
   }, [imageUrl, finalImageUrl, improvedImageUrl])
 
-  useEffect(() => {
-    if (!storyTitle && !pageText) return;
-    if (storyTitle){ 
-      setTitle(storyTitle)
-    }
-    else if (!storyTitle && pageText){
-      setTitle(pageText)
-    }
-  }, [pageText, storyTitle])
+  // useEffect(() => {
+  //   console.log(storyTitle, pageText)
+  //   if (!storyTitle && !pageText) return;
+  //   if (storyTitle){ 
+  //     setTitle(storyTitle)
+  //   }
+  //   else if (!storyTitle && pageText){
+  //     setTitle(pageText)
+  //   }
+  // }, [pageText, storyTitle])
 
   useEffect(() => {
     if (!pathname) return;
@@ -151,6 +156,11 @@ function BookCover() {
     dispatch(setShowInputBox(true))
   }
 
+  const editMainImage = () => {
+    dispatch(setName('improveRightImage'))
+    dispatch(setEditBarType('improveRightImage'))
+  }
+
   const saveTitle = async() => {
     try{ 
       if (!storyId) return;
@@ -166,10 +176,95 @@ function BookCover() {
     }
   }
 
+  const editTitle = () => {
+
+  }
+
+//   useEffect(() => {
+//     if (titleIdeas) {
+//     const suggestionArray = titleIdeas.match(/(\d\..*?)(?=\d\.|$)/gs);
+
+//     if (suggestionArray) {
+//         setTitleSuggestions(suggestionArray.map(suggestion => suggestion.trim()));
+//     }
+//     }
+// }, [titleIdeas]);
+
+useEffect(() => {
+  if (titleIdeas) {
+      const suggestionArray = titleIdeas.match(/(\d\..*?)(?=\d\.|$)/gs);
+
+      if (suggestionArray) {
+          const cleanedSuggestions = suggestionArray.map(suggestion => {
+              // Remove the starting number and dot (e.g., "0. ")
+              const withoutNumber = suggestion.replace(/^\d\.\s*/, "");
+              
+              // Remove comma at the end, if it exists
+              const cleanedSuggestion = withoutNumber.replace(/,$/, "").trim();
+
+              return cleanedSuggestion;
+          });
+
+          setTitleSuggestions(cleanedSuggestions);
+      }
+  }
+}, [titleIdeas]);
+
+
+
+const goToNextSuggestion = () => {
+  if (suggestionIndex !== 9){
+    setSuggestionIndex(suggestionIndex + 1)
+  }
+ else if (suggestionIndex == 9){
+  setSuggestionIndex(0)
+ }
+}
+
+useEffect(() => {
+  if (!titleSuggestions) return;
+  dispatch(setSelectedTitle(titleSuggestions[suggestionIndex]))
+}, [titleSuggestions])
+
+
+
   return (
     <div className='bg-gray-50 h-full w-full justify-center overscroll-none'>
       <div className="border-2 border-gray-300 border-dashed h-[600px] w-[600px] bg-white drop-shadow-md text-center items-center relative mt-6 ">
-        {showInputBox === false ? (
+        
+        {/* <h1 className={`${textSize} font-bold font-roboto ${textColor} mx-auto my-auto relative z-20 cursor-pointer`} */}
+        {!titleIdeas && (
+          <button onClick={editTitle}>
+            <h1 className={`${textSize} font-bold font-roboto ${textColor} mx-auto my-auto relative z-20 cursor-pointer`}
+
+                style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+                // onClick={editText}
+                >
+                {storyTitle || 'No Title yet'}
+              </h1>
+            </button>
+        )}
+
+        {/* {titleSuggestions && titleSuggestions.map((suggestion: string) => (
+            <div className='h-1/2 w-full overflow-y-scroll '> 
+                {suggestion}
+            </div>
+        ))} */}
+
+        {titleSuggestions && (
+            <button className='flex' onClick={goToNextSuggestion}> 
+                <p className={`${textSize} font-bold font-roboto ${textColor} mx-auto my-auto relative z-20 cursor-pointer`}
+                  style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+                  >{titleSuggestions[suggestionIndex]}
+                </p>
+                {/* <button className='' onClick={goToNextSuggestion}>
+                  <ArrowDownCircleIcon className='h-5 w-5 bg-purple-500' />
+                </button> */}
+       
+            </button>
+        )}
+
+        {/* {showInputBox === false ? (
           <h1 className={`${textSize} font-bold font-roboto ${textColor} mx-auto my-auto relative z-20 cursor-pointer`}
             style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
             // onClick={editText}
@@ -177,10 +272,10 @@ function BookCover() {
             {title}
           </h1>
         ) : (
-          <div className='mx-auto my-[250px] z-20 cursor-pointer flex items-center justify-center'>
+          <div className='mx-auto z-20 cursor-pointer flex items-center justify-center bg-gray-300'>
             <textarea
               placeholder={title || 'title'}
-              className={`placeholder:text-4xl placeholder:font-bold placeholder:${textColor} pl-12 h-96 text-4xl ${textColor} font-bold `}
+              className={`placeholder:text-4xl placeholder:font-bold placeholder:text-gray-800 pl-12 h-96 text-4xl ${textColor} font-bold `}
               value={title}
               onChange={(e) => dispatch(setText(e.target.value))}
             />
@@ -190,7 +285,7 @@ function BookCover() {
               <CheckCircleIcon className='text-gray-200 h-8 w-8 hover:text-green-200' onClick={saveTitle} />
             )}
           </div>
-        )}
+        )} */}
 
         {/* {!finalImageUrl && (() => { */}
         {showGrid && (() => {
@@ -222,6 +317,16 @@ function BookCover() {
             />
           );
         })()}
+
+        {url && (
+     
+            <div className="h-full w-full relative bg-gray-100">
+              <button className='w-full h-full cursor-pointer' onClick={editMainImage}>
+            <Image className="w-full h-full z-10" fill src={url} alt='/' />
+            </button>
+          </div>
+     
+        )}
 
       <div className='w-full h-24 items-center absolute bottom-3 '>
           <p className={`mx-auto my-auto ${signatureTextSize} ${signatureTextColor}`}>

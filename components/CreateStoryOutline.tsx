@@ -46,7 +46,8 @@ type Prompt = {
   user?: { name: string; email: string; image: string };
 };
 
-function CreateStoryOutline({ characters  }: Props) {
+function CreateStoryOutline({ characters }: Props) {
+  const story = useSelector((state: RootState) => state.viewStory.fullStory)
   // const [storyContent, setStoryContent] = useState<null | string>(null)
   const [title, setTitle] = useState<null | string>(null)
   const [heroCharacterId, setHeroCharacterId] = useState<null | string>(null)
@@ -68,7 +69,12 @@ function CreateStoryOutline({ characters  }: Props) {
   const [storyId, setStoryId] = useState<null | string>(null)
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false)
+  const [getAiToGenerateCharacter, setgetAiToGenerateCharacter] = useState(false)
   let [color, setColor] = useState("#ffffff");
+
+  // const storyCharacters = useSelector((state: RootState) => state.viewStory.storyCharacters)
+
+  const [extractedCharacters, setExtractedCharacters] = useState()
 //   const story = useSelector((state: RootState) => state.story.story)
 //   const storyID = useSelector((state: RootState) =>  state.story.storyID);
   const model = 'text-davinci-003';
@@ -78,6 +84,30 @@ function CreateStoryOutline({ characters  }: Props) {
     margin: "0 auto",
     borderColor: "red",
   };
+
+  // useEffect(() => {
+  //   if (!story || !characters.length) return;
+  //   console.log('story characters ===> ', characters)
+  //   let descriptions = characters
+  //   .map(character => `${character.name}: ${character.description}`);
+  //   // return descriptions.join(' ');
+  //   const charctersDescriptions = descriptions.join(' ');
+  //   console.log(charctersDescriptions)
+  //   setExtractedCharacters(charctersDescriptions)
+  // }, [story, characters])
+
+  useEffect(() => {
+    if (!pathname) return;
+    const regex = /^\/story\/([a-zA-Z0-9]+)$/;
+    const id = regex.exec(pathname);
+
+    if (id) {
+      const identifier = id[1];
+      setStoryId(identifier);
+    } else {
+      console.log("No match");
+    }
+  }, [pathname]);
 
   useEffect(() => {
       if (!heroCharacter) return;
@@ -151,10 +181,10 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         setLoading(false)
    
       }
-    }
-    const createStory = async() => {
-      const notification = toast.loading('Hang tight! Your story is being written!')
+  }
 
+  const createStory = async() => {
+    const notification = toast.loading('Hang tight! Your story is being written!')
         try{
 
           const storyPrompt = `Create a 14 page adventurous and humorous ${genre} story that will captivate a ${age} years old child. The story should embody the whimsical nature of ${style}, be set in the fantastic world of ${setting}, and incorporate ${favouriteThings} as key elements to generate fun and laughter.
@@ -193,8 +223,8 @@ if (response.status == 200) {
 if (response)
 console.log('RESPONSE', response)
 setLoading(false)
-
-dispatch(setName('view story'))
+// handleGetImageIdeas()
+// dispatch(setName('view story'))
 // getImagePrompts()
 }catch(err){
   toast.error('FAIL', {
@@ -204,6 +234,70 @@ dispatch(setName('view story'))
     setLoading(false)
     console.log(err)
   }
+}
+
+useEffect(() => {
+  console.log('STORY ** STORY ++>', story)
+  // if (story){
+  //   handleGetImageIdeas()
+  // }
+}, [story])
+
+
+useEffect(() => {
+
+  if (story){
+    console.log('we have a story ++++>>>> ** STORY ++>', story)
+    handleGetImageIdeas()
+  }
+}, [story])
+
+const handleGetImageIdeas = async() => {
+  if (!session || !storyId) return;
+  console.log(session, "STORYID",  storyId)
+  setLoading(true)
+  // const extractedCharacters = extractCharactersFromStory();
+  const imageDescriptionsPrompt = 
+  `
+  Given the story: ${story}, generate an image prompts for each page of this illustrated children's storybook. 
+
+  Use this example prompt as a template for how a prompt should be written. Ignore the prompt content, this is just an example: cartoon illustration of a boy being teased by a giant gorilla, in the style of whimsical children's book illustrator, strong color contrasts, dark azure and gray, the vancouver school, detailed character illustrations, manticore, sony alpha a1 -
+ 
+  You must describe the camera angles and color palette to be used for each image Also, suggest an artistic style that complements the story's mood and setting for each page.
+
+  The characters must remain consistent in appearance throughout the book: 
+
+  ${getAiToGenerateCharacter ? "create any characters you think would be appealing to our reader" :   `Characters: ${extractedCharacters}` }
+
+  the style must be consistent throughout the book. the style to reference is: ${style}
+
+  each prompt is read by the ai in isolation so any reference to style or characters must be in each individual prompt. 
+
+  This prompt is for a children's story book, so think about exciting and engaging images for each page, not boring or same same. 
+  `;
+  
+try{
+const response = await fetch('/api/createStoryImagePrompts', {
+    method: 'POST', 
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        // promptType: 'backgroundImages', 
+        promptType: 'firstImageIdeas', 
+        prompt: imageDescriptionsPrompt,
+        session: session,
+        storyId: storyId, 
+
+    }),
+})
+console.log('response from api', response)
+setLoading(false)
+dispatch(setName('view story'))
+}catch(err){
+console.log(err)
+setLoading(false)
+}
 }
 
 const getImagePrompts = async() => {
@@ -250,7 +344,8 @@ const getImagePrompts = async() => {
                 },
                 body: JSON.stringify({
                   prompt: imagePromptsPrompt, 
-                  model: 'text-davinci-003', 
+                  // model: 'text-davinci-003', 
+                  model: 'gpt-4',
                   session,
                   storyId: storyId
                 }),
@@ -269,9 +364,17 @@ useEffect(() => {
   // updateStoryTitle()
 }, [title])
 
+const createFirstCharcter = () => {
+  dispatch(setName('showCreateCharacterForm'))
+}
+
+const getAiToGenerateHeroCharacter = () => {
+  setgetAiToGenerateCharacter(true)
+}
+
 
   return (
-    <div className="bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4">
+    <div className="w-screen bg-gradient-to-r from-purple-600 to-blue-600 min-h-screen flex items-center justify-center px-4">
     {/* {
     storyContent &&
     storyContent!.docs.length > 0 ? (
@@ -306,18 +409,31 @@ useEffect(() => {
           </div>
         </div>
         
+    {characters.length > 0 && (
+       <select
+       className="appearance-none rounded-none relative block w-full px-3 py-2 mt-1 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm border-gray-300"
+       onChange={(e) => setHeroCharacterId(e.target.value)}
+     >
+       <option value="">Select a hero character</option>
+       {characters && characters.map((character: Character) => (
+         <option key={character.id} value={character.id}>
+           {character.name}
+         </option>
+       
+       ))}
+          <option key='createNewCharacter' value={'createNewCharacter'}>
+               Create a new characters
+             </option>
 
-        <select
-            className="appearance-none rounded-none relative block w-full px-3 py-2 mt-1 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm border-gray-300"
-            onChange={(e) => setHeroCharacterId(e.target.value)}
-          >
-            <option value="">Select a hero character</option>
-            {characters && characters.map((character: Character) => (
-              <option key={character.id} value={character.id}>
-                {character.name}
-              </option>
-            ))}
-          </select>
+             <option key='aiCreateNewCharacter' value={'createNewCharacter'}>
+               Let AI create all the characters.
+             </option>
+     </select>
+        )}
+
+
+        
+ 
 
         <div className="rounded-md shadow-sm -space-y-px">
           <div>
@@ -413,7 +529,18 @@ useEffect(() => {
               </button>
             </div>
             </form>
-
+      {/* {characters.length == 0 && ( */}
+        <div className='flex space-x-4'>
+          <button 
+              onClick={createFirstCharcter}
+              className='bg-purple-500 p-4 text-white rounded-lg hover:bg-white hover:text-purple-500 hover:shadow-xl'>
+              Create a hero character
+          </button>
+          <button 
+              onClick={getAiToGenerateHeroCharacter}
+              className='bg-purple-500 p-4 text-white rounded-lg hover:bg-white hover:text-purple-500 hover:shadow-xl'>create a hero for me.</button>
+        </div>
+      {/* )} */}
           </div>
 {/* } */}
 
