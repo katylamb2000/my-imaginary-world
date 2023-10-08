@@ -30,13 +30,11 @@ function EditTextTopBar({ fontSize, pageId }: Props) {
       }, [pathname])
 
     useEffect(() => {
-        console.log("thisuse effect insnt firing!")
         updateFontSize()
     }, [newFontSize])
 
     const updateFontSize = async() => {
         // if (!storyId || !selectedPageId || !selectedPageId) return;
-        console.log('in update', pageId, session?.user?.email, storyId )
         if (!storyId || !pageId) return;
     
         try{
@@ -44,7 +42,6 @@ function EditTextTopBar({ fontSize, pageId }: Props) {
             const updated = await updateDoc(docRef, {
               fontSize: newFontSize
             });
-            console.log('updated page fontsize:', updated)
         }catch(err){
             console.log(err)
         }

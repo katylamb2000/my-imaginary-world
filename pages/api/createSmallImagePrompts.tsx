@@ -137,7 +137,7 @@ export default async function createSmallImagePrompts(
 // }
 
 try {
-  const response = await imageQuery(prompt);
+  const response = await imageQuery(prompt, promptType);
 
   if (!response.data?.pages) {
     throw new Error("Received invalid data from the imageQuery");

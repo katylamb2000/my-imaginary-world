@@ -34,7 +34,6 @@ function HomePage() {
     const dispatch = useDispatch()
     const { data: session } = useSession()
 
-    console.log('CHARACTERS', characters)
 
     const [charactersSnapshot, characterLoading, characterError] = useCollection(
       session && collection(db, 'users', session?.user?.email!, 'characters'),
@@ -51,7 +50,6 @@ function HomePage() {
         name: doc.data().name,
         description: `${doc.data().name} is a ${doc.data().age} year old ${doc.data().gender}. They have ${doc.data().hairColor} ${doc.data().hairStyle} hair, ${doc.data().eyeColor} eyes. They are wearing ${doc.data().clothing}. And they are of ${doc.data().skinColor}`,
       }));
-      console.log(derivedCharacters)
       dispatch(addCharacters(derivedCharacters));
     }, [charactersSnapshot]);
     
@@ -61,16 +59,10 @@ function HomePage() {
           createdAt: serverTimestamp(), 
           fullImagePrompt: null
       });
-      // if (characters.length){
-      //   console.log('characters ==> ', characters)
-      //   dispatch(setName('create story outline'))
-      //   router.push(`/story/${doc.id}`)
-      // }
-      // else if (!characters.length){
-      //   console.log('first we need to create a character. ')
+
         dispatch(setName('create story outline'))
         router.push(`/story/${doc.id}`)
-      // }
+
     }
 
     const createFirstCharacter = async() => {
@@ -93,7 +85,6 @@ function HomePage() {
     );
 
     useEffect(() => {
-      console.log('checking if subscriber', user?.data())
       const username = user?.data()?.userName;
       const subscriber  = user?.data()?.subsciber
       if (!user) return;
@@ -114,7 +105,7 @@ return (
         const mappedStory: Story = {
           id: story.id,
           image: storyData.image || '',
-          thumbnail: storyData.thumbNail || null,
+          thumbnail: storyData.thumbNail || storyData.coverImageUrl ||null,
           baseImagePrompt: storyData.baseImagePrompt || '',
           title: storyData.title || '',
           baseImagePromptCreated: storyData.baseImagePromptCreated || false,
@@ -141,12 +132,12 @@ return (
       </button>
 } */}
 
-    <button
+    {/* <button
         className='w-48 h-48 rounded-sm bg-purple-500 hover:bg-purple-300 flex items-center justify-center text-2xl font-bold transition-colors duration-200'
         onClick={createNewStory}
       >
           Start a new story
-    </button>
+    </button> */}
 </div>
 
 

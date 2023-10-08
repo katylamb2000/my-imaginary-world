@@ -43,7 +43,6 @@ function Story({ story, storyId, storyContentId, imagePrompts,   storyBaseImageP
     useEffect(() => {
       let imgs: string[] = [];
       if (!images) return;
-      console.log(images.docs)
       images.docs.map(image => {
           imgs.push(image.data().data.images[0].uri)
       })
@@ -64,7 +63,7 @@ useEffect(() => {
   pages.map((page: string, index: number) => {
 
     let newPage = page.replace(new RegExp(`^Page : ${index} `, 'i'), "");
-    // console.log(newPage)
+
   })
   
  
@@ -130,7 +129,6 @@ const generatePrompts = async () => {
      }
           
   const editPageContent = (page: string, index: number) => {
-    console.log('this is page', page, index)
     setAddInput(true)
     setIndex(index.toString())
     setText(page)

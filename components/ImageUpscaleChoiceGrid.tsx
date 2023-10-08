@@ -21,23 +21,17 @@ function ImageUpscaleChoiceGrid() {
     })
 
     useEffect(() => {
-        console.log(whichImage)
         if (whichImage == 'improveLeftImage'){
-            console.log('SMALL IMAGE ')
             setAction('upscaleSmallImage')
             setBtnId(smallbuttonId)
         }
         if (whichImage == 'improveRightImage'){
-            console.log('Main IMAGE ')
             setAction('upscale')
             setBtnId(mainButtonId)
         }
     }, [whichImage])
 
     const upscale = async(btn: string) => {
-        console.log(btn)
-        console.log(smallbuttonId)
-    
     var data = JSON.stringify({
       button: btn,
       buttonMessageId: btnId ,

@@ -46,6 +46,39 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
               improvedImageButtons: buttons
             });
           }
+
+          if (action === 'improveImagePrompt') {
+            const docRef = adminDb
+              .collection('users')
+              .doc(userId)
+              .collection('storys')
+              .doc(storyId)
+              .collection('storyContent')
+              .doc(page);
+    
+              await docRef.update({
+                improvedImageUrl: imageUrl,
+                imagePromptContent: content,
+                improvedImageButtonMessageId: buttonMessageId,
+                improvedImageButtons: buttons
+              });
+            }
+
+          if (action === 'improveCoverImage') {
+            const docRef = adminDb
+              .collection('users')
+              .doc(userId)
+              .collection('storys')
+              .doc(storyId)
+           
+    
+              await docRef.update({
+                improvedImageUrl: imageUrl,
+                imagePromptContent: content,
+                improvedImageButtonMessageId: buttonMessageId,
+                improvedImageButtons: buttons
+              });
+            }
         
 
     if (action === 'imagine') {

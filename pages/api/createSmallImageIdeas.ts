@@ -24,16 +24,12 @@ export default async function createStoryImagePrompts(
       return;
     }
   
-    const response = await imageQuery(prompt);
+    const response = await imageQuery(prompt, promptType);
   
     const pagesArray = response.data?.pages || [];
     const pageDetails: PageDetail[] = [];
   
     let currentPageDetail: PageDetail | null = null;
-  
- // ... (other code)
-
-// ... (other code)
 
 for (const page of pagesArray) {
     const trimmedPage = page.trim();

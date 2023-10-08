@@ -37,8 +37,6 @@ function ImageGridButtons({ nextImage, lastImage, selectImage , setShowGrid, sho
   }
 
   const upscaleChosenImage = async(button: string) => {
-
-console.log('Button', button, buttonId, btnId)
     var data = JSON.stringify({
       button: btnId,
       buttonMessageId: buttonId ,
@@ -57,7 +55,7 @@ console.log('Button', button, buttonId, btnId)
     };
     axios(config)
     .then(function (response) {
-      console.log(JSON.stringify(response.data));
+
 
         var num = parseInt(button.replace(/\D/g,''));
 

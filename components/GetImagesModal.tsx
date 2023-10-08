@@ -138,8 +138,6 @@ const handleGetImageBackgrounds = async() => {
         
         The response must be structured into exactly 14 sections, corresponding to the 14 pages of the book. As part of each page's description, also hint at the artistic style, including color palette and overall aesthetic that could best bring this scene to life, considering the story's mood and setting.
     `
-
-
 ;
     
 try{
@@ -213,7 +211,7 @@ try{
                             <img src="https://firebasestorage.googleapis.com/v0/b/my-imaginary-world-b5705.appspot.com/o/aiAvatar.PNG?alt=media&token=204b1d94-f30b-4c3c-8a81-101d57673aa7" className="h-28 w-28 mx-auto my-5" />
               
 
-                            <h1>On this modal i want to chat with gpt about image ideas, whether there shold be one image or multiple. What size they should be etc. Once the image idea is agreed on the ai should create an image prompt and send it to midjourney.  Amd then work with ai to improve images if they are not right.  </h1>
+                            <h1>On this modal i want to chat with gpt about image ideas, whether there shold be one image or multiple. What size they should be etc. Once the image idea is agreed on the ai should create an image prompt and send it to midjourney.  And then work with ai to improve images if they are not right.  </h1>
                 {!loading && (
                             <button 
                             className="py-2 px-4 bg-green-500 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"

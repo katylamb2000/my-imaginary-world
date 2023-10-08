@@ -36,9 +36,6 @@ function EditSignatureBox() {
         dispatch(setEditBarType('main'))
     }
 
-    useEffect(() => {
-        console.log('save font size to db', fontSizeSaved)
-    },[fontSizeSaved])
 
     useEffect(() => {
       if (!pathname) return;
@@ -84,7 +81,6 @@ function EditSignatureBox() {
           signatureTailwindTextColor: color,
           signatureHexTextColor: hexColor
         });
-        console.log('pageText updated', updatedPage)
       }catch(err){
           console.log(err)
       }

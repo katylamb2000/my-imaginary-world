@@ -43,10 +43,10 @@ function ImproveImageSideBar() {
     const [userFeedback, setUserFeedback] = useState<string>('')
     const [url, setUrl] = useState<string | null>(null)
     const [imageType, setImageType] = useState<string | null>(null)
+    const [promptType, setPromptType] = useState<string | null>(null)
+    
 
     const goBack = () => {
-        console.log('go back ===>', storyBuilderActive)
-        console.log('go back ===>', editBarType)
         setMessageSent(false)
         if (pageId == 'page_1'){
             dispatch(setEditBarType('editCover'))
@@ -60,7 +60,14 @@ function ImproveImageSideBar() {
     }
 
     useEffect(() => {
-        console.log('story builder active ====>,', storyBuilderActive, '1', mainImageChoices, '2', improvedMainImageChoices, '3',  finalMainImage, '4', smallImageChoices, '5', improvedSmallImageChoices, '6',  finalSmallImage)
+        if (pageId == 'Cover Page'){
+            setPromptType('improvedCoverImagePrompt')
+        }else {
+            setPromptType('improvedImagePrompt')
+        }
+    }, [pageId])
+
+    useEffect(() => {
         if (storyBuilderActive == 'improveLeftImage') {
             if (!finalSmallImage && !improvedSmallImageChoices && smallImageChoices){
                 setUrl(smallImageChoices)
@@ -113,17 +120,13 @@ function ImproveImageSideBar() {
         const resultString = data.map((item: StoryItem) => {
             return `${item.name.slice(0, -1)}: ${item.description}`;
           }).join(', ');
-        
-        console.log(resultString);
-        console.log(characters);
         const prompt = `I am using a A.I. image generator to create images for a childrens illustrated story book. 
         You previously generated this prompt: 
         ${firstImagePrompt}, for this page of the story: ${leftPagetext} ${rightPageText},
          but the user has given this feedback: ${userFeedback}. 
          please respond with an inproved prompt given this feedback. 
          For any characters feeatures please reference these character descriptions: ${characters} `
-        console.log(firstImagePrompt)
-        if (!session || !pageId || !storyId) return;
+        if (!session || !pageId || !storyId || !promptType) return;
         try{
             const response = await fetch('/api/createCoverImagePrompt', {
                 method: 'POST', 
@@ -131,7 +134,7 @@ function ImproveImageSideBar() {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    promptType: 'improvedImagePrompt', 
+                    promptType: promptType, 
                     prompt: prompt,
                     session: session,
                     storyId: storyId, 

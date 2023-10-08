@@ -10,7 +10,6 @@ type Props = {
 function SideBarRow({ name  }: Props) {
    const dispatch = useDispatch()
    const thisIsChosen = (name: String) => {
-    console.log(name)
     dispatch(setName(name));
   
   }

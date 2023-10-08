@@ -101,6 +101,23 @@ export default async function createStory(
       }
     }
 
+    if (promptType === 'improvedCoverImagePrompt') {
+      if ('coverImagePrompt' in response) {
+        const improvedPrompt = response.coverImagePrompt;
+        await adminDb
+          .collection("users")
+          .doc(session.user.email)
+          .collection('storys')
+          .doc(storyId)
+  
+          .update({
+            improvedCoverImagePrompt: improvedPrompt
+          });
+      } else {
+        throw new Error('Cover Image Prompt not found in response');
+      }
+    }
+
     if (promptType === 'improvedSmallImagePrompt') {
       if ('coverImagePrompt' in response) {
         const improvedPrompt = response.coverImagePrompt;
@@ -118,8 +135,6 @@ export default async function createStory(
         throw new Error('Cover Image Prompt not found in response');
       }
     }
-    
-
 
 res.status(200).json(response);
 
@@ -134,8 +149,7 @@ if ('coverImagePrompt' in response) {
 } catch (error: any) {
   console.error("Error:", error);
   res.status(500).json({ message: "Internal Server Error: " + error.message });
-}
-}
+}}
 
 const sendPromptToMidjourney = async (imagePrompt: string | undefined, storyId: string, userEmail: string, pageId: string, promptType: string) => {
   if (!imagePrompt) {
@@ -144,7 +158,8 @@ const sendPromptToMidjourney = async (imagePrompt: string | undefined, storyId: 
   if (promptType == 'titleIdeas') return;
   const data = JSON.stringify({
       msg: imagePrompt,
-      ref: { storyId: storyId, userId: userEmail, action: 'improveSingleImagePrompt', page: pageId },
+      ref: { storyId: storyId, userId: userEmail, action: promptType, page: pageId },
+      // ref: { storyId: storyId, userId: userEmail, action: 'improveSingleImagePrompt', page: pageId, promptType: promptType },
       webhookOverride: ""
   });
 

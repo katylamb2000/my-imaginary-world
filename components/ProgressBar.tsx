@@ -6,8 +6,6 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { useSelector } from 'react-redux';
 import { RootState } from "../app/GlobalRedux/store"
 
-console.log('PROGRESS BAR IS LOADED')
-
 function LinearBuffer() {
   const [progress, setProgress] = React.useState(0);
   const [buffer, setBuffer] = React.useState(10);

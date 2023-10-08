@@ -68,11 +68,9 @@ function GetImageButton() {
             return `${item.name.slice(0, -1)}: ${item.description}`;
           }).join(', ');
 
-        console.log(characters);
         const prompt = `i am using a A.I. image generator to create images for a childrens illustrated story book. 
       
          For any characters feeatures please reference these character descriptions: ${charactersString} `
-        console.log(firstImagePrompt)
         if (!session || !pageId || !storyId) return;
         try{
             dispatch(setImageRequestSent(true))
@@ -90,7 +88,6 @@ function GetImageButton() {
     
                 }),
             })
-            console.log('response from api', response)
         }catch(err){
             console.log(err)
         }

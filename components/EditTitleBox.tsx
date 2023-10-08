@@ -36,11 +36,6 @@ function EditTitleBox() {
         dispatch(setEditBarType('main'))
     }
 
-
-    useEffect(() => {
-        console.log('save font size to db', fontSizeSaved)
-    },[fontSizeSaved])
-
     useEffect(() => {
       if (!pathname) return;
       if (storyId) return;
@@ -57,7 +52,6 @@ function EditTitleBox() {
 
 
   useEffect(() => {
-    console.log(storyTitle, pageText)
     if (!storyTitle && !pageText){
       setLocalTitle('Title')
     }
@@ -99,7 +93,6 @@ function EditTitleBox() {
           signatureTailwindTextColor: color,
           signatureHexTextColor: hexColor
         });
-        console.log('pageText updated', updatedPage)
       }catch(err){
           console.log(err)
       }
@@ -113,7 +106,6 @@ function EditTitleBox() {
               title: localTitle,
             });
             setTitleSaved(true)
-            console.log('pageText updated', updatedPage)
           }catch(err){
               console.log(err)
           }

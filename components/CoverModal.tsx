@@ -28,12 +28,6 @@ function CoverModal() {
     const storyId = useSelector((state: RootState) => state.viewStory.storyId)
     const coverImage = useSelector((state: RootState) => state.viewStory.coverImage)
 
-    console.log('coverImage', coverImage)
-
-    useEffect(() => {
-        console.log(coverImage)
-    }, [coverImage])
-
     const getSuggestions = async() => {
         setShowButtons(false)
         setGettingSuggestions(true)
@@ -66,9 +60,8 @@ function CoverModal() {
     
                 }),
             })
-            console.log('response from api', response)
+
             const data = await response.json(); // Parse JSON response
-            console.log(data.coverImagePrompt)
             const suggestionsArray = data.coverImagePrompt.split('\n'); // Split by new line character
 
             setGeneratedSuggestions(suggestionsArray); 
@@ -94,7 +87,6 @@ function CoverModal() {
 
     const handleSuggestionClick = async(suggestion: string) => {
         // Implement the desired behavior here, such as setting a state for the clicked suggestion or performing an action with it.
-        console.log("Clicked suggestion:", suggestion);
         setShowGettingImagePrompt(true)
         // setGettingSuggestions(true)
         const prompt = 
@@ -119,10 +111,7 @@ function CoverModal() {
     
                 }),
             })
-            console.log('response from api', response)
             const data = await response.json(); // Parse JSON response
-            console.log(data.coverImagePrompt)
-
             setImagePrompt(data.coverImagePrompt); 
             setShowGettingImagePrompt(false)
         }catch(err){
@@ -146,7 +135,6 @@ function CoverModal() {
                       body: JSON.stringify({ message: imagePrompt, voice: '21m00Tcm4TlvDq8ikWAM', pageId: 'page_1', storyId: storyId, session: session })
                     }).then(async (response) => {
                       const blob = await response.blob();
-        console.log('I am blob', blob)
         setImageUrl('image url')
         setGettingImage(false)
     })
@@ -158,7 +146,6 @@ function CoverModal() {
 
 const getImage = async() => {
     if (!session || !storyId || !imagePrompt) return;
-        console.log('should be getting image', session, storyId, imagePrompt)
       // setLoading(true)
       var data = JSON.stringify({
         msg: imagePrompt,

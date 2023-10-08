@@ -14,10 +14,7 @@ function SelectImageToUpscaleBar() {
     const [imageRequestSuccessful, setImageRequestSuccessful] = useState<boolean>(false)
 
 
-    const upscaleChosenImage = async(btn: string) => {
-        console.log(btn)
-        console.log(buttonId)
-    
+    const upscaleChosenImage = async(btn: string) => {    
     var data = JSON.stringify({
       button: btn,
       buttonMessageId: buttonId ,

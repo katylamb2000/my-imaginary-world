@@ -87,7 +87,6 @@ const sendImagineCommand = async() => {
 
     axios(config)
     .then(function (response) {
-      console.log(JSON.stringify(response.data));
       setLoading(false)
     })
 
@@ -98,7 +97,6 @@ const sendImagineCommand = async() => {
   }
 const sendInitalMessage = async() => {
     setLoading(true)
-    console.log('SENDIGING IM', initialMessage)
 try{
     const response = await fetch('/api/aiChatGPTAssistant', {
         method: 'POST', 
@@ -113,7 +111,6 @@ try{
 
         }),
     })
-    console.log('response from api', response)
     setLoading(false)
     // dispatch(updateGetImagesModalStatus(false))
 }catch(err){

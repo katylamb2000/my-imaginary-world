@@ -85,17 +85,6 @@ function CreateStoryOutline({ characters }: Props) {
     borderColor: "red",
   };
 
-  // useEffect(() => {
-  //   if (!story || !characters.length) return;
-  //   console.log('story characters ===> ', characters)
-  //   let descriptions = characters
-  //   .map(character => `${character.name}: ${character.description}`);
-  //   // return descriptions.join(' ');
-  //   const charctersDescriptions = descriptions.join(' ');
-  //   console.log(charctersDescriptions)
-  //   setExtractedCharacters(charctersDescriptions)
-  // }, [story, characters])
-
   useEffect(() => {
     if (!pathname) return;
     const regex = /^\/story\/([a-zA-Z0-9]+)$/;
@@ -116,7 +105,6 @@ function CreateStoryOutline({ characters }: Props) {
     }
     else {
       const description = `a ${heroCharacter.age} years old ${heroCharacter.gender} called ${heroCharacter.name}. They have ${heroCharacter.hairColor} ${heroCharacter.hairStyle} hair, ${heroCharacter.eyeColor} eyes. They are wearing ${heroCharacter.clothing}. And they are of ${heroCharacter.skinColor}`
-      console.log(description)
       setHeroDescription(description)
     }
   }, [heroCharacter])
@@ -128,7 +116,6 @@ function CreateStoryOutline({ characters }: Props) {
         dispatch(setCharacterImage(selectedCharacter.heroImage));
         dispatch(setCharacterImagePrompt(selectedCharacter.imagePrompt));
         setHeroCharacter(selectedCharacter)
-        console.log(selectedCharacter)
       }
     }
   }, [heroCharacterId, characters]);
@@ -161,7 +148,6 @@ function CreateStoryOutline({ characters }: Props) {
 
 const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    console.log('story outline ==> ', 'readersAge:', age, 'setting', setting, 'things to include', favouriteThings, 'storyStyle', genre, 'style', style, 'heroCharacter', heroDescription )
     setLoading(true)
     try{
     const outline = await addDoc(collection(db, 'users', session?.user?.email!, 'storys', storyId!, 'storyOutline'),
@@ -174,7 +160,6 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
             heroCharacter: heroDescription
         }
     )
-    console.log(outline)
     createStory()
       }catch(err){
         console.log(err)
@@ -212,7 +197,6 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
             storyId: storyId, 
         }),
     })
-console.log('response from api', response)
 if (response.status == 200) {
   console.log("send api request to get character descriptions. ")
 }
@@ -221,7 +205,6 @@ if (response.status == 200) {
             id: notification
         })
 if (response)
-console.log('RESPONSE', response)
 setLoading(false)
 // handleGetImageIdeas()
 // dispatch(setName('view story'))
@@ -237,24 +220,21 @@ setLoading(false)
 }
 
 useEffect(() => {
-  console.log('STORY ** STORY ++>', story)
-  // if (story){
-  //   handleGetImageIdeas()
-  // }
-}, [story])
 
+  if (story){
+    handleGetImageIdeas()
+  }
+}, [story])
 
 useEffect(() => {
 
   if (story){
-    console.log('we have a story ++++>>>> ** STORY ++>', story)
-    handleGetImageIdeas()
+    getSmallImageIdeas()
   }
 }, [story])
 
 const handleGetImageIdeas = async() => {
   if (!session || !storyId) return;
-  console.log(session, "STORYID",  storyId)
   setLoading(true)
   // const extractedCharacters = extractCharactersFromStory();
   const imageDescriptionsPrompt = 
@@ -274,7 +254,16 @@ const handleGetImageIdeas = async() => {
   each prompt is read by the ai in isolation so any reference to style or characters must be in each individual prompt. 
 
   This prompt is for a children's story book, so think about exciting and engaging images for each page, not boring or same same. 
-  `;
+
+  The structure of the response should be as EXACTLY follows:
+  
+  Page_1: 
+  
+  Page_2: 
+  
+  Page_3:
+  ...and so forth.`;
+
   
 try{
 const response = await fetch('/api/createStoryImagePrompts', {
@@ -291,9 +280,99 @@ const response = await fetch('/api/createStoryImagePrompts', {
 
     }),
 })
-console.log('response from api', response)
+
 setLoading(false)
 dispatch(setName('view story'))
+}catch(err){
+console.log(err)
+setLoading(false)
+}
+}
+
+const handleGetImagePrompts = async() => {
+  setLoading(true)
+  const imageDescriptionsPrompt = `
+  Please read the following story: ${story}. Your task is to envision the artwork for this children's storybook. Each 'page' refers to a two-page spread, and you should visualize this as a single, unified image that spans both pages. Make decisions that you believe will result in the most engaging and immersive storybook experience for a young reader. Maintain the original structure of the story, but feel free to interpret the text creatively.
+  
+  The response must be structured into exactly 14 sections, corresponding to the 14 pages of the book. For each page, describe the key elements and actions, the characters' appearances and emotions, the setting details, and the interactions between characters and their environment. Include a detailed description of each character and their unique features to maintain consistency across the book. As part of each page's description, also hint at the artistic style, including color palette and overall aesthetic that could best bring this scene to life, considering the story's mood and setting.
+  
+  The structure of the response should be as EXACTLY follows:
+  
+  Page_1: 
+  
+  Page_2: 
+  
+  Page_3:
+  ...and so forth.`;
+  
+try{
+  const response = await fetch('/api/createStoryImagePrompts', {
+      method: 'POST', 
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          promptType: 'imageDescriptions', 
+          prompt: imageDescriptionsPrompt,
+          session: session,
+          storyId: storyId, 
+
+      }),
+  })
+
+  setLoading(false)
+  // dispatch(updateGetImagesModalStatus(false))
+}catch(err){
+  console.log(err)
+  setLoading(false)
+}
+}
+
+const getSmallImageIdeas = async() => {
+setLoading(true)
+const imageDescriptionsPrompt = 
+`
+  Please read the following story: ${story}. This is an illustrated children's storybook. 
+
+  Your task is to create prompts that I will send to an AI image generator. For each page, I want you to create 4 separate prompts. 
+
+  For each page, respond in EXACTLY this format:
+  {
+      "pageNumber": "page number",
+      "1 character": "Character close up",
+      "2 object": "Object or artifact from the scene",
+      "3 wild": "Wild card image"
+  }
+  
+  
+  1. Character close up: Focus very strongly on the character's expression, pose, and movements. These should be highly exaggerated and dynamic. Take into account their current emotions and actions in the story, and reflect this in the prompt. The character should be in the midst of an action, not just static or posing.
+  
+  2. Object or artifact from the scene: This should be the most important object in the scene. It should be on a white background unless the background is super important.
+  
+  3. Wild card image: For this image, you have complete freedom. Describe anything you think will make that page more funny, engaging, add to the storytelling, or generally improve the book. Be super creative, think out of the box and bring some magic to the scene!
+  
+  Each prompt should be succinct and clear for an AI to understand. Give camera angles, color palettes, and write in simple present tense.
+  
+  The response must be structured into exactly 14 sections, corresponding to the 14 pages of the book. As part of each page's description, also hint at the artistic style, including color palette and overall aesthetic that could best bring this scene to life, considering the story's mood and setting.
+`
+;
+
+try{
+const response = await fetch('/api/createStoryImagePrompts', {
+  method: 'POST', 
+  headers: {
+      'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+      promptType: 'smallImageIdeas', 
+      prompt: imageDescriptionsPrompt,
+      session: session,
+      storyId: storyId, 
+
+  }),
+})
+setLoading(false)
+
 }catch(err){
 console.log(err)
 setLoading(false)
@@ -351,7 +430,6 @@ const getImagePrompts = async() => {
                 }),
               });
               const data = await response.json();
-              console.log('this is the story, need to save title to story', data.answer)
               setLoading(false)
               dispatch(setName('view story'))
   }catch(err){

@@ -28,6 +28,7 @@ function BookCover() {
   const signatureTextSize = useSelector((state: RootState) => state.pageToEdit.signatureTextSize)
   const pageId = useSelector((state: RootState) => state.pageToEdit.id);
   const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl);
+  const thumbnailImage = useSelector((state: RootState) => state.viewStory.thumbnailImage)
   const finalImageUrl = useSelector((state: RootState) => state.pageToEdit.finalImageUrl);
   const improvedImageUrl = useSelector((state: RootState) => state.pageToEdit.improvedImageUrl);
   const coverImage = useSelector((state: RootState) => state.viewStory.coverImage);
@@ -51,13 +52,8 @@ function BookCover() {
   const [currentQuadrant, setCurrentQuadrant] = useState(1);
 
   useEffect(() => {
-    console.log('i am BOOKCOVER!!!!!!', 'st', storyTitle, 't', title,'pt',  pageText)
-  }, [title, storyTitle, pageText]
-  )
-
-  useEffect(() => {
-      if (imageUrl && !finalImageUrl && !improvedImageUrl){
-        setUrl(imageUrl)
+      if (coverImage && !finalImageUrl && !improvedImageUrl){
+        setUrl(coverImage)
       }
       if (imageUrl && !finalImageUrl && improvedImageUrl){
         setUrl(improvedImageUrl)
@@ -65,21 +61,20 @@ function BookCover() {
       if (imageUrl && finalImageUrl && improvedImageUrl){
         setUrl(finalImageUrl)
       }
-      if (!imageUrl && !finalImageUrl && !improvedImageUrl){
+      if (!coverImage  && !finalImageUrl && !improvedImageUrl){
         setUrl(null)
       }
-  }, [imageUrl, finalImageUrl, improvedImageUrl])
+  }, [imageUrl, finalImageUrl, improvedImageUrl, coverImage])
 
-  // useEffect(() => {
-  //   console.log(storyTitle, pageText)
-  //   if (!storyTitle && !pageText) return;
-  //   if (storyTitle){ 
-  //     setTitle(storyTitle)
-  //   }
-  //   else if (!storyTitle && pageText){
-  //     setTitle(pageText)
-  //   }
-  // }, [pageText, storyTitle])
+  useEffect(() => {
+    if (!storyTitle && !pageText) return;
+    if (storyTitle){ 
+      setTitle(storyTitle)
+    }
+    else if (!storyTitle && pageText){
+      setTitle(pageText)
+    }
+  }, [pageText, storyTitle])
 
   useEffect(() => {
     if (!pathname) return;
@@ -123,7 +118,6 @@ function BookCover() {
 
     const upscaleChosenImage = async() => {
         const button = `U${currentQuadrant}`
-        console.log(button, 'id', buttonId, currentStoryId, session?.user?.email, pageId)
         var data = JSON.stringify({
           button: button,
           buttonMessageId: buttonId ,
@@ -152,12 +146,11 @@ function BookCover() {
       }
 
   const editText = () => {
-    console.log("dispatch edit text stuff and open and input b0ox etc")
     dispatch(setShowInputBox(true))
   }
 
   const editMainImage = () => {
-    dispatch(setName('improveRightImage'))
+    // dispatch(setName('improveRightImage'))
     dispatch(setEditBarType('improveRightImage'))
   }
 
@@ -251,7 +244,7 @@ useEffect(() => {
             </div>
         ))} */}
 
-        {titleSuggestions && (
+        {titleSuggestions && !storyTitle && (
             <button className='flex' onClick={goToNextSuggestion}> 
                 <p className={`${textSize} font-bold font-roboto ${textColor} mx-auto my-auto relative z-20 cursor-pointer`}
                   style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
@@ -318,7 +311,7 @@ useEffect(() => {
           );
         })()}
 
-        {url && (
+        {/* {url && (
      
             <div className="h-full w-full relative bg-gray-100">
               <button className='w-full h-full cursor-pointer' onClick={editMainImage}>
@@ -326,7 +319,16 @@ useEffect(() => {
             </button>
           </div>
      
-        )}
+        )} */}
+          {url && (
+     
+     <div className="h-full w-full relative bg-gray-100">
+       <button className='w-full h-full cursor-pointer' onClick={editMainImage}>
+     <Image className="w-full h-full z-10" fill src={url} alt='/' />
+     </button>
+   </div>
+
+ )}
 
       <div className='w-full h-24 items-center absolute bottom-3 '>
           <p className={`mx-auto my-auto ${signatureTextSize} ${signatureTextColor}`}>

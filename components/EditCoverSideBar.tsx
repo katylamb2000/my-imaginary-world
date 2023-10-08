@@ -74,7 +74,6 @@ function EditCoverSideBar() {
       }, [pathname])
 
       useEffect(() => {
-        console.log(storyTitle, pageText)
         if (!storyTitle && !pageText) return;
         if (storyTitle){ 
           setTitle(storyTitle)
@@ -207,7 +206,6 @@ const generateCoverImageIdeas = async() => {
         setShowAddSignature(false)
         setShowWorkOnTitle(false)
         try{
-            console.log('get book title ideas')
             setPromptType('getTitleIdeas')
             const getTitleIdeasPrompt = `For the story ${story}, I want you to generate a list of 10 creative title ideas that will appeal to a child ${heroName ? `called ${heroName}` : ''}. Generate your response in the form of a list like this:
             1. title one, 
@@ -220,14 +218,10 @@ const generateCoverImageIdeas = async() => {
     }}
 
     const updateTitle = async(title: string) => {
-        console.log(title);
         const matchResult = title.match(/"\s*(.+?)\s*"/);
         const cleanedTitle = matchResult ? matchResult[1] : title; // Check if we have a match, otherwise use the original title
-
             if (!storyId) return;
-
         try{
-        
             const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", 'page_1');
             const updatedPage = await updateDoc(docRef, {
             text: cleanedTitle,
@@ -275,11 +269,7 @@ const generateCoverImageIdeas = async() => {
                     }),
                 })
                   const responseData = await response.json();
-                    console.log(responseData)
                     setCoverImageSuggestions(responseData)
-                    //    setUserMessage('')
-                    //    setMessages(prevMessages => [...prevMessages, { role: "assistant", content: responseData.answer }]);
-                    //    setAiResponded(true) 
                }catch(err){
                    console.error(err);
             }
@@ -340,13 +330,9 @@ const generateCoverImageIdeas = async() => {
         }catch(err){
             console.log(err)
         }
-    
     }
 
     const getImage = async(coverPrompt: any) => {
-        console.log('imagePrompt', coverPrompt)
-        // setLoading(true)
-   
           var data = JSON.stringify({
             msg: coverPrompt.coverImagePrompt,
             ref: { storyId: storyId, userId: session!.user!.email, action: 'imagineCoverImage', page: 'page_1' },
@@ -365,11 +351,13 @@ const generateCoverImageIdeas = async() => {
   
           axios(config)
           .then(function (response) {
-            console.log(JSON.stringify(response.data));
           //   setLoading(false)
+          setLoadingGettingCoverImage(false)
           })
           .catch(function (error) {
             console.log(error);
+            setLoadingGettingCoverImage(false)
+
 
           });
         }
@@ -384,7 +372,6 @@ const generateCoverImageIdeas = async() => {
         }
 
         const useThisTitle = async() => {
-            console.log('use this title', selectedTitle)
             try {
                 const docRef = doc(db, "users", session?.user?.email!, "storys", storyId);
                 const updatedTitle = await updateDoc(docRef, {
@@ -436,14 +423,17 @@ const generateCoverImageIdeas = async() => {
 
         {imageSuggestionChosen && loadingGettingCoverImage && (
                 <div className='space-y-2'>
-                    {/* <p  className='text-xl font font-semibold text-purple-600'>{introduction}</p> */}
-                    {imageSuggestions.map((suggestion: string) => (
-                    <p  className='text-purple-400 hover:underline cursor-pointer hover:text-purple-600 hover:text-lg' 
-                        onClick={() => generatePromptToSendToMidjourney(suggestion)}
+                       <p  className='text-purple-400 hover:underline cursor-pointer hover:text-purple-600 hover:text-lg' 
                     >
-                        {suggestion}
+                       This image is being created
+                        
                     </p>
-                )) }
+                    <p  className='text-purple-400 hover:underline cursor-pointer hover:text-purple-600 hover:text-lg' 
+                    >
+                        {imageSuggestionChosen}
+
+                    </p>
+
                 </div>
             )}
 

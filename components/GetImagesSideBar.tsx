@@ -36,12 +36,9 @@ function GetImagesSideBar() {
 
     useEffect(() => {
       if (!story || !characters.length) return;
-      console.log('story characters ===> ', characters)
       let descriptions = characters
       .map(character => `${character.name}: ${character.description}`);
-      // return descriptions.join(' ');
       const charctersDescriptions = descriptions.join(' ');
-      console.log(charctersDescriptions)
       setExtractedCharacters(charctersDescriptions)
     }, [story, characters])
 
@@ -71,7 +68,6 @@ function GetImagesSideBar() {
 
     const handleGetImageIdeas = async() => {
       if (!session || storyId == '') return;
-      console.log(session, "STORYID",  storyId)
       setLoading(true)
       // const extractedCharacters = extractCharactersFromStory();
       const imageDescriptionsPrompt = 
@@ -173,14 +169,6 @@ try{
 
 
 useEffect(() => {
-  console.log('first image prompt no if', firstImagePromptIdea)
-  if (firstImagePromptIdea){
-    console.log('first image prompt', firstImagePromptIdea)
-  }
-}, [firstImagePromptIdea])
-
-useEffect(() => {
-  console.log('imageUrl no if', imageUrl, imageRequestSent)
   if (imageUrl) return;
   if (!firstImagePromptIdea) return;
   if (imageRequestSent) return;
@@ -221,7 +209,6 @@ const updatePageWithGettingImageStarted = async() => {
 
 const getImage = async() => {
   if (!session || !storyId || !firstImagePromptIdea) return;
-  console.log(pageId)
     var data = JSON.stringify({
       msg: firstImagePromptIdea,
       ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: pageId },

@@ -154,10 +154,6 @@ useEffect(() => {
     setShowGrid(false)
 }, [pageId])
 
-useEffect(()=> {
-  console.log(wildcardIdea, objectIdea, characterIdea)
-},[wildcardIdea, objectIdea, characterIdea] )
-
 useEffect(() => {
   if (storyId || !pathname) return;
   const regex = /^\/story\/([a-zA-Z0-9]+)$/;
@@ -214,7 +210,6 @@ useEffect(() => {
      
 
     const requestImage = async() => {
-             console.log('trying to send sms')
 
       const phoneNumber = '+447309693489'
       const message = `you have a new request for images! 
@@ -434,12 +429,9 @@ useEffect(() => {
 //   }
 // }, [audioUrl]);
 
-useEffect(() => {
-  console.log('right page loading ===>>', rightPageLoading)
-}, [rightPageLoading])
+
 
 const play = useCallback(() => {
-  // console.log(audioRef, audioUrl)
       setPlaying(true);
 }, [audioUrl])
 
@@ -581,7 +573,6 @@ const upscaleChosenSmallImage = async() => {
     }, [pageText])
 
     const switchImages = async() => {
-      console.log('left page img ==> ', smallRoundImageUrl, 'rightPage img -->', '1', imageUrl, '2',improvedImageUrl, '3', finalImageUrl)
       if (!session || !storyId || !pageId) return;
       try{
       const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);

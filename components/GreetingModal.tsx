@@ -57,11 +57,6 @@ function GreetingModal() {
 
     const [userName, setUserName] = useState<string>('')
 
-    
-
-    // fetch the aiAssistant message history!
-    console.log('Story ID:', storyId);
-
    
       const submit = async(e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault() 
@@ -98,7 +93,6 @@ function GreetingModal() {
     }, [story]);
 
     const sendImproveStoryInitialSystemMessage = async() => {
-        console.log('this is the story', story)
         // setMessages([...messages, { role: "user", content: userMessage }]);
         try{
         const response = await fetch('/api/aiChatGPTAssistant', {

@@ -125,9 +125,6 @@ useEffect(() => {
     setShowGrid(false)
 }, [pageId])
 
-useEffect(()=> {
-  console.log('rightPageText', rightPageText)
-},[rightPageText] )
 
 useEffect(() => {
   if (storyId || !pathname) return;
@@ -201,9 +198,6 @@ useEffect(() => {
     }
 }, [fullPageImageUrl, characters])
 
-useEffect(() => {
-  console.log('right page loading ===>>', finalImageUrl)
-}, [finalImageUrl])
 
 const play = useCallback(() => {
   // console.log(audioRef, audioUrl)
@@ -280,11 +274,8 @@ useEffect(() => {
       }
     });
 
-    if (newText === firstImagePromptIdea) {
-      console.log("ENHANCED ====>>> ", "my enhancedText is the same as original pagetext");
-    } else {
-      console.log("ENHANCED ====>>> ", newText);
-      setEnhancedText(newText);
+    if (newText !== firstImagePromptIdea) {
+      setEnhancedText(newText);   
     }
   }
 }, [firstImagePromptIdea, storyCharacters]);
@@ -331,7 +322,6 @@ const updatePageWithSuccessMsg = async() => {
     const updatedPage = await updateDoc(docRef, {
       midjourneySuccess: true
     });
-    console.log('pageText updated', updatedPage)
   }catch(err){
       console.log(err)
   }
@@ -401,10 +391,12 @@ return (
     
     {!showGrid && !finalImageUrl && improvedImageUrl && !rightPageLoading && (
       <div className="h-full w-full relative bg-gray-100">
+        <button className="h-full w-full cursor-pointer relative" onClick={editMainImage}>
           <Image className="w-full h-full z-10" fill src={improvedImageUrl} alt='/' />
           <p className="text-white bg-black bg-opacity-50 absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-50"> 
             {rightPageText}
           </p>
+        </button>
       </div>
     )}
     

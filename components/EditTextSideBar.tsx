@@ -35,20 +35,22 @@ function EditTextSideBar() {
       const [fontSize, setFontSize] = useState('text-md')
       const [textSaved, setTextSaved] = useState<boolean>(false)
       const [rightPageTextSaved, setRightPageTextSaved] = useState<boolean>(false)
+
+      console.log(pageId)
     
     const goBack = () => {
         dispatch(setEditBarType('main'))
     }
 
     const saveText = async () => {
-      // console.log(selectedPageText, selectedPageId);
+
       try{
       if (!storyId || !pageId || !session) return;
       const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
       const updatedPage = await updateDoc(docRef, {
         text: pageText
       });
-      console.log('this is the updated', updatedPage);
+
       setTextSaved(true)
       if (pageId == 'page_1') {
         saveTitle()
@@ -69,20 +71,18 @@ function EditTextSideBar() {
         console.log(err)
     }}
 
-    const saveRightPageText = async () => {
-      // console.log(selectedPageText, selectedPageId);
-      try{
+  const saveRightPageText = async () => {
+    try{
       if (!storyId || !pageId || !session) return;
       const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
       const updatedPage = await updateDoc(docRef, {
         rightPagetext: rightPageText
       });
-      console.log(' this is the updated', updatedPage);
       setRightPageTextSaved(true)
       // dispatch(dispatch(setText(updatedPage?.data.text))
     }catch(err){
       console.log(err)
-    }}
+  }}
 
     const updateTextSize = async(size: string) => {
       try{
@@ -91,18 +91,10 @@ function EditTextSideBar() {
         const updatedPage = await updateDoc(docRef, {
           textSize: size
         });
-        console.log(' this is the updated', updatedPage);
-        // setUpdatedTextSize(true)
-        // dispatch(dispatch(setText(updatedPage?.data.text))
       }catch(err){
         console.log(err)
     }}
   
-
-    useEffect(() => {
-        console.log('FONTSIZESVED', fontSizeSaved)
-    },[fontSizeSaved])
-
     useEffect(() => {
       if (!pathname) return;
       if (storyId) return;
@@ -158,7 +150,7 @@ function EditTextSideBar() {
             tailwindTextColor: tailwindColor,
             hexTextColor: hexColor
           });
-          console.log('pageText updated', updatedPage)
+
         }catch(err){
             console.log(err)
         }
@@ -289,7 +281,7 @@ function EditTextSideBar() {
     <div className="items-center space-y-2 w-full space-x-6 flex">
        
   
-                {pageId == 'page_1' ? (
+                {pageId == 'Cover Page' ? (
                   <div className="w-1/5 ">
                   <label  htmlFor="alignment" className="font-semibold text-md 0">
                     Title:
@@ -307,7 +299,8 @@ function EditTextSideBar() {
           {/* <div > */}
             {/* <QuillToolbar /> */}
             {/* <TextEditorToolBar /> */}
-            {pageId == 'page_1' ? (
+
+            {pageId == 'Cover Page' ? (
               <input type='text' value={pageText} placeholder={pageText} onChange={(e) => dispatch(setText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 px-2" aria-multiline />
             ): 
               <textarea value={pageText} placeholder={pageText} onChange={(e) => dispatch(setText(e.target.value))} className="py-2 border rounded focus:outline-none focus:ring focus:border-purple-400 w-3/5 h-48 px-2" aria-multiline />
@@ -318,10 +311,11 @@ function EditTextSideBar() {
                   ): 
                   <CheckCircleIcon className="w-8 h-8 text-gray-400" onClick={saveText} />
             }
+
+
      </div>
 
-
-{pageId !== 'page_1' && (
+     {pageId !== 'Cover Page' && (
     <div className="items-center space-y-2 w-full space-x-6 flex">
           <div className="w-1/5 ">
             <label  htmlFor="alignment" className="font-semibold text-md 0">
@@ -339,6 +333,8 @@ function EditTextSideBar() {
           }
     </div>
 )}
+
+
 
         <div>
       </div>

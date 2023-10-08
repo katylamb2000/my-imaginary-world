@@ -19,7 +19,7 @@ import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector, useDispatch } from "react-redux"
 import { setbuttonMsgId, setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
 import { addCharacters, addCharacter } from "../../GlobalRedux/Features/characterSlice"
-import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters, setTitleIdeas } from '../../GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters, setTitleIdeas, setThumbnailImage } from '../../GlobalRedux/Features/viewStorySlice'
 import { setName } from '../../GlobalRedux/Features/storyBuilderActiveSlice'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
@@ -98,7 +98,6 @@ function StoryPage() {
   const [sideBarCols, setSideBarCols] = useState(1)
   const [pageCols, setPageCols] = useState(6)
 
-
   useEffect(() => {
     if (!pathname) return;
     const regex = /^\/story\/([a-zA-Z0-9]+)$/;
@@ -108,20 +107,17 @@ function StoryPage() {
       const identifier = id[1];
       setStoryId(identifier);  
     } else {
-      console.log("No match");
+      console.log("No story id");
     }
   }, [pathname])
 
-  useEffect(() => {
-    console.log('story builder active =====>>>>', storyBuilderActive)
-}, [storyBuilderActive])
+
 
 useEffect(() => {
   dispatch(setIsLoading(false))
 }, [])
 
   useEffect(() => {
-    console.log('colum view', storyBuilderActive, sideBarCols, pageCols)
     switch (storyBuilderActive) {
       case 'CreatePDF':
         setSideBarCols(1);
@@ -129,7 +125,6 @@ useEffect(() => {
         // updateColumnLayout(1, 5);
         break;
       case 'InsidePage':
-        console.log("CHANGED TO INSIDE PAGE!")
         setSideBarCols(1);
         setPageCols(6);
         // updateColumnLayout(1, 5);
@@ -184,14 +179,8 @@ useEffect(() => {
         setPageCols(6);
         break;
     }
-    console.log(storyBuilderActive, sideBarCols, pageCols)
-  }, [storyBuilderActive, sideBarCols, pageCols]);
 
-  useEffect(() => {
-    console.log('we are in the useeffect ==> ', storyBuilderActive, sideBarCols, pageCols)
   }, [storyBuilderActive, sideBarCols, pageCols]);
-
-  
 
   let aiAssitantMessages: QuerySnapshot<DocumentData> | undefined;
 
@@ -206,11 +195,6 @@ useEffect(() => {
   }, [storyId, userEmail]);
 
   useEffect(() => {
-    console.log('MESSAGES =====>', aiAssitantMessages?.docs);
-  }, [aiAssitantMessages]);
-
-  useEffect(() => {
-    console.log("page id ---> ", selectedPageId)
     if (storyBuilderActive == 'InsidePage' && selectedPageId == ''){
       dispatch(setId('page_1'))
     }
@@ -270,8 +254,12 @@ const [story, storyLoading, storyError] = useDocument(
 );
 
 useEffect(() => {
+
+   
+    // const coverImageUrl = story?.data()?.coverImageUrl
+    // dispatch(setThumbnailImage(coverImageUrl))
   
-    const coverImage = story?.data()?.coverImage
+    const coverImage = story?.data()?.coverImageUrl
     dispatch(setCoverImage(coverImage))
 
     const buttonMsgId = story?.data()?.buttonMessageId
@@ -335,8 +323,6 @@ useEffect(()=> {
       name: doc.data().name,
       description: doc.data().description,
     }))
-
-    console.log('charactersArray', charactersArray)
     dispatch(setStoryCharacters(charactersArray))
   }
 }, [supportingCharactersSnapshop])
@@ -350,15 +336,12 @@ useEffect(()=> {
       name: doc.data().name,
       description: doc.data().description,
     }))
-
-    console.log('charactersArray', charactersArray)
     dispatch(addCharacters(charactersArray))
   }
 }, [supportingCharactersSnapshop])
 
 useEffect(() => {
   if (!singleDocument) return;
-  console.log(singleDocument.data())
   setStyle(singleDocument.data()!.style)
   setReadersAge(singleDocument.data()!.readersAge)
   const hero = { name:singleDocument.data()!.heroCharacter.name, description: singleDocument.data()!.heroCharacter.name }
@@ -368,17 +351,6 @@ useEffect(() => {
 useEffect(() => {
     if (!storyContent) return;
 
-  //   const sortedPages = storyContent.docs
-  //     .map(doc => ({
-  //       id: doc.id,
-  //       data: doc.data(),
-  //     }))
-  //     .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
-  //   setSortedStoryContent(sortedPages);
-  //   console.log('SORTED', sortedPages)
-  //   console.log('UNSORTED', storyContent.docs)
-  // }, [storyContent]);
-
   const sortedPages = storyContent.docs
     .map(doc => ({
         id: doc.id,
@@ -386,9 +358,7 @@ useEffect(() => {
     }))
     .sort((a, b) => parseInt(a.id.split('_')[1]) - parseInt(b.id.split('_')[1]));
     setSortedStoryContent(sortedPages);
-    console.log('SORTED', sortedPages)
-    console.log('UNSORTED', storyContent.docs)
-      }, [storyContent]);
+    }, [storyContent]);
 
 
   useEffect(() => {
@@ -420,18 +390,7 @@ useEffect(() => {
     const updatedPage = await updateDoc(docRef, {
       page: selectedPageText
     });
-    console.log(updatedPage);
   };
-
-  // useEffect(() => {
-  //   if (storyBuilderActive == 'view story' && !selectedPageId){
-  //     dispatch(setName('CoverPage'))
-  //   }
-  // }, [storyBuilderActive, selectedPageId ])
-
-  useEffect(() => {
-    console.log(sideBarCols, pageCols)
-  }, [sideBarCols, pageCols])
 
   return (
     <div className="w-screen bg-gray-50 grid grid-cols-7">

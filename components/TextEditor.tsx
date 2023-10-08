@@ -24,7 +24,6 @@ function TextEditor() {
 
   const onEditorStateChange = (editorState: any) => {
     setEditorState(editorState);
-    console.log(editorState);
   }
 
   return (

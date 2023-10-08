@@ -24,7 +24,6 @@ function NextSmallImageModal({ nextSmallImage, lastSmallImage, selectSmallImage,
 
     setGettingSmallImage(true)
     const prompt = `in the style of ${style} for a childrens book illustrate ${idea} on a white background`
-    console.log('OTTTTTOOOO ===> PROMPT ---->>>', prompt)
       var data = JSON.stringify({
         msg: prompt,
         ref: { storyId: storyId, userId: session!.user!.email, action: 'imagineSmallImage', page: pageId, type: type  },
@@ -54,7 +53,6 @@ function NextSmallImageModal({ nextSmallImage, lastSmallImage, selectSmallImage,
     }
 
   const upscaleChosenImage = async(button: string) => {
-    console.log('Button', button)
         var data = JSON.stringify({
           button: button,
           buttonMessageId: smallImageButtonId ,

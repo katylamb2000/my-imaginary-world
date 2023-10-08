@@ -12,26 +12,6 @@ export default function ClientProvider(){
 
 
 
-    // useEffect(() => {
-    //     const handleStart = (url) => { 
-    //       console.log(`Loading: ${url}`)
-    //       NProgress.start()
-    //     }
-    //     const handleComplete = (url) => { 
-    //       console.log(`Loaded: ${url}`)
-    //       NProgress.done()
-    //     }
-    
-    //     router.events.on('routeChangeStart', handleStart)
-    //     router.events.on('routeChangeComplete', handleComplete)
-    //     router.events.on('routeChangeError', handleComplete)
-    
-    //     return () => {
-    //       router.events.off('routeChangeStart', handleStart)
-    //       router.events.off('routeChangeComplete', handleComplete)
-    //       router.events.off('routeChangeError', handleComplete)
-    //     }
-    //   }, [router])
     return(
         <Provider store={store}>
 

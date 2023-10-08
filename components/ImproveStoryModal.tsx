@@ -69,8 +69,6 @@ function ImproveStoryModal() {
 
     const [userName, setUserName] = useState<string>('')
 
-    // console.log(storyId, "MSSGS", messages, story)
-
     useEffect(() => {
         if (storyId || !pathname) return;
         const regex = /^\/story\/([a-zA-Z0-9]+)$/;
@@ -115,7 +113,6 @@ function ImproveStoryModal() {
     }}
 
     useEffect(() => {
-        console.log('setting initial message')
         if (story) {
             const initialMessage = `I want you to act as super friendly and helpful assistant. please read this story:  ${story}. When you have read the story tell the user you have read it, naming it by its title if it has one. Give a brief opinion of the story This should be less than 100 words. 
             And then list 4 ways the story can be improveed to ake it more engaging and entertainng for a young child. Think about specific literary techniques that authors use when creating popular books for young readers. Do not give any suggestions related to images as we will be working on images later. Please keep your response under 60 words
@@ -182,7 +179,6 @@ useEffect(() => {
   }
 
   const handleDoIt = async(index: number, text: string) => {
-    console.log('do it', index, text)
         const doItPrompt = `
             I want you to improve this story ${story} based on this feedback ${text}. Keep the original page structure. 
             The story must be structured into exactly 14 pages and a title page. The structure should be as follows:

@@ -22,7 +22,6 @@ interface Page {
   }
   
 function ImproveStoryPage({ storyPages }: ImproveStoryPageProps) {
-    console.log('story page', storyPages)
 
     const { data: session } = useSession()
 
@@ -44,7 +43,6 @@ function ImproveStoryPage({ storyPages }: ImproveStoryPageProps) {
         }
 
       if (changesMade == true){
-          console.log('now i should update The text')
           try{
           const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", page.id );
           const updatedPage = await updateDoc(docRef, {

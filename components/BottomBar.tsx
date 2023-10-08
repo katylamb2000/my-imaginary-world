@@ -18,9 +18,7 @@ function BottomBar() {
     const storyComplete = useSelector((state: RootState) => state.viewStory.storyComplete)
     const pagesComplete = useSelector((state: RootState) => state.viewStory.pagesComplete)
     
-    useEffect(() => {
-      console.log(storyComplete, pagesComplete)
-    }, [storyComplete, pagesComplete])
+
     
     const previousPage = () => {
         console.log('Previous page')
@@ -41,10 +39,7 @@ function BottomBar() {
         dispatch(setName('editRightPage'))
     }
 
-    const upscale = async(btn: string) => {
-        console.log(btn)
-        console.log(buttonId)
-    
+    const upscale = async(btn: string) => {    
     var data = JSON.stringify({
       button: btn,
       buttonMessageId: buttonId ,

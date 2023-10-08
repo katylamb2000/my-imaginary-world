@@ -48,7 +48,6 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     const [incomplete, setIncomplete] = useState<boolean>(true)
     
     useEffect(() => {
-      console.log('page text ===> ', page.data.wildcardImage)
       if (currentPageId !== page.id ) return; 
       if ( page.data.imageUrl){
         dispatch(setImageUrl(page.data.imageUrl))
@@ -63,7 +62,6 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [storyPagesLength, completedPagesArray])
 
     const viewPage = () => {
-      console.log('this must be something to do with index = 0', index)
       if (page.data.midjourneyInitialRequestResponse){
         dispatch(setMidjourneyInitialRequestResponse(page.data.midjourneyInitialRequestResponse))
       }
@@ -80,9 +78,11 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
       if (page.data.tailwindTextColor){
         dispatch(setTextColor(page.data.tailwindTextColor))
       }
+      else if (!page.data.tailwindTextColor){
+        dispatch(setTextColor('text-pink-500'))
+      }
         if (page.data.page && !page.data.text){
           dispatch(setText(page.data.page))
-          console.log('PAGE +++> ', page.data.page)
         }
         else if (page.data.text){
           dispatch(setText(page.data.text))
@@ -120,8 +120,8 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
         // }
 
       
-          dispatch(setName('InsidePage'))
-          dispatch(setEditBarType('main'))
+            dispatch(setName('InsidePage'))
+            dispatch(setEditBarType('main'))
        
             dispatch(setId(page.id))
             // dispatch(setText(page.data.text))
@@ -130,19 +130,20 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
             if (previousPage){
               dispatch(setPreviousPageText(previousPage.data.text))
             }
-            dispatch(setNextPageText(previousPage.data.text))
+            if (nextPage){
+              dispatch(setNextPageText(nextPage.data.text))
+            }
             dispatch(setName('InsidePage'))
             dispatch(setImageUrl(page.data.imageUrl))
             if (url) {
                 dispatch(setImageUrl(url))
                 dispatch(setButtonId(page.data.buttonMessageId))    
-                    dispatch(setImageUrl(page.data.imageUrl))
+                dispatch(setImageUrl(page.data.imageUrl))
             }
             if (!url) {
                 dispatch(setButtonId(''))
                 dispatch(setImageUrl(page.data.imageUrl))
             }
-        
      }
 
     useEffect(() => {
@@ -178,33 +179,19 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [page])
 
     useEffect(() => {
-
       if (page.data.finalImageUrl  == undefined || !page.data.text){
-
         setIncomplete(true)
-   
       }
       if (page.data.finalImageUrl && page.data.text){
      
           setIncomplete(false)
-            console.log('should be adding ', pageId, 'to completed oages')
             dispatch(setCompletedPages(pageId)) // Add the string to the array
-
-
         onPageComplete(page.id)
         // dispatch(setPagesComplete(pagesComplete + 1))
       }
     }, [page, pagesComplete])
 
-  
-
-      
-    useEffect(() => {
-      console.log('PAGES COMPLETE', completedPagesArray)
-  }, [completedPagesArray])
-
 return (
-
 <div className={`transition-transform duration-500 ease-in-out transform hover:scale-110 group ${active ? 'bg-purple-500' : 'bg-purple-300'}`}>
   <button
     onClick={viewPage}

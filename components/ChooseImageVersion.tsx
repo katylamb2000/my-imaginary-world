@@ -9,7 +9,7 @@ function ChooseImageVersion() {
     const buttonMsgId = useSelector((state: RootState) => state.pageToEdit.buttonMsgId)
 
     const buttonClicked = async(button: string) => {
-        console.log('button clicked', buttonMsgId)
+
         try {
           var data = JSON.stringify({
             button: button,
@@ -29,7 +29,7 @@ function ChooseImageVersion() {
           };
       
           const response = await axios(config);
-          console.log(JSON.stringify(response.data));
+
         } catch (error) {
           console.log(error);
         }

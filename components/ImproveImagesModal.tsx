@@ -95,7 +95,6 @@ function ImproveImagesModal() {
 
     useEffect(() => {
         if (!messages.length) {
-            console.log("not ready to send initial message yet")
         } else if (messages.length == 1){
             console.log("now we have the message with story", messages)
             // talkToChatGPTNotGettingImagePrompt()
@@ -104,7 +103,7 @@ function ImproveImagesModal() {
     
 
     const talkToChatGPTNotGettingImagePrompt = async() => {
-        console.log('this is the story', story)
+
         // setMessages([...messages, { role: "user", content: userMessage }]);
 
         try{
@@ -196,7 +195,6 @@ const getImagePrompts = () => {
 
     const sendGetImagePrompts = async() => {
         try{
-        // console.log('this is the page text', pageText)
         const response = await fetch('/api/aiChatGPTAssistant', {
             method: 'POST', 
             headers: {
@@ -230,7 +228,6 @@ const getImagePrompts = () => {
 
 
         const sendPromptToMidjourney = async() => {
-            console.log('is this the PROBLEM????', imagePrompt)
             var data = JSON.stringify({
                 msg: imagePrompt,
                 ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: pageId },
@@ -259,7 +256,6 @@ const getImagePrompts = () => {
         }
 
         const sendPromptToMidjourneyForDoublePageImage = async() => {
-            console.log('is this the PROBLEM????', imagePrompt)
             var data = JSON.stringify({
                 msg: imagePrompt,
                 ref: { storyId: storyId, userId: session!.user!.email, action: 'imagine', page: pageId },
@@ -288,7 +284,6 @@ const getImagePrompts = () => {
         }
 
     const getDoublePageImageIdea = async() => {
-        console.log(previousPageText, '====>', nextPageText)
         const doublePageImageIdeaPrompt = `for the story ${story} I have a blank page page between ${previousPageText} and ${nextPageText}. On this page I want to create a really exciting image. Please give me a really fun and creative idea for an image or multiple images that I can put here that will appeal to a child. Please be as creative as you possibly can.  `
         setMessages(prevMessages => [...prevMessages, { role: "user", content: doublePageImageIdeaPrompt }]);
         // setSendGetImagePromptsReady(true)
@@ -318,7 +313,6 @@ const getImagePrompts = () => {
     } 
 
     const getTitleIdeas = () => {
-        console.log('get book title ideas')
         setPromptType('getTitleIdeas')
         const getTitleIdeasPrompt = `For the story ${story}, I want you to generate a list of 10 creative title ideas that will appeal to a child called ${heroName}. Generate your response in the form of a list like this: 
         1. title one, 
@@ -346,7 +340,6 @@ const getImagePrompts = () => {
 
     useEffect(() => {
         if (!selectedTitle.length) return;
-        console.log('selectedTitle', selectedTitle)
         const updateTitle = async () => {
             const docRef = doc(db, "users", session?.user?.email!, "storys", storyId);
             await updateDoc(docRef, {

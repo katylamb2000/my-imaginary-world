@@ -15,7 +15,6 @@ function BookLayoutBack({ page }: Props) {
     const dispatch = useDispatch()
     const pageActive = useSelector((state: RootState) => state.storyBuilderActive.name);
     const currentPageId = useSelector((state: RootState) => state.pageToEdit.id);
-    // console.log('Page id ==>', currentPageId)
     const [active, setActive] = useState<boolean>(false);
     const [url, setUrl] = useState<string | null>(null);
 
@@ -27,7 +26,6 @@ function BookLayoutBack({ page }: Props) {
         }
         if (page.id !== currentPageId) {
             setActive(false)
-            // console.log('border should be green')
         }
     }, [currentPageId, page])
 

@@ -45,13 +45,11 @@ function ViewStoryPage({ page, imagePrompts, storyId, storyBaseImagePrompt }: Pr
 
 useEffect(() => {
   if (page.data.imageChoices && page.data.buttons[0] == 'U1') {
-    console.log('we have image choices')
     setImage(page.data.imageChoices);
     setShowChoiceButtons(true)
   } else if (page.data.imageChoices && page.data.buttons[0] !== 'U1') {
     setImage(page.data.imageChoices);
     setShowChoiceButtons(false)
-    console.log('we have a final image')
   }
 }, [page, imageCommandSent]);
 
@@ -61,7 +59,6 @@ useEffect(() => {
  }, [page])
 
  const buttonClicked = async(button: string) => {
-  console.log('button clicked', button, page.data.buttonMessageId)
   try {
     var data = JSON.stringify({
       button: button,
@@ -88,7 +85,6 @@ useEffect(() => {
  }
 
  const sendImagineCommand = async() => {
-  console.log('sending this prompt => ', page.data.imagePrompt)
   setLoading(true)
   var data = JSON.stringify({
     msg: `${page.data.imagePrompt} `,
@@ -128,18 +124,15 @@ const editPageText = () => {
   dispatch(setText(page.data.page));
   dispatch(setId(page.id));
   if (!page.textColor){
-    console.log('NO TEXT COLOR YET')
     dispatch(setTextColor('text-white'))
   }
   if (page.textColor){
-    console.log('GOT A  TEXT COLOR ')
     dispatch(setTextColor(page.textColor))
   }
 
 }
 
 useEffect(() => {
-  console.log('selected color', selectedPageTextColor)
   setColor(selectedPageTextColor)
 }, [selectedPageTextColor])
 

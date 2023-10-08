@@ -59,13 +59,10 @@ function GetSmallImagesButton() {
             return `${item.name.slice(0, -1)}: ${item.description}`;
           }).join(', ');
         
-        console.log(resultString);
-
-        console.log(characters);
         const prompt = `i am using a A.I. image generator to create images for a childrens illustrated story book. 
       
          For any characters feeatures please reference these character descriptions: ${characters} `
-        console.log(firstImagePrompt)
+
         if (!session || !pageId || !storyId) return;
         try{
             const response = await fetch('/api/createCoverImagePrompt', {
@@ -125,8 +122,7 @@ function GetSmallImagesButton() {
             
         `
       ;
-     
-      console.log('prompt', imageDescriptionsPrompt)
+
       try{
         // const response = await fetch('/api/createSmallImagePrompts', {
           const response = await fetch('/api/singlePageCreateSmallImageIdeas', {

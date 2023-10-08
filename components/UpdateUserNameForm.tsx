@@ -18,7 +18,6 @@ function UpdateUserNameForm() {
         const updatedUserName = await updateDoc(docRef, {
           userName: userName
         });
-        console.log(updatedUserName)
         dispatch(setUsername(updatedUserName)) 
       }catch(err){
         console.log(err)

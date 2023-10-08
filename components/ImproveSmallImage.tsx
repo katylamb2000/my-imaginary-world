@@ -16,7 +16,6 @@ function ImproveSmallImage() {
     const [thoughts, setThoughts] = useState<string>('')
 
     const sendMessageToImageChatGpt = async() => {
-        console.log(thoughts)
         const imageDescriptionsPrompt = 
         `
         Given the story: ${story}, I used A.I. to generate an image for this page ${pageText}. The prompt i was given to send to an image generator A.I. was ${smallImagePrompt}. 

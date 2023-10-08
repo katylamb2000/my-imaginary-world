@@ -40,7 +40,6 @@ function CharacterProfilePage() {
 
     const getCharacter = () => {
       if (!session || !session.user || !session.user.email || !characterId) {
-        console.error("Session, user email, or characterId is missing");
         return;
       }
       try {
@@ -48,7 +47,6 @@ function CharacterProfilePage() {
         // Listen for real-time updates
         const unsubscribe = onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
-            console.log("This is the character:", docSnap.data());
             setCharacterProfile(docSnap.data());
           } else {
             console.log("No such document!");
@@ -89,7 +87,6 @@ function CharacterProfilePage() {
           const updatedCharacter = await updateDoc(docRef, {
             seed: seed
           });
-          console.log(updatedCharacter)
         } catch (err) {
           console.log(err);
         }
@@ -118,8 +115,6 @@ function CharacterProfilePage() {
   }, [myHero])
 
   const upscaleChosenImage = async(btn: string) => {
-    console.log(btn)
-
 
 var data = JSON.stringify({
   button: btn,
@@ -140,10 +135,7 @@ var config = {
 
 axios(config)
 .then(function (response) {
-  console.log(JSON.stringify(response.data));
-  console.log(JSON.stringify(response.data.messageId));
   setMessageId(response.data.messageId)
-
 })
 .catch(function (error) {
   console.log(error);
@@ -168,10 +160,7 @@ axios(config)
     
     axios(config)
     .then(function (response) {
-      console.log(JSON.stringify(response.data));
       setSeed(response.data.seed)
-      console.log(JSON.stringify(response.data.seed));
-      
     })
     .catch(function (error) {
       console.log(error);
@@ -185,7 +174,6 @@ axios(config)
 
     if (session && storyId) {
       const requestsRef = collection(db, 'requests');
-      console.log(requestsRef)
       const doc = await addDoc(requestsRef, {
         userId: session?.user?.email,
         storyId: storyId,
@@ -194,8 +182,6 @@ axios(config)
         character: myHero,
         characterId: heroId
       });
-
-      console.log(doc)
     } else {
       console.log('no session')
     }

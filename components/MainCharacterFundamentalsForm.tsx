@@ -96,7 +96,6 @@ const updateCharacterDetails = async () => {
     clothing: clothing,
     age: age
   });
-  console.log(newCharacter);
 
   // router.push(`/story/${doc.id}`)
   createStory()
@@ -182,7 +181,6 @@ const createStory = async() => {
 
 const generateCharacter = async() => {
   const prompt = `style cartoon ${age} year old ${gender} in ${clothing}, with ${hairColor} ${hairStyle} hair and ${eyeColor} eyes, ethincity ${skinColor} in the style of realistic figures, 2d game art, tim shumate, rounded, alex hirsch, hispanicore, wide angle, whole body, highly detailed face, happy expression, white background -- v5`
-  console.log(prompt)
   var data = JSON.stringify({
     msg: prompt,
     ref: {  userId: session!.user!.email, action: 'createHero', heroId: heroCharacterId },
@@ -218,7 +216,6 @@ const generateCharacter = async() => {
 }
 
 const getProgress = async(messageId: string) => {
-  console.log('getting progress for', messageId)
   var config = {
     method: 'get',
     url: `https://api.thenextleg.io/v2/message/${messageId}`,

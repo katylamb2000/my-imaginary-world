@@ -1,67 +1,23 @@
-// // pages/generate-pdf.tsx
-
-// import { useState } from 'react';
-// import { Template, generate, BLANK_PDF } from '@pdfme/generator';
-// import axios from 'axios';
-// import { useSession } from 'next-auth/react';
-// import UploadProgress from './UploadProgress';
-
-//   function generatePDF({ storyId, story}: any) {
-
-//     const { data: session } = useSession()
-//     const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-
-//     const createPDFOnServer = async () => {
-//       try {
-//           const response = await axios.post('/api/generatePDF', {
-//               story: story,
-//               session: session
-//           }, {
-//               headers: {
-//                   'Content-Type': 'application/json'
-//               },
-//               onUploadProgress: (progressEvent: any) => {
-//                   // Calculate the progress as a percentage and log it
-//                   let progress = Math.round((progressEvent.loaded / progressEvent.total) * 100);
-//                   console.log(`Upload progress: ${progress}%`);
-//               }
-//           });
-  
-//           const responseData = response.data;
-//           console.log('responseData', responseData);
-//       } catch (err) {
-//           console.error(err);
-//       }
-//   }
-  
-
-
-//   return (
-//     <div>
-//         {uploadProgress !== null ? <UploadProgress progress={uploadProgress} /> : <button onClick={createPDFOnServer}>generatePDF</button>}
-//     </div>
-// );
-
-// }
-
-// export default generatePDF
-
-
 import { useState } from 'react';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import UploadProgress from './UploadProgress';
+import { useSelector } from 'react-redux';
+import { RootState } from '../app/GlobalRedux/store';
 
 function GeneratePDF({ storyId, story }: any) {
   const { data: session } = useSession();
+  const title = useSelector((state: RootState) => state.viewStory.title)
+  const coverImage = useSelector((state: RootState) => state.viewStory.coverImage)
+  // const signatureLineOne = useSelector((state: RootState) => state.viewStory.signatureLineOne)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
   const createPDFOnServer = async () => {
-    console.log(story[0].data.text)
     try {
       const response = await axios.post('/api/generatePDF', {
         story: story,
-        title: 'i am the title',
+        title: title, 
+        coverImage: coverImage,
         session: session
       }, {
         headers: {

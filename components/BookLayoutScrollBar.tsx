@@ -52,16 +52,15 @@ function BookLayoutScrollBar({ storyPages, imageIdeas, story }: Props) {
 
       <div className="space-y-4 w-full items-center mt-6">
         <BookLayoutCoverPage
-           page={story}
-           title="Cover Page"
-     
+            page={story}
+            title="Cover Page"
             previousPage={null}
-           nextPage={1}
-           index={0}
-           key={0}
-           imageIdeas={imageIdeas}
-           pageLength={storyPages.length}
-           onPageComplete={handlePageComplete}
+            nextPage={1}
+            index={0}
+            key={0}
+            imageIdeas={imageIdeas}
+            pageLength={storyPages.length}
+            onPageComplete={handlePageComplete}
             pageId={'Cover Page'}
             storyPagesLength={storyPages.length}
            />
@@ -78,7 +77,7 @@ function BookLayoutScrollBar({ storyPages, imageIdeas, story }: Props) {
                 previousPage={previousPage}
                 nextPage={nextPage}
                 index={index}
-                key={index}
+                key={index +1 }
                 imageIdeas={imageIdeas}
                 pageLength={storyPages.length}
                 onPageComplete={handlePageComplete}

@@ -9,7 +9,7 @@
   [key: string]: string | undefined;
 }
 
-const imageQuery = async (prompt: string) => {
+const imageQuery = async (prompt: string, promptType: string) => {
   console.log("PROMPT PASSED", prompt);
 
   try {
@@ -31,7 +31,7 @@ const imageQuery = async (prompt: string) => {
 
     const pages = imageDescriptions.split("\n"); // Split the story into lines
 
-
+    console.log('from storyImagePrompt ==>>', promptType, pages)
 
     return { success: true, data: { pages } };
 

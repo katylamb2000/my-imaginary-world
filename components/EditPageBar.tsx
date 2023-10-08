@@ -52,10 +52,7 @@ function EditPageBar() {
     const storyComplete = useSelector((state: RootState) => state.viewStory.storyComplete)
     const pagesComplete = useSelector((state: RootState) => state.viewStory.pagesComplete)
 
-    
-    useEffect(() => {
-        console.log('======', storyComplete, pagesComplete)
-    }, [storyComplete, pagesComplete])
+
 
     useEffect(() => {
         if (!pathname) return;
@@ -101,32 +98,6 @@ const updatePageTextInDB = async() => {
     }
 }
 
-const increaseTextSize = () => {
-    console.log()
-}
-
-const decreaseTextSize = () => {
-    console.log()
-}
-
-const finishedUpdatingPageText = () => {
-    console.log('FINISHED')
-}
-
-const addText = () => {
-    console.log('add text')
-    dispatch(updateAddTextModalStatus(true))
-    // dispatch(setAddTextBoxId())
-}
-
-const expandEditText = () => {
-    console.log('ETS', editTextSelected)
-    // if (!selectedPageId.length) return;
-    console.log('i want to get the pageID', selectedPageId)
-    dispatch(setEditText(selectedPageId))
-}
-
-
 useEffect(() => {
     updateFontSize()
 }, [fontSize])
@@ -140,7 +111,6 @@ useEffect(() => {
 const updateFontSize = async() => {
     // if (!storyId || !selectedPageId || !selectedPageId) return;
     if (!storyId || !pageId) return;
-    console.log(storyBuilderActive)
     try{
         const docRef = doc(db, "users", session?.user?.email!, "storys", storyId, "storyContent", pageId);
         const updatedPage = await updateDoc(docRef, {
@@ -153,13 +123,11 @@ const updateFontSize = async() => {
 }
 
     const getImages = () => {
-        console.log("Get images", storyId)
         dispatch(setEditBarType('getImages'))
         dispatch(setName('leftAndRightPage'))
     }
 
     const editText = () => {
-        console.log('i want to close the text editor tool bar', selectedPageId, editTextId)
         dispatch(setEditBarType('editText'))
         dispatch(setName('editLeft'))
     }
@@ -169,7 +137,6 @@ const updateFontSize = async() => {
     }
 
     const openLayoutScrollbar = () => {
-        console.log(showLayoutScrollbar)
         dispatch(setShowLayoutScrollbar(!showLayoutScrollbar))
         if (!showLayoutScrollbar){
             dispatch(setLayoutSelected('default'))

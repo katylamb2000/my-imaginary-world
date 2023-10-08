@@ -15,7 +15,6 @@ function BookLayoutCover({ page }: Props) {
     const dispatch = useDispatch()
     const pageActive = useSelector((state: RootState) => state.storyBuilderActive.name);
     const currentPageId = useSelector((state: RootState) => state.pageToEdit.id);
-    // console.log('Page id ==>', currentPageId)
     const [active, setActive] = useState<boolean>(false);
     const [url, setUrl] = useState<string | null>(null);
 
@@ -27,19 +26,16 @@ function BookLayoutCover({ page }: Props) {
         }
         if (page.id !== currentPageId) {
             setActive(false)
-            // console.log('border should be green')
         }
     }, [currentPageId, page])
 
     const viewPage = () => {
-        console.log('got to dispatch a lot of stuff in order to view cover ====>>>>>  ', page)
         dispatch(setId(page.id))
         dispatch(setText(page.data.text))
         dispatch(setAudioUrl(page.data.audioUrl))
         dispatch(setEditBarType('editCover'))
         dispatch(setName('CoverPage'))
         dispatch(setImageUrl(page.data.imageUrl))
-
     }
 
   return (

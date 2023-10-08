@@ -15,10 +15,6 @@ function SideBar() {
 
   const show = useSelector((state: RootState) => state.pageToEdit.editBarType )
 
-  useEffect(() => {
-    console.log('SHOW SIDE BAR ---> ', show)
-  }, [show])
-
   return (
     <div className="bg-white h-screen ml-2 mr-8 drop-shadow-2xl w-full">
       

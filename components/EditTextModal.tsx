@@ -68,15 +68,11 @@ function EditTextModal() {
     
     Using these principles, take a look at the following story, ${story}, and specifically focus on enhancing this page, ${pageText}, making it more engaging, vivid, and memorable. Keep your response to under 50 words.`
 
-    //   console.log('Story=> ', story)
-    //   console.log("page text", pageText)
 
-    // fetch the aiAssistant message history!   
 
     const sendFirstMessage = async() => {
         try{
-            console.log('sending message')
-            console.log('sending THIS message', messages[0])
+    
             const response = await fetch('/api/aiChatGPTAssistant', {
                 method: 'POST', 
                 headers: {
@@ -95,13 +91,8 @@ function EditTextModal() {
 
     useEffect(() => {
         if (!messages.length && pageText.length && story?.length){
-            console.log('these are messages', messages)
             setMessages([...messages, { role: "system", content: improveContentAndAddTypogrphy }]);
         } 
-        // if (messages.length == 1){
-        //     console.log('these are messages NOw', messages)
-        //     sendFirstMessage()
-        // }  
     }, [messages, story, pageText])
 
     const textToSpeeech = async () => {

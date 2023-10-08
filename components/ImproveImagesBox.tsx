@@ -27,10 +27,8 @@ function ImproveImagesBox() {
         However, I am not happy with the image beause: ${feedback}.
         Please generate an improved prompt for me to send to the image generating ai beased on this feedback. 
         `
-        console.log(prompt)
         setLoading(true)
         try{
-        // console.log('this is the page text', pageText)
         const response = await fetch('/api/createSmallImagePrompts', {
             method: 'POST', 
             headers: {
