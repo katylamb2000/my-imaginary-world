@@ -64,7 +64,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
               });
             }
 
-          if (action === 'improveCoverImage') {
+          if (action === 'improvedCoverImagePrompt') {
             const docRef = adminDb
               .collection('users')
               .doc(userId)
