@@ -47,7 +47,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             });
           }
 
-          if (action === 'improveImagePrompt') {
+          if (action === 'improvedImagePrompt') {
             const docRef = adminDb
               .collection('users')
               .doc(userId)

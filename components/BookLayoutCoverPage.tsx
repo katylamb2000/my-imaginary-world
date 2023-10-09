@@ -46,7 +46,7 @@ function BookLayoutCoverPage({ page }: Props) {
         setActive(true)
         console.log('go to cover page')
         // dispatch(setTitleIdeas(page.data.titleIdeas.coverImagePrompt))
-        console.log('title ideas --->>>', page)
+        console.log('title ideas --->>>', page.data())
     }
 
 return (
@@ -56,13 +56,15 @@ return (
     onClick={viewPage}
     className={` justify-center items-center w-full h-18 mx-auto p-2 text-center ${active ? 'bg-purple-600' : 'bg-purple-300'} hover:bg-purple-400 transition-colors duration-200 rounded-sm`}
   >
+
 <div className={`flex items-center justify-center p-2 border-2 border-transparent transition-all duration-200 ${active ? 'border-purple-700' : ''}`}>
-    <div className="relative w-8 h-8 border border-gray-200 bg-white rounded-sm"></div>
+    <div className="relative w-8 h-8 border border-gray-200 bg-white rounded-sm">
+        <Image src={page.data().coverImageUrl} alt="/" className="rounded-lg object-fill" fill />
+    </div>
 </div>
 
-
     <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
-   Cover Page
+      Cover Page
     </p>
     <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
       {incomplete ? 'stuff missing' : 'complete'}

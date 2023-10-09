@@ -117,7 +117,7 @@ function ImproveImageSideBar() {
         // Parse the string into an array of objects
         const data = JSON.parse(characters);
         // Convert the array of objects into the desired string format
-        const resultString = data.map((item: StoryItem) => {
+        const charactersString = data.map((item: StoryItem) => {
             return `${item.name.slice(0, -1)}: ${item.description}`;
           }).join(', ');
         const prompt = `I am using a A.I. image generator to create images for a childrens illustrated story book. 
@@ -125,7 +125,9 @@ function ImproveImageSideBar() {
         ${firstImagePrompt}, for this page of the story: ${leftPagetext} ${rightPageText},
          but the user has given this feedback: ${userFeedback}. 
          please respond with an inproved prompt given this feedback. 
-         For any characters feeatures please reference these character descriptions: ${characters} `
+         For any characters feeatures please reference these character descriptions: ${charactersString} `
+
+         console.log('this is the prompt ==> ', prompt, 'this is result string', charactersString, 'prompt type', promptType)
         if (!session || !pageId || !storyId || !promptType) return;
         try{
             const response = await fetch('/api/createCoverImagePrompt', {
@@ -162,7 +164,7 @@ function ImproveImageSideBar() {
                     <span> <h2 className="text-4xl"> Improve Image </h2></span>
                 </div>
             {/* {!finalImageUrl} */}
-                <p>IMage type: {imageType}</p>
+                <p>Image type: {imageType}</p>
                 <ImageUpscaleChoiceGrid />
 
         {messageSent == false ? (

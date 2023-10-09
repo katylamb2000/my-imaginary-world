@@ -340,9 +340,9 @@ useEffect(() => {
       </div>
 
       </div>
-      {!finalImageUrl && imageUrl && (
+      {/* {!finalImageUrl && imageUrl && (
          <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant} selectImage={upscaleChosenImage} />
-      )}
+      )} */}
       {/* <button >Go to next image</button> */}
 
     </div>

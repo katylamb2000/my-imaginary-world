@@ -113,8 +113,6 @@ function InsidePageRight() {
       }
     }, [improvedImageUrl, imageUrl])
 
-    console.log(url)
-
 const override: CSSProperties = {
   display: "block",
   margin: "0 auto",
@@ -186,8 +184,6 @@ useEffect(() => {
     const updatedPage = await updateDoc(docRef, {
       text: text
     });
-
-    // dispatch(setEditText(''))
   };
 
 useEffect(() => {

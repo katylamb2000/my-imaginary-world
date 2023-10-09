@@ -13,6 +13,7 @@ import { setUsername } from "../app/GlobalRedux/Features/userDetailsSlice";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
+import { useSelect } from "@mui/base";
 
 function InsidePageLeft() {
   const dispatch = useDispatch();
@@ -20,6 +21,7 @@ function InsidePageLeft() {
   const storyId = useSelector((state: RootState) => state.viewStory.storyId)
   const pageText = useSelector((state: RootState) => state.pageToEdit.text);
   const textColor = useSelector((state: RootState) => state.pageToEdit.textColor)
+  const fontSize = useSelector((state: RootState)  => state.pageToEdit.textSize)
   const smallImageUrl = useSelector((state: RootState) => state.pageToEdit.smallImageUrl);
   const improvedSmallImageUrl = useSelector((state: RootState) => state.pageToEdit.improvedSmallImageUrl)
   const finalSmallImageUrl = useSelector((state: RootState) => state.pageToEdit.finalSmallImageUrl);
@@ -101,7 +103,7 @@ function InsidePageLeft() {
   }
 
   return (
-    <div className="border-2 border-gray-300 border-dashed h-[450px] w-[450px] bg-white drop-shadow-md overflow-y-scroll">
+    <div className="border-2 border-gray-300 border-dashed h-[450px] w-[450px] bg-white drop-shadow-md overflow-y-scroll flex flex-col">
         
         {url && (
             <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4">
@@ -111,7 +113,8 @@ function InsidePageLeft() {
             </div>
         )}  
 
-      <button onClick={editText} className={`m-4 p-4 font-mystery ${textColor} leading-loose my-auto z-10 mb-6`}>{pageText}</button>
+      {/* <button onClick={editText} className={`m-4 p-4 font-mystery ${textColor} leading-loose my-auto z-10 mb-6`}>{pageText}</button> */}
+      <button onClick={editText}  className={`mt-4 mb-6 p-4 font-mystery leading-loose z-10 ${fontSize} ${textColor}`}>{pageText}</button>
 
       {!smallImageUrl && <SmallImageIdeas />}
 

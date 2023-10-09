@@ -49,8 +49,6 @@ import SmallImageIdeas from "./SmallImageIdeas";
 import InsidePageLeft from "./InsidePageLeft";
 import InsidePageRight from "./InsidePageRight";
 
-
-
 type Props = {
   storyPages: any
   imageIdeas: any

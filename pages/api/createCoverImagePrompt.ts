@@ -82,7 +82,7 @@ export default async function createStory(
     if ('coverImagePrompt' in response && !response.coverImagePrompt) {
       throw new Error('message' in response ? (response.message as string) : "Received invalid data from the imageQuery");
     }
-    
+
     if (promptType === 'improvedImagePrompt') {
       if ('coverImagePrompt' in response) {
         const improvedPrompt = response.coverImagePrompt;
@@ -100,6 +100,7 @@ export default async function createStory(
         throw new Error('Cover Image Prompt not found in response');
       }
     }
+
 
     if (promptType === 'improvedCoverImagePrompt') {
       if ('coverImagePrompt' in response) {
