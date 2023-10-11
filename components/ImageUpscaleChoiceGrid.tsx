@@ -62,8 +62,12 @@ function ImageUpscaleChoiceGrid() {
     }
   return (
     <div className='w-full flex mx-auto '>
+      <p>if this is already an improved image chances are the button id is old. </p>
       {upscaleRequestSuccessfull ? (
-      <p>Your final image is on its way!</p>
+        <>
+        <p>Your final image is on its way!</p>
+ 
+      </>
       ):
         <div className='w-48 h-48 bg-purple-400 grid grid-cols-2 gap-4 rounded-md'>
         <button className='p-2 rounded-md bg-white hover:bg-purple-700 hover:text-white m-4 hover:shadow-xl' onClick={() => upscale('U1')}>U1</button>

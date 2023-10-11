@@ -8,17 +8,29 @@ import { RootState } from '../app/GlobalRedux/store';
 function GeneratePDF({ storyId, story }: any) {
   const { data: session } = useSession();
   const title = useSelector((state: RootState) => state.viewStory.title)
-  const coverImage = useSelector((state: RootState) => state.viewStory.coverImage)
-  // const signatureLineOne = useSelector((state: RootState) => state.viewStory.signatureLineOne)
+  // const coverImage = useSelector((state: RootState) => state.viewStory.coverImage)
+  const coverImage = useSelector((state: RootState) => state.viewStory.thumbnailImage);
+  const signatureLineOne = useSelector((state: RootState) => state.pageToEdit.signatureLineOne)
+  const signatureLineTwo = useSelector((state: RootState) => state.pageToEdit.signatureLineTwo)
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
 
+  console.log( 
+    'signatureLineOne:', signatureLineOne,
+    'signatureLineTwo:',  signatureLineTwo)
+
   const createPDFOnServer = async () => {
+   console.log( 
+    'signatureLineOne:', signatureLineOne,
+    'signatureLineTwo:',  signatureLineTwo)
     try {
       const response = await axios.post('/api/generatePDF', {
         story: story,
         title: title, 
         coverImage: coverImage,
-        session: session
+        signatureLineOne: signatureLineOne,
+        signatureLineTwo: signatureLineTwo,
+        session: session, 
+        storyId: storyId, 
       }, {
         headers: {
           'Content-Type': 'application/json'

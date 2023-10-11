@@ -52,7 +52,7 @@ function EditTextSideBar() {
       });
 
       setTextSaved(true)
-      if (pageId == 'page_1') {
+      if (pageId == 'Cover Page') {
         saveTitle()
       }
       // dispatch(dispatch(setText(updatedPage?.data.text))

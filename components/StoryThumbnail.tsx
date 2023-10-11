@@ -7,14 +7,13 @@ import Link from "next/link"
 import type { RootState } from '../app/GlobalRedux/store';
 import { useSession } from "next-auth/react";
 import { useSelector, useDispatch } from 'react-redux';
-import { setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setStoryId, setTitle } from '../app/GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setStoryId, setThumbnailImage, setTitle } from '../app/GlobalRedux/Features/viewStorySlice'
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import { deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { XCircleIcon } from "@heroicons/react/24/solid";
 import { setEditBarType, setId, setImageUrl } from "../app/GlobalRedux/Features/pageToEditSlice"
 import { setIsLoading } from "../app/GlobalRedux/Features/pageLoadingSlice"
-
 
 interface Story {
   id: string,
@@ -44,6 +43,9 @@ function StoryThumbnail({ id, story }: Props) {
     dispatch(setTitle(story.title))
     // dispatch(setImageUrl(page.data.imageUrl))
     // dispatch(setButtonId(page.data.buttonMessageId))
+    if (story.thumbnail){
+      dispatch(setThumbnailImage(story.thumbnail))
+    }
     dispatch(setEditBarType('editCover'))
     dispatch(setStoryId(id))
     dispatch(setIsLoading(true))

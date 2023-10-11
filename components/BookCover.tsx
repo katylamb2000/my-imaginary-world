@@ -22,7 +22,7 @@ function BookCover() {
   const pathname = usePathname();
   const pageText = useSelector((state: RootState) => state.pageToEdit.text);
   const storyTitle = useSelector((state: RootState) => state.viewStory.title);
-  const textColor = useSelector((state: RootState) => state.pageToEdit.titleColor);
+  const textColor = useSelector((state: RootState) => state.viewStory.titleTextColor);
   const signatureTextColor = useSelector((state: RootState) => state.pageToEdit.signatureTextColor);
   const textSize = useSelector((state: RootState) => state.pageToEdit.titleSize);
   const signatureTextSize = useSelector((state: RootState) => state.pageToEdit.signatureTextSize)
@@ -31,7 +31,7 @@ function BookCover() {
   const thumbnailImage = useSelector((state: RootState) => state.viewStory.thumbnailImage)
   const finalImageUrl = useSelector((state: RootState) => state.pageToEdit.finalImageUrl);
   const improvedImageUrl = useSelector((state: RootState) => state.pageToEdit.improvedImageUrl);
-  const coverImage = useSelector((state: RootState) => state.viewStory.coverImage);
+  const coverImage = useSelector((state: RootState) => state.viewStory.thumbnailImage);
   const buttonId = useSelector((state: RootState) => state.pageToEdit.buttonId);
   const [currentStoryId, setCurrentStoryId] = useState<string | null>();
   const showInputBox = useSelector((state: RootState) => state.pageToEdit.showInputBox);
@@ -197,13 +197,10 @@ useEffect(() => {
 
               return cleanedSuggestion;
           });
-
           setTitleSuggestions(cleanedSuggestions);
       }
   }
 }, [titleIdeas]);
-
-
 
 const goToNextSuggestion = () => {
   if (suggestionIndex !== 9){
@@ -219,9 +216,9 @@ useEffect(() => {
   dispatch(setSelectedTitle(titleSuggestions[suggestionIndex]))
 }, [titleSuggestions])
 
+console.log("Story title", storyTitle, "PAGE ID", pageId, 'Title suggestions', titleSuggestions)
 
-
-  return (
+return (
     <div className='bg-gray-50 h-full w-full justify-center overscroll-none'>
       <div className="border-2 border-gray-300 border-dashed h-[600px] w-[600px] bg-white drop-shadow-md text-center items-center relative mt-6 ">
         
@@ -238,50 +235,30 @@ useEffect(() => {
             </button>
         )}
 
-        {/* {titleSuggestions && titleSuggestions.map((suggestion: string) => (
-            <div className='h-1/2 w-full overflow-y-scroll '> 
-                {suggestion}
-            </div>
-        ))} */}
+        {titleIdeas && storyTitle && (
+          <button onClick={editTitle}>
+            <h1 className={`${textSize} font-bold font-roboto ${textColor} mx-auto my-auto relative z-20 cursor-pointer`}
+
+                style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
+                // onClick={editText}
+                >
+                {storyTitle || 'No Title yet'}
+              </h1>
+            </button>
+        )}
 
         {titleSuggestions && !storyTitle && (
             <button className='flex' onClick={goToNextSuggestion}> 
                 <p className={`${textSize} font-bold font-roboto ${textColor} mx-auto my-auto relative z-20 cursor-pointer`}
                   style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
                   >{titleSuggestions[suggestionIndex]}
-                </p>
-                {/* <button className='' onClick={goToNextSuggestion}>
-                  <ArrowDownCircleIcon className='h-5 w-5 bg-purple-500' />
-                </button> */}
-       
+                </p>    
             </button>
         )}
 
-        {/* {showInputBox === false ? (
-          <h1 className={`${textSize} font-bold font-roboto ${textColor} mx-auto my-auto relative z-20 cursor-pointer`}
-            style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}
-            // onClick={editText}
-            >
-            {title}
-          </h1>
-        ) : (
-          <div className='mx-auto z-20 cursor-pointer flex items-center justify-center bg-gray-300'>
-            <textarea
-              placeholder={title || 'title'}
-              className={`placeholder:text-4xl placeholder:font-bold placeholder:text-gray-800 pl-12 h-96 text-4xl ${textColor} font-bold `}
-              value={title}
-              onChange={(e) => dispatch(setText(e.target.value))}
-            />
-            {titleUpdated ? (
-              <CheckDone className='text-green-500 h-8 w-8' />
-            ) : (
-              <CheckCircleIcon className='text-gray-200 h-8 w-8 hover:text-green-200' onClick={saveTitle} />
-            )}
-          </div>
-        )} */}
 
         {/* {!finalImageUrl && (() => { */}
-        {showGrid && (() => {
+        {/* {showGrid && (() => {
           let bgPosition = 'top left';
           switch (currentQuadrant) {
             case 1:
@@ -309,17 +286,9 @@ useEffect(() => {
               }}
             />
           );
-        })()}
+        })()} */}
 
-        {/* {url && (
-     
-            <div className="h-full w-full relative bg-gray-100">
-              <button className='w-full h-full cursor-pointer' onClick={editMainImage}>
-            <Image className="w-full h-full z-10" fill src={url} alt='/' />
-            </button>
-          </div>
-     
-        )} */}
+
           {url && (
      
      <div className="h-full w-full relative bg-gray-100">
@@ -335,15 +304,11 @@ useEffect(() => {
               {signatureLineOne.length > 0 ? signatureLineOne : (session?.user?.name ? `Written and illustrated by ${session?.user?.name}` : session?.user?.email)}
           </p>
           <p className={`mx-auto my-auto ${signatureTextSize} ${signatureTextColor}`}>
-              {signatureLineTwo.length > 0 ? signatureLineTwo :  'With a bit of help from A.I.'}
+              {signatureLineTwo.length > 0 ? signatureLineTwo :  'With a bit of help from A.I. :)'}
           </p>
       </div>
 
       </div>
-      {/* {!finalImageUrl && imageUrl && (
-         <NextImageModal nextImage={nextQuadrant} lastImage={lastQuadrant} selectImage={upscaleChosenImage} />
-      )} */}
-      {/* <button >Go to next image</button> */}
 
     </div>
   );

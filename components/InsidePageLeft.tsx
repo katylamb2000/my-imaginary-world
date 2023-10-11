@@ -71,7 +71,7 @@ function InsidePageLeft() {
     if (finalSmallImageUrl){
         setUrl(finalSmallImageUrl)
     }
-  }, [smallImageUrl, finalSmallImageUrl])
+  }, [smallImageUrl, finalSmallImageUrl, pageText])
 
   useEffect(() => {
 

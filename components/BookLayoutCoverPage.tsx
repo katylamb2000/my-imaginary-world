@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/GlobalRedux/store";
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
-import { setPagesComplete, setStoryComplete, setCompletedPages, setTitleIdeas } from "../app/GlobalRedux/Features/viewStorySlice";
+import { setPagesComplete, setStoryComplete, setCompletedPages, setTitleIdeas, setThumbnailImage } from "../app/GlobalRedux/Features/viewStorySlice";
 import { 
   setId, setText, setImageUrl, setButtonId, setPreviousPageText, setNextPageText, setFormattedText, 
   setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, 
@@ -33,21 +33,37 @@ type ImageIdea = {
       object: string, 
       characterCloseUp: string, 
       backgroundImage: string,
-
     }}
 
 function BookLayoutCoverPage({ page }: Props) {
     const dispatch = useDispatch()
     const [active, setActive] = useState(false)
     const [incomplete, setIncomplete] = useState(true)
+    const coverImage = useSelector((state: RootState) => state.viewStory.thumbnailImage)
+    const storyTitle = useSelector((state: RootState) => state.viewStory.title)
+    const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name)
 
     const viewPage = () => {
         dispatch(setName('CoverPage'))
         setActive(true)
         console.log('go to cover page')
+        dispatch(setId(''))
+        // dispatch(setThumbnailImage(page.data().thumbnailImage))
         // dispatch(setTitleIdeas(page.data.titleIdeas.coverImagePrompt))
         console.log('title ideas --->>>', page.data())
     }
+
+    useEffect(() => {
+      if (storyBuilderActive == 'CoverPage'){
+        setActive(true)
+      }
+    }, [storyBuilderActive])
+
+    useEffect(() => {
+      if (coverImage && storyTitle){
+        setActive(true)
+      }
+    }, [coverImage, storyTitle])
 
 return (
 
@@ -59,7 +75,9 @@ return (
 
 <div className={`flex items-center justify-center p-2 border-2 border-transparent transition-all duration-200 ${active ? 'border-purple-700' : ''}`}>
     <div className="relative w-8 h-8 border border-gray-200 bg-white rounded-sm">
-        <Image src={page.data().coverImageUrl} alt="/" className="rounded-lg object-fill" fill />
+        {/* <Image src={page.data().coverImageUrl} alt="/" className="rounded-lg object-fill" fill /> */}
+        <Image src={coverImage} alt="/" className="rounded-lg object-fill" fill />
+
     </div>
 </div>
 

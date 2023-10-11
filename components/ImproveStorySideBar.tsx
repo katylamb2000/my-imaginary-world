@@ -118,8 +118,15 @@ function ImproveStorySideBar() {
 
     useEffect(() => {
         if (story) {
-            const initialMessage = `I want you to act as super friendly and helpful assistant. please read this story:  ${story}. When you have read the story tell the user you have read it, naming it by its title if it has one. Give a brief opinion of the story This should be less than 100 words. 
-            And then list 4 ways the story can be improveed to ake it more engaging and entertainng for a young child. Think about specific literary techniques that authors use when creating popular books for young readers. Do not give any suggestions related to images as we will be working on images later. Please keep your response under 60 words
+            const initialMessage = 
+            `I want you to act as super friendly and helpful assistant. please read this story:  ${story}. 
+            When you have read the story tell the user you have read it, naming it by its title if it has one. 
+            Give a brief opinion of the story This should be less than 100 words. 
+            And then list 4 ways the story can be improveed to ake it more engaging and entertainng for a young child. 
+            Think about specific literary techniques that authors use when creating popular books for young readers. 
+            Do not give any suggestions related to images as we will be working on images later. 
+            Please keep your response under 60 words
+
             When giving the four suggestions structrue the response like this: 
             
             1. suggestion title
@@ -133,6 +140,7 @@ function ImproveStorySideBar() {
             
             4. suggestion title
             this is a more detailed explanation of the suggestion.`;
+
             setInitialMessage(initialMessage);
             setMessages([{ role: "system", content: initialMessage }]);
         }
@@ -247,7 +255,7 @@ useEffect(() => {
     }, [getAIHelpToImproveStory])
 
   return (
-    <div className="bg-white h-screen ml-2 mr-8">
+    <div className="bg-green-500 h-screen ml-2 mr-8">
 
     <div className='space-y-6 w-full pt-8 '>
         <div className="space-x-4 w-full flex h-12 items-center group cursor-pointer">

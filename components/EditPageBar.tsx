@@ -52,8 +52,6 @@ function EditPageBar() {
     const storyComplete = useSelector((state: RootState) => state.viewStory.storyComplete)
     const pagesComplete = useSelector((state: RootState) => state.viewStory.pagesComplete)
 
-
-
     useEffect(() => {
         if (!pathname) return;
         const regex = /^\/story\/([a-zA-Z0-9]+)$/;

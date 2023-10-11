@@ -194,8 +194,8 @@ function EditTitleBox() {
         <div className="items-center space-y-2 w-full space-x-6 flex">
             <div className="w-1/5 ">
               <label htmlFor="font" className="font-semibold text-md 0">
-              Font:
-            </label>
+                Font:
+              </label>
           </div>
         <select
           id="font"
