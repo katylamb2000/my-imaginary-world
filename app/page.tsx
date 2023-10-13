@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "./GlobalRedux/store"
 import { setName } from "../app/GlobalRedux/Features/storyBuilderActiveSlice";
 import StoryThumbnail from '../components/StoryThumbnail'
-import { addDoc, collection, serverTimestamp, doc } from "firebase/firestore"
+import { addDoc, collection, serverTimestamp, doc, getDocs } from "firebase/firestore"
 import { db } from "../firebase"
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore'
 import SideBar from "../components/SideBar"
@@ -77,6 +77,30 @@ function HomePage() {
     const [storys, loading, error] = useCollection(
       session && collection(db, 'users', session?.user?.email!, 'storys'),
     )
+
+    useEffect(() => {
+      const fetchStories = async () => {
+        try {
+          const storiesRef = collection(db, 'users', session?.user?.email!, 'storys');
+          const snapshot = await getDocs(storiesRef);
+          const fetchedStories = snapshot.docs.map(doc => doc.data());
+          console.log("Fetched stories:", fetchedStories);
+        } catch (err) {
+          console.error("Error fetching stories:", err);
+        }
+      }
+    
+      if(session?.user?.email) {
+        fetchStories();
+      }
+    }, [session?.user?.email]);
+    
+
+    useEffect(() => {
+      console.log('storys', storys)
+      console.log("Email from session:", session?.user?.email);
+
+    }, [storys, session])
 
     const [user, userLoading, userError] = useDocument(
       session?.user?.email

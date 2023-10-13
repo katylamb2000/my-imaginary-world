@@ -14,6 +14,8 @@ import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useSession } from "next-auth/react";
 import { useSelect } from "@mui/base";
+import { styled } from '@mui/material/styles';
+import Tooltip from '@mui/material/Tooltip';
 
 function InsidePageLeft() {
   const dispatch = useDispatch();
@@ -33,6 +35,19 @@ function InsidePageLeft() {
   const [color, setColor] = useState("#c026d3");
   const [loading, setLoading] = useState(false);
 
+  const CustomTooltip = styled(Tooltip)(({ theme }) => ({
+    '& .MuiTooltip-tooltip': {
+      backgroundColor: 'purple',
+      color: '#fff',
+      fontSize: '14px',
+      borderRadius: '4px',
+      padding: '10px',
+    },
+    '& .MuiTooltip-arrow': {
+      color: 'purple',
+    },
+  }));
+
   const editText = () => {
     dispatch(setEditBarType('editText'));
     dispatch(setName('editLeft'));
@@ -41,7 +56,6 @@ function InsidePageLeft() {
   const editImage = () => {
     dispatch(setName('improveLeftImage'))
     dispatch(setEditBarType('improveRightImage'))
-
   };
 
   const play = useCallback(() => {
@@ -107,13 +121,14 @@ function InsidePageLeft() {
         
         {url && (
             <div className="relative w-1/2 h-1/2 z-50 mx-auto mt-4">
+              <CustomTooltip title="Click to select your image" arrow>
                 <button onClick={editImage}>
                     <Image src={url} alt='/' className="flex-2" fill />
                 </button>
+              </CustomTooltip>
             </div>
         )}  
 
-      {/* <button onClick={editText} className={`m-4 p-4 font-mystery ${textColor} leading-loose my-auto z-10 mb-6`}>{pageText}</button> */}
       <button onClick={editText}  className={`mt-4 mb-6 p-4 font-mystery leading-loose z-10 ${fontSize} ${textColor}`}>{pageText}</button>
 
       {!smallImageUrl && <SmallImageIdeas />}

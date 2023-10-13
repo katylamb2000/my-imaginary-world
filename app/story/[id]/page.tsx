@@ -19,7 +19,7 @@ import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector, useDispatch } from "react-redux"
 import { setbuttonMsgId, setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
 import { addCharacters, addCharacter } from "../../GlobalRedux/Features/characterSlice"
-import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters, setTitleIdeas, setThumbnailImage } from '../../GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters, setTitleIdeas, setThumbnailImage, setPdfUrl } from '../../GlobalRedux/Features/viewStorySlice'
 import { setName } from '../../GlobalRedux/Features/storyBuilderActiveSlice'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
@@ -258,6 +258,9 @@ useEffect(() => {
    
     // const coverImageUrl = story?.data()?.coverImageUrl
     // dispatch(setThumbnailImage(coverImageUrl))
+
+    const pdfUrl = story?.data()?.pdfUrlFull
+    dispatch(setPdfUrl(pdfUrl))
   
     const coverImage = story?.data()?.coverImageUrl
     dispatch(setCoverImage(coverImage))

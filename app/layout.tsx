@@ -45,7 +45,7 @@ export default async function RootLayout({
       
       />
 
-<body style={caesar.style}  className={`
+<body style={patrickHand.style}  className={`
   ${mystery.variable} ${roboto.variable} ${caesar.variable} ${quicksand.variable} ${indieFlower.variable} ${amatic.variable} ${patrickHand}>
 `}>
 {/* <NextNProgress color='#a855f7' /> */}

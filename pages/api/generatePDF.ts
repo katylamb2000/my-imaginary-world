@@ -79,7 +79,7 @@ const marginWithSafeArea = 50 + bleed;
 
 // Process each story page
 for (let i = 0; i < Math.min(15, story.length); i++) {
-    // for (let i = 0; i < 4; i++) {
+    // for (let i = 0; i < 3; i++) {
     doc.addPage();
 
 // const smallImageUrl = story[i].data.finalSmallImageUrl || story[i].data.smallRoundImageUrl;
@@ -198,20 +198,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const { story, title, coverImage, signatureLineOne, signatureLineTwo, session, storyId } = req.body;
         console.log('these are signature!!!!', signatureLineOne, signatureLineTwo)
   
-
-        // // Save to Firestore (this example assumes you have a 'pdfs' collection)
-        // const pdfRef = adminDb
-        // .collection('users')
-        // .doc(session.user.email)
-        // .collection('storys')
-        // .doc(storyId)
-        // .collection('Pdfs')
-        // .doc(storyId);
-   
-        // await pdfRef.set({ pdf: pdfBase64 });
-
-        
-
                 // 1. Generate the PDF
                 const pdfBuffers = await createPDF(story, title, coverImage, signatureLineOne, signatureLineTwo);
                 const pdfData = Buffer.concat(pdfBuffers);
@@ -242,22 +228,27 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                         resolve();
                     });
 
-                    console.log('sgined url', signedUrl)
+                    console.log('signed url', signedUrl)
         
                     // Write the PDF to storage
                     blobStream.end(pdfData);
                 });
-        
+                
                 // 4. Save URL to Firestore (modify this part to match your Firestore structure for storing PDF URLs)
+                console.log("About to update Firestore with URL:", signedUrl);
+
                 const storyRef = adminDb
                     .collection('users')
                     .doc(session.user.email)
                     .collection('storys')
                     .doc(storyId); // Assuming you have the correct storyId
         
-                await storyRef.update({
-                    pdfUrl: signedUrl,
-                });
+                    try {
+                        await storyRef.set({ pdfUrlFull: signedUrl }, { merge: true });
+                    } catch (error) {
+                        console.error("Error updating/creating Firestore document:", error);
+                    }
+                    
         
                 // 5. Respond to Client
                 res.setHeader('Content-Type', 'application/pdf');

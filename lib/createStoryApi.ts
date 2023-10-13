@@ -130,8 +130,6 @@ const query = async (prompt: string) => {
       presence_penalty: 0,
     });
 
-  
-
     const story = res.data.choices[0].text;
     if (!story) {
       throw new Error("Story is undefined");

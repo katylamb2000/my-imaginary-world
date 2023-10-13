@@ -34,7 +34,8 @@ function Header(){
     const [admin, setAdmin] = useState <null | any>(null)
     // const [storyId, setStoryId] = useState<null | string>(null)
     const storyId = useSelector((state: RootState) => state.viewStory.storyId)
-    const [pdf, setPdf] = useState<null | string>(null)
+    const pdfUrl = useSelector((state: RootState) => state.viewStory.pdfUrl)
+    // const [pdf, setPdf] = useState<null | string>(null)
 
     const userEmail = session?.user?.email;
     const adminCollectionRef = userEmail ? collection(db, "users", userEmail, "Admin") : null;
@@ -90,10 +91,10 @@ function Header(){
             : null
         );
     
-        useEffect(() => {
-          if (!story?.data()?.pdf) return;
-          setPdf(story!.data()!.pdf)
-        }, [story])
+        // useEffect(() => {
+        //   if (!story?.data()?.pdf) return;
+        //   setPdf(story!.data()!.pdf)
+        // }, [story])
 
     const createCheckoutSession = async() => {
          const stripe = await stripePromise; 
@@ -102,7 +103,9 @@ function Header(){
          const checkoutSession = await axios.post('/api/checkout_sessions', 
           {
             items: 'book',
-            userSession: session
+            userSession: session,
+            storyId: storyId,
+
 
           });
 
@@ -110,6 +113,7 @@ function Header(){
           const result = await stripe?.redirectToCheckout({
             sessionId: checkoutSession.data.id
           })
+          console.log('RESULT ==>', result)
           if (result?.error) {
             alert(result.error.message);
           }
@@ -167,7 +171,7 @@ return(
 
 
 
-{pdf && (
+{pdfUrl && (
 <button 
   role='link'
   disabled={!session}
@@ -175,6 +179,7 @@ return(
   className=''>
 
   <BookOpenIcon className="text-pink-600 h-12 w-12" />
+  <p>Order this book</p>
   </button>
 )}
 

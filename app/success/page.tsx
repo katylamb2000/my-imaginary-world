@@ -7,6 +7,10 @@ import { useRouter } from 'next/navigation'
 
 function OrderSuccessPage() {
     const router = useRouter()
+
+    const sendOrderToGelato = () => {
+     
+    }
   return (
     <div className='bg-gray-50 h-screen'>
             <main className='max-w-screen-lg mx-auto h-screen '>

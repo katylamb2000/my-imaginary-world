@@ -11,7 +11,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState, useRef, useCallback, CSSProperties } from "react";
 import { setImageUrl, setEditText, setText, setId , setAudioUrl, setEditBarType, setMidjourneyInitialRequestResponse} from "../app/GlobalRedux/Features/pageToEditSlice";
 import { setEditTextPageId } from "../app/GlobalRedux/Features/editTextModalSlice";
-import { setStoryId } from "../app/GlobalRedux/Features/viewStorySlice";
+import { setPageLoadingMainImage, setStoryId } from "../app/GlobalRedux/Features/viewStorySlice";
 import { doc, updateDoc, collection } from "firebase/firestore";
 
 import { db } from "../firebase";
@@ -45,6 +45,10 @@ function InsidePageRight() {
     const smallImageUrl = useSelector((state: RootState) => state.pageToEdit.smallImageUrl)
     const finalImageUrl = useSelector((state: RootState) => state.pageToEdit.finalImageUrl)
     const midjourneySuccess = useSelector((state: RootState) => state.pageToEdit.midjourneyInitialRequestResponse)
+    const pageId = useSelector((state: RootState) => state.pageToEdit.id )
+    const isPageLoading = useSelector((state: RootState) => 
+          pageId ? state.viewStory.pagesLoadingMainImage[pageId] : false
+      );
     const [fullPageImageUrl, setFullPageImage] = useState(null)
     const [smallRoundImageUrl, setSmallRoundImageUrl] = useState('https://media.discordapp.net/attachments/1083423262681350234/1141007317580656672/katy2000_on_a_white_background_in_the_style_of_adam_stower_a_c_863e0d5e-0589-493d-b9bb-211e6caa0ab2.png?width=1060&height=1060')
     // const [smallRoundImageUrl, setSmallRoundImageUrl] = useState('https://media.discordapp.net/attachments/1083423262681350234/1140985949216571463/katy2000_on_a_white_background_draw_two_friendly_aliens_in_the_5a7de73c-0857-4382-9cea-a6b4ade86a5b.png?width=1060&height=1060')
@@ -55,7 +59,7 @@ function InsidePageRight() {
     const editTextSelected = useSelector((state: RootState) => state.editTextModal.editTextPageId)
     const storyId = useSelector((state: RootState) => state.viewStory.storyId)
     const story = useSelector((state: RootState) => state.viewStory.fullStory)
-    const pageId = useSelector((state: RootState) => state.pageToEdit.id )
+
 
     const newFontColor = useSelector((state: RootState) => state.pageToEdit.textColor)
     const newFontSize = useSelector((state: RootState) => state.pageToEdit.textSize)
@@ -304,6 +308,7 @@ const getImage = async () => {
       dispatch(setMidjourneyInitialRequestResponse(midjourneyResp))
       console.log("Midjourney Response JSON:", midjourneyResp);
       updatePageWithSuccessMsg()
+      dispatch(setPageLoadingMainImage(pageId)); // set the page as loading          // ... handle the response ... 
   } catch (error) {
       console.error("Error sending to Midjourney:", error);
       throw error;  // If you want the main function to catch this error too
@@ -421,19 +426,18 @@ return (
              </div>
         )}
     
-
-            {firstImagePromptIdea && !imageUrl && !midjourneySuccess && (
+    {firstImagePromptIdea && !imageUrl && !midjourneySuccess && (
             <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
             onClick={getImage}
             >
                {firstImagePromptIdea}
                {/* {imagePrompt} */}
             </button>
-            )}
+      )}
 
-        {firstImagePromptIdea && !imageUrl && midjourneySuccess && (
-                      <div className="w-full h-full items-center text-center ">
-                      <SyncLoader
+      {firstImagePromptIdea && !imageUrl && midjourneySuccess && isPageLoading && (
+          <div className="w-full h-full items-center text-center ">
+                <SyncLoader
                          color={color}
                          loading={loading}
                          cssOverride={override}
@@ -441,9 +445,9 @@ return (
                          aria-label="Loading Spinner"
                          data-testid="loader"
                        />
-                          <p className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600">Your image is being created</p>
-                       </div>
-            )}
+                <p className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600">Your image is being created</p>
+          </div>
+    )}
     
           </div>
           </div>

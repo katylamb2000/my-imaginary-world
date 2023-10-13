@@ -6,10 +6,13 @@ import admin, { app } from "firebase-admin";
 import { adminDb } from "../../firebaseAdmin";
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_TEST)
-const endpointSecret = process.env.STRIPE_SIGNING_SECRET;
+// const endpointSecret = process.env.STRIPE_SIGNING_SECRET;
+const endpointSecret = 'whsec_ehOlurOLrSfB0mhJkR3AkCmtylW8a8ha'
 
 const fulfillOrder = async (session: ReturnType<typeof stripe>['Checkout']['Session']) => {
-    // console.log('fulfillin order', session)
+    console.log('fulfillin order', session)
+
+    const shippingAddress = session.shipping;
 
     await adminDb
     .collection('users')
@@ -18,7 +21,19 @@ const fulfillOrder = async (session: ReturnType<typeof stripe>['Checkout']['Sess
     .doc(session.id)
     .set({
         amount: session.amount_total /100,
-        timestamp: admin.firestore.FieldValue.serverTimestamp()
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+             // Store the shipping address
+             shipping: {
+                name: shippingAddress.name,
+                address: {
+                    line1: shippingAddress.address.line1,
+                    line2: shippingAddress.address.line2,
+                    city: shippingAddress.address.city,
+                    postal_code: shippingAddress.address.postal_code,
+                    state: shippingAddress.address.state,
+                    country: shippingAddress.address.country,
+                }
+            }
     })
     .then(() => {
         console.log(`SUCCESS: Order ${session.id} has been added to the DB`)
@@ -29,6 +44,9 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
   ) {
+
+    console.log('Webhook endpoint hit!');
+
 
     if (req.method === 'POST'){
         const requestBuffer = await buffer(req);

@@ -29,7 +29,10 @@ interface ViewStorySlice {
     titleTextColor: string
     completedPages: CompletePage[],
     titleIdeas: string | null,
-    selectedTitle: string | null
+    selectedTitle: string | null,
+    pagesLoadingMainImage: Record<string, boolean>;
+    pdfUrl: string | null
+
 }
 
 const initialState: ViewStorySlice = {
@@ -46,7 +49,9 @@ const initialState: ViewStorySlice = {
     titleTextColor: 'text-black',
     completedPages: [],
     titleIdeas: null,
-    selectedTitle: null
+    selectedTitle: null,
+    pagesLoadingMainImage: {},
+    pdfUrl: null
 }
 
 export const viewStorySlice = createSlice({
@@ -100,13 +105,26 @@ export const viewStorySlice = createSlice({
 setSelectedTitle: (state, action) => {
     state.selectedTitle = action.payload;
 },
+setPageLoadingMainImage: (state, action) => {
+    const pageId = action.payload;
+    state.pagesLoadingMainImage[pageId] = true;
+},
+setPageDoneLoadingMainImage: (state, action) => {
+    const pageId = action.payload;
+    state.pagesLoadingMainImage[pageId] = false;
+},
+setPdfUrl: (state, action) => {
+    state.pdfUrl = action.payload;
+},
+
   
     }
 });
 
 export const { 
     setTitle, setStoryId, setThumbnailImage, setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setFullStory, setCoverImage, 
-    setStoryComplete, setStoryCharacters, setPagesComplete, setTitleTextColor, setCompletedPages, setTitleIdeas, setSelectedTitle
+    setStoryComplete, setStoryCharacters, setPagesComplete, setTitleTextColor, setCompletedPages, setTitleIdeas, setSelectedTitle,
+    setPageLoadingMainImage, setPageDoneLoadingMainImage, setPdfUrl
 } 
     = viewStorySlice.actions;
 
