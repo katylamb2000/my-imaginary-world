@@ -97,16 +97,15 @@ function Header(){
         // }, [story])
 
     const createCheckoutSession = async() => {
+      console.log('should be creating checkout session')
          const stripe = await stripePromise; 
-
+        try{
          // call the backend to creae a checkout session!
          const checkoutSession = await axios.post('/api/checkout_sessions', 
           {
             items: 'book',
             userSession: session,
             storyId: storyId,
-
-
           });
 
           //redirect to checkour
@@ -117,7 +116,10 @@ function Header(){
           if (result?.error) {
             alert(result.error.message);
           }
+        }catch(err){
+          console.log('ERR ==>', err)
         }
+      }
 
   const goHome = () => {
       dispatch(setName(''))
