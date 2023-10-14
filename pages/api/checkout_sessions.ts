@@ -41,7 +41,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // ... any other fields you want to update
       }, { merge: true });
 
-      res.redirect(303, session.url);
+      res.status(200).json({ id: session.id });
+      // res.redirect(303, session.url);
     } catch (err) {
       res.status((err as any).statusCode || 500).json((err as any).message);
     }
