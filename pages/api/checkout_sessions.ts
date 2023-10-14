@@ -4,6 +4,7 @@ import { adminDb, firebaseStorage } from '../../firebaseAdmin';
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_TEST);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  console.log(process.env.HOST)
 
   if (req.method === 'POST') {
     const { items, userSession, storyId } = req.body;
@@ -40,7 +41,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // ... any other fields you want to update
       }, { merge: true });
 
-      res.status(200).json({ id: session.id });
       res.redirect(303, session.url);
     } catch (err) {
       res.status((err as any).statusCode || 500).json((err as any).message);
