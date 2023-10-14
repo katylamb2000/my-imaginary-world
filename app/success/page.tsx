@@ -2,15 +2,31 @@
 
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
+import { useEffect, useState} from 'react'
 import { CheckCircleIcon } from '@heroicons/react/24/solid'
 import { useRouter } from 'next/navigation'
+import { useSelector } from 'react-redux'
+import { RootState } from '../GlobalRedux/store'
+import { doc } from 'firebase/firestore'
+import { useSession } from 'next-auth/react'
+import { db } from '../../firebase'
 
 function OrderSuccessPage() {
     const router = useRouter()
-
+    const { data: session } = useSession()
+    const storyId = useSelector((state: RootState) => state.viewStory.storyId)
     const sendOrderToGelato = () => {
      
     }
+
+    useEffect(() => {
+        if (!storyId) return;
+      
+        const docRef = doc(db, "users", session?.user?.email!, "checkout_sessions", storyId);
+
+        console.log(docRef)
+      }, [storyId]);
+
   return (
     <div className='bg-gray-50 h-screen'>
             <main className='max-w-screen-lg mx-auto h-screen '>
