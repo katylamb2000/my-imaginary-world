@@ -4,14 +4,23 @@ import admin from "firebase-admin"
 import type { NextApiRequest, NextApiResponse } from 'next';
 import assistantConversation from '../../lib/createAssistantConversations'
 
+
 type Data = {
   answer?: string;
   error?: string;
 };
 
+
+type ErrorResponse = {
+  success: boolean;
+  message: string;
+};
+
+
+
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<Data>
+  res: NextApiResponse<Data | ErrorResponse>
 ) {
   if (req.method === 'POST') {
     const { userMessage, promptType, userId, pageId, storyId } = req.body;
@@ -20,9 +29,15 @@ export default async function handler(
     const answer = await assistantConversation(userMessage);
     console.log("Answer", answer)
 
-    if (answer) {
-    res.status(200).json({ answer });
+    if (answer && answer.success) {
+      res.status(200).json({ answer: answer.data });
+    } else if (answer) {
+      res.status(200).json({ answer: answer.message });
+    } else {
+      // Handle the case where answer is undefined or in an unexpected format
+      res.status(500).json({ success: false, message: 'Internal server error' });
     }
+    
 
     if (promptType == 'initialRead'){
     const messagesRef = adminDb
