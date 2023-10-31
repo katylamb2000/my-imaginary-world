@@ -1,9 +1,8 @@
-
 import '../styles/globals.css'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import Login from '../components/Login'
-
+// import ErrorBoundary from '../components/ErrorBoundary'
 import { SessionProvider } from '../components/SessionProvider'
 import { Provider } from 'react-redux'
 import { getServerSession } from 'next-auth'
@@ -24,13 +23,11 @@ const indieFlower = Indie_Flower({ subsets: ['latin'], weight: '400', variable: 
 const amatic = Amatic_SC ({ subsets: ['latin'], weight: '400', variable: '--font-quicksand'})
 const patrickHand = Patrick_Hand({ subsets: ['latin'], weight: '400', variable: '--font-patrickHand'})
 
-
 export const metadata = {
   title: 'My Imaginary World',
   description: 'Create your own book series',
   
 }
-
 
 export default async function RootLayout({
   children,
@@ -40,27 +37,24 @@ export default async function RootLayout({
     const session = await getServerSession(authOptions)
 
   return (
+    // <ErrorBoundary> 
     <html lang="en">
-      <head 
-      
-      />
+      <head />
 
-<body style={patrickHand.style}  className={`
+<body style={quicksand.style}  className={`
   ${mystery.variable} ${roboto.variable} ${caesar.variable} ${quicksand.variable} ${indieFlower.variable} ${amatic.variable} ${patrickHand}>
 `}>
 {/* <NextNProgress color='#a855f7' /> */}
       
-        <SessionProvider session={session}>
-
-          <Providers>
+  <SessionProvider session={session}>
+    <Providers>
         {!session ? (
-            <Login />
+          <Login />
         ):
           <div>
   
             <ClientProvider />
   
-         
             <Header />
              {children}
   
@@ -68,62 +62,13 @@ export default async function RootLayout({
 
           </div>
         }
-          </Providers>
-        </SessionProvider>
+    </Providers>
+  </SessionProvider>
 
       </body>
     </html>
+    // </ErrorBoundary> 
   )
 }
 
-// import '../styles/globals.css'
-// import Header from '../components/Header'
-// import Footer from '../components/Footer'
-// import Login from '../components/Login'
-// import Head from 'next/head'
-// import { SessionProvider } from '../components/SessionProvider'
-// import { getServerSession } from 'next-auth'
-// import { authOptions } from '../pages/api/auth/[...nextauth]'
-// import { Providers } from './GlobalRedux/provider'
-// import ClientProvider from '../components/ClientProvider'
-
-// export const metadata = {
-//   title: 'My Imaginary World',
-//   description: 'Create your own book series',
-// }
-
-// // export default function RootLayout({ children, session }) {
-//   export default async function RootLayout({
-//   children,
-// }: {
-//   children: React.ReactNode
-// }) {
-//     const session = await getServerSession(authOptions)
-
-//   return (
-//     <>
-//       <Head>
-//         <title>{metadata.title}</title>
-//         <meta name="description" content={metadata.description} />
-//         <meta charSet="utf-8" />
-//         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
-//         <meta name="viewport" content="width=device-width, initial-scale=1" />
-//       </Head>
-//       <SessionProvider session={session}>
-//         <Providers>
-//           {!session ? (
-//             <Login />
-//           ) : (
-//             <div>
-//               <ClientProvider />
-//               <Header />
-//               {children}
-//               <Footer />
-//             </div>
-//           )}
-//         </Providers>
-//       </SessionProvider>
-//     </>
-//   )
-// }
 

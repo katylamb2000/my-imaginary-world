@@ -13,6 +13,7 @@ import {
 } from '../app/GlobalRedux/Features/pageToEditSlice'
 import { setPageId } from "../app/GlobalRedux/Features/getPageImageModal";
 
+
 type Props = {
     title: string,
     page: any | null, 
@@ -45,7 +46,12 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     const currentPageId = useSelector((state: RootState) => state.pageToEdit.id);
     const [active, setActive] = useState<boolean>(false);
     const [url, setUrl] = useState<string | null>(null);
+    const [smallImage, setSmallImage] = useState<string | null>(null);
     const [incomplete, setIncomplete] = useState<boolean>(true)
+    const pageText = useSelector((state: RootState) => state.pageToEdit.text)
+    const smallImageUrl = useSelector((state: RootState) => state.pageToEdit.smallImageUrl);
+    const improvedSmallImageUrl = useSelector((state: RootState) => state.pageToEdit.improvedSmallImageUrl)
+    const finalSmallImageUrl = useSelector((state: RootState) => state.pageToEdit.finalSmallImageUrl);
     
     useEffect(() => {
       if (currentPageId !== page.id ) return; 
@@ -62,12 +68,19 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [storyPagesLength, completedPagesArray])
 
     const viewPage = () => {
-      if (page.data.midjourneyInitialRequestResponse){
-        dispatch(setMidjourneyInitialRequestResponse(page.data.midjourneyInitialRequestResponse))
+      if (page.data.midjourneySuccess){
+        dispatch(setMidjourneyInitialRequestResponse(page.data.midjourneySuccess))
       }
-      if (!page.data.midjourneyInitialRequestResponse){
-        dispatch(setMidjourneyInitialRequestResponse(false))
+
+      if (!page.data.midjourneySuccess){
+        dispatch(setMidjourneyInitialRequestResponse(null))
       }
+      // if (page.data.midjourneyInitialRequestResponse){
+      //   dispatch(setMidjourneyInitialRequestResponse(page.data.midjourneyInitialRequestResponse))
+      // }
+      // if (!page.data.midjourneyInitialRequestResponse){
+      //   dispatch(setMidjourneyInitialRequestResponse(false))
+      // }
   
       if (!page.data.rightPageLoading){
         dispatch(setRightPageLoading(false))
@@ -146,6 +159,21 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
             }
      }
 
+     useEffect(() => {
+      if (!finalSmallImageUrl && !smallImageUrl && !improvedSmallImageUrl){
+              setSmallImage(null)
+      }
+      if (!finalSmallImageUrl && !improvedSmallImageUrl && smallImageUrl){
+          setSmallImage(smallImageUrl)
+      }
+      if (!finalSmallImageUrl && improvedSmallImageUrl){
+        setSmallImage(improvedSmallImageUrl)
+      }
+      if (finalSmallImageUrl){
+        setSmallImage(finalSmallImageUrl)
+      }
+    }, [smallImageUrl, finalSmallImageUrl, pageText])
+
     useEffect(() => {
         if (!page ) return;
 
@@ -198,8 +226,14 @@ return (
     className={`flex flex-col justify-center items-center w-full h-18 mx-auto p-2 text-center ${active ? 'bg-purple-600' : 'bg-purple-300'} hover:bg-purple-400 transition-colors duration-200 rounded-sm`}
   >
     <div className={`flex space-x-1 p-2 border-2 border-transparent transition-all duration-200 ${active ? 'border-purple-700' : ''}`}>
-      <div className="flex items-center justify-center w-8 h-8 border border-gray-200 bg-white rounded-sm">
-        {index !== null && page.data && page.data.page !== '' && <p className="text-gray-400">...</p>}
+
+      <div className="flex flex-col items-center justify-center w-8 h-8 border border-gray-200 bg-white rounded-sm space-y-2">
+        {page.data.smallRoundImageUrl  && (
+      <div className="h-2 w-2 bg-gray-300 items-center" />
+ 
+        )}
+   
+        {index !== null && page.data && page.data.page !== ''  && <p className="text-gray-400">***</p>}
       </div>
 
       {index !== null && (

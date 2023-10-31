@@ -46,6 +46,7 @@ import TextPage from "../../../components/LeftPage"
 import LeftPage from "../../../components/LeftPage"
 import RightPage from "../../../components/RightPage"
 import { setIsLoading } from "../../GlobalRedux/Features/pageLoadingSlice"
+import GetImagesSideBar from "../../../components/GetImagesSideBar"
 
 interface PageData {
   id: string | null;
@@ -164,7 +165,7 @@ useEffect(() => {
             setSideBarCols(4);
                 // updateColumnLayo
             break;
-            case 'improveLeftImage':
+          case 'improveLeftImage':
               setPageCols(3);
               setSideBarCols(4);
                   // updateColumnLayo
@@ -172,7 +173,11 @@ useEffect(() => {
           case 'showCreateCharacterForm':
             setPageCols(7);
             setSideBarCols(0);
-    
+          case 'getRightImage':
+              setPageCols(3);
+              setSideBarCols(4);
+                  // updateColumnLayo
+              break;
       default:
         // Set default values here if needed
         setSideBarCols(1);
@@ -259,7 +264,7 @@ useEffect(() => {
     // const coverImageUrl = story?.data()?.coverImageUrl
     // dispatch(setThumbnailImage(coverImageUrl))
 
-    const pdfUrl = story?.data()?.pdfUrlFull
+    const pdfUrl = story?.data()?.pdfUrl32FrontPage
     dispatch(setPdfUrl(pdfUrl))
   
     const coverImage = story?.data()?.coverImageUrl
@@ -448,7 +453,12 @@ useEffect(() => {
       {storyBuilderActive === 'CoverPage' && (
           <BookCover />
         )}
-
+      
+      {storyBuilderActive === 'getRightImage' && layoutSelected == 'default' && (
+          <>
+          <RightPage />
+          </>
+        )} 
 
     </div>
     )}
@@ -485,6 +495,12 @@ useEffect(() => {
         {storyBuilderActive == 'improveRightImage' && (
           <div className="col-span-3">
           <SideBar />
+          </div>
+        )}
+
+        {storyBuilderActive == 'getRightImage' && (
+          <div className="col-span-3">
+          <GetImagesSideBar />
           </div>
         )}
 

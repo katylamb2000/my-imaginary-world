@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { adminDb, firebaseStorage } from '../../firebaseAdmin';
+import { adminDb } from '../../firebaseAdmin';
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY_TEST);
 
@@ -24,10 +24,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         ],
         mode: 'payment',
-        success_url: `${process.env.HOST}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${process.env.HOST}`,
+        success_url: `${process.env.HOST_DEV}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.HOST_DEV}`,
+        // success_url: `${process.env.HOST}/success?session_id={CHECKOUT_SESSION_ID}`,
+        // cancel_url: `${process.env.HOST}`,
         metadata: {
-            email: userSession.user.email
+            email: userSession.user.email, 
+            storyId: storyId
         }
       });
 

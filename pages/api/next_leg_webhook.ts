@@ -16,6 +16,22 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
      console.log('ACTION IS --', action, 'IMAGE URL ==>', imageUrl,  buttonMessageId)
 
  try{
+
+  const imageRef = adminDb
+  .collection('users')
+  .doc(userId)
+  .collection('storys')
+  .doc(storyId)
+  .collection('images')
+  .doc(originatingMessageId)
+
+  await imageRef.set({
+    url:  imageUrl,
+    imagePromptContent: content,
+    imageButtonMessageId: buttonMessageId,
+    imageButtons: buttons
+
+  });
      // Update the story data in Firestore
      if (action === 'seed') {
         const docRef = adminDb

@@ -258,6 +258,12 @@ useEffect(() => {
   if (firstImagePromptIdea && storyCharacters.length > 0) {
     let newText = firstImagePromptIdea;
 
+      // Ensure newText is a string
+      if (typeof newText !== 'string') {
+        console.error('newText is not a string:', newText);
+        return; // Exit the effect if newText is not a string
+      }
+
     storyCharacters.forEach((character) => {
       // Clean the character name by trimming spaces and removing commas
       const cleanName = character.name.trim().replace(',', '');
@@ -326,6 +332,15 @@ const updatePageWithSuccessMsg = async() => {
   }catch(err){
       console.log(err)
   }
+}
+
+useEffect(() => {
+  console.log('midjourneySuccess >>>>>>', midjourneySuccess)
+})
+
+const getImageIdea = () => {
+  dispatch(setName('getRightImage'))
+  dispatch(setEditBarType('getRightImage'))
 }
 
 return (
@@ -404,12 +419,9 @@ return (
       {finalImageUrl && !rightPageLoading && (
           <div className="h-full w-full relative">
               <Image className="w-full h-full z-10 " fill src={finalImageUrl} alt='/' />
-              {/* <p className="text-white absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-50"> 
-                {rightPageText}
-              </p> */}
               <p className="text-white bg-black bg-opacity-50 absolute bottom-4 left-0 w-full text-center text-lg mb-4 px-4 z-50"> 
-  {rightPageText}
-</p>
+                {rightPageText}
+              </p>
           </div>
         )}
     
@@ -425,6 +437,28 @@ return (
              />
              </div>
         )}
+
+    {!firstImagePromptIdea && !midjourneySuccess && (
+      <div className="w-full h-full text-center justify-center">
+          <button className=" mx-auto my-24 p-4 border-2 border-purple-400 rounded-lg text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
+            onClick={getImageIdea}
+            >
+               Get an image idea
+            </button>
+      </div>
+  
+      )}
+
+{firstImagePromptIdea && midjourneySuccess && (
+      <div className="w-full h-full text-center justify-center">
+          {/* <button className=" mx-auto my-24 p-4 border-2 border-purple-400 rounded-lg text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
+            onClick={getImageIdea}
+            > */}
+               <p>Your image is being created please be patient</p>
+            {/* </button> */}
+      </div>
+  
+      )}
     
     {firstImagePromptIdea && !imageUrl && !midjourneySuccess && (
             <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"

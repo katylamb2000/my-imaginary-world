@@ -72,6 +72,8 @@ function CreateStoryOutline({ characters }: Props) {
   const [getAiToGenerateCharacter, setgetAiToGenerateCharacter] = useState(false)
   let [color, setColor] = useState("#ffffff");
 
+  const [notificationMessage, setnotificationMessage] = useState<string>('Your story is being written! please give us a minute!!')
+
   // const storyCharacters = useSelector((state: RootState) => state.viewStory.storyCharacters)
 
   const [extractedCharacters, setExtractedCharacters] = useState()
@@ -169,7 +171,7 @@ const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
   }
 
   const createStory = async() => {
-    const notification = toast.loading('Hang tight! Your story is being written!')
+    const notification = toast.loading(notificationMessage)
         try{
 
           const storyPrompt = `Create a 14 page adventurous and humorous ${genre} story that will captivate a ${age} years old child. The story should embody the whimsical nature of ${style}, be set in the fantastic world of ${setting}, and incorporate ${favouriteThings} as key elements to generate fun and laughter.
@@ -237,32 +239,55 @@ const handleGetImageIdeas = async() => {
   if (!session || !storyId) return;
   setLoading(true)
   // const extractedCharacters = extractCharactersFromStory();
+  // const imageDescriptionsPrompt = 
+  // `
+  // Given the story: ${story}, generate an image prompts for each page of this illustrated children's storybook. 
+
+  // Use this example prompt as a template for how a prompt should be written. Ignore the prompt content, this is just an example: cartoon illustration of a boy being teased by a giant gorilla, in the style of whimsical children's book illustrator, strong color contrasts, dark azure and gray, the vancouver school, detailed character illustrations, manticore, sony alpha a1 -
+ 
+  // You must describe the camera angles and color palette to be used for each image Also, suggest an artistic style that complements the story's mood and setting for each page.
+
+  // The characters must remain consistent in appearance throughout the book: 
+
+  // ${getAiToGenerateCharacter ? "create any characters you think would be appealing to our reader" :   `Characters: ${extractedCharacters}` }
+
+  // the style must be consistent throughout the book. the style to reference is: ${style}
+
+  // each prompt is read by the ai in isolation so any reference to style or characters must be in each individual prompt. 
+
+  // This prompt is for a children's story book, so think about exciting and engaging images for each page, not boring or same same. 
+
+  // The structure of the response should be as EXACTLY follows:
+  
+  // Page_1: 
+  
+  // Page_2: 
+  
+  // Page_3:
+  // ...and so forth.`;
+
   const imageDescriptionsPrompt = 
   `
-  Given the story: ${story}, generate an image prompts for each page of this illustrated children's storybook. 
+  Given the story: ${story}, generate engaging and diverse image prompts for each page of this illustrated children's storybook.
 
-  Use this example prompt as a template for how a prompt should be written. Ignore the prompt content, this is just an example: cartoon illustration of a boy being teased by a giant gorilla, in the style of whimsical children's book illustrator, strong color contrasts, dark azure and gray, the vancouver school, detailed character illustrations, manticore, sony alpha a1 -
- 
-  You must describe the camera angles and color palette to be used for each image Also, suggest an artistic style that complements the story's mood and setting for each page.
+  Use this template for the structure of each prompt, but ensure that each description is unique and tailored to the content of the page:
+  - Artistic style: whimsical children's book illustrator, ${style}
+  - Camera angle: [varying perspectives, such as close-up, bird's eye view, side angle, etc.]
+  - Color palette: [describe a set of colors that fit the mood of the story and vary them across pages]
+  - Key elements: [focus on different characters, settings, actions, or objects as per the story content]
+  - Example: "A cartoon illustration of a boy being teased by a giant gorilla, set in a vibrant jungle with rich greens and warm yellows. The camera angle is from the ground looking up, emphasizing the size difference between the boy and the gorilla. The artistic style is playful and exaggerated, capturing the whimsical nature of the story."
 
-  The characters must remain consistent in appearance throughout the book: 
+  The characters must remain consistent in appearance throughout the book. ${getAiToGenerateCharacter ? "Feel free to create any additional characters that would be appealing to our young reader." : `Characters: ${extractedCharacters}`}
 
-  ${getAiToGenerateCharacter ? "create any characters you think would be appealing to our reader" :   `Characters: ${extractedCharacters}` }
+  Ensure that the images add to the storytelling experience, providing different viewpoints and focusing on various elements of the story to maintain the interest of the child.
 
-  the style must be consistent throughout the book. the style to reference is: ${style}
+  The response should follow this structure:
+  Page_1: [Image Description]
+  Page_2: [Image Description]
+  Page_3: [Image Description]
+  ...and so forth.
+  `;
 
-  each prompt is read by the ai in isolation so any reference to style or characters must be in each individual prompt. 
-
-  This prompt is for a children's story book, so think about exciting and engaging images for each page, not boring or same same. 
-
-  The structure of the response should be as EXACTLY follows:
-  
-  Page_1: 
-  
-  Page_2: 
-  
-  Page_3:
-  ...and so forth.`;
 
   
 try{

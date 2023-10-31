@@ -278,7 +278,7 @@ export default async function createStoryImagePrompts(
     req: NextApiRequest,
     res: NextApiResponse<{ answer: { message: string }; data?: { pages: any }; }>
 ) {
-    const { session, prompt, storyId, promptType } = req.body;
+    const { session, prompt, storyId, promptType, pageId } = req.body;
 
     if (!prompt || !session) {
         res.status(400).json({ answer: { message: !prompt ? 'I dont have a prompt' : 'I dont have a session' } });
@@ -326,6 +326,30 @@ export default async function createStoryImagePrompts(
         .doc('backup');
 
     batch.set(backupRef, { prompts: pagesArray });
+}
+
+   // Save the entire pagesArray as a backup in case of parsing issues for 'smallImageIdeas'
+   if (promptType === 'firstImageIdea' && pagesArray.length) {
+    console.error("image prompt idea", pagesArray);
+    console.error("WHERE IS IT", pagesArray, session, storyId, pageId);
+    const pageRef = adminDb
+        .collection('users')
+        .doc(session.user.email)
+        .collection('storys')
+        .doc(storyId)
+        .collection('storyContent')
+        .doc(pageId);
+
+        const promptText = pagesArray[0].replace(/^Illustration Prompt for Page \d+: /, '').trim();
+        console.log("PROMPT TEXT", promptText, "page id =========>>>", pageId)
+
+        try {
+            await pageRef.set({ firstImagePromptIdea: pagesArray[0] }, { merge: true });
+   
+        } catch (error) {
+            console.error("Error updating/creating Firestore document:", error);
+        }
+        
 }
 
         await batch.commit();

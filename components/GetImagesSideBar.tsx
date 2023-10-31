@@ -23,6 +23,7 @@ function GetImagesSideBar() {
     const story = useSelector((state: RootState) => state.viewStory.fullStory)
     const storyId = useSelector((state: RootState) => state.viewStory.storyId)
     const pageId = useSelector((state: RootState) => state.pageToEdit.id)
+    const pageText = useSelector((state: RootState) => state.pageToEdit.text)
     // const characters = useSelector((state: RootState) => state.characters.characters)
     const firstImagePromptIdea = useSelector((state: RootState) => state.pageToEdit.firstImagePromptIdea)
     const imageUrl = useSelector((state: RootState) => state.pageToEdit.imageUrl)
@@ -51,6 +52,8 @@ function GetImagesSideBar() {
         dispatch(setEditBarType('main'))
     }
 
+
+
     useEffect(() => {
       if (!pathname || storyId !== '') return;
       if (storyId == ''){
@@ -66,13 +69,20 @@ function GetImagesSideBar() {
     
     }, [storyId, pathname])
 
+    useEffect(() => {
+      if (!firstImagePromptIdea){
+        handleGetImageIdeas()
+      }
+    }, [firstImagePromptIdea])
+
     const handleGetImageIdeas = async() => {
-      if (!session || storyId == '') return;
+      if (!session || storyId == '' || pageId == null) return;
       setLoading(true)
       // const extractedCharacters = extractCharactersFromStory();
-      const imageDescriptionsPrompt = 
+      const imageDescriptionPrompt = 
       `
-      Given the story: ${story}, generate an image prompts for each page of this illustrated children's storybook. 
+      Given the story: ${story}, generate an image prompt for this page of the illustrated children's storybook:
+      ${pageText}. 
 
       Use this example prompt as a template for how a prompt should be written. Ignore the prompt content, this is just an example: cartoon illustration of a boy being teased by a giant gorilla, in the style of whimsical children's book illustrator, strong color contrasts, dark azure and gray, the vancouver school, detailed character illustrations, manticore, sony alpha a1 -
      
@@ -88,7 +98,7 @@ function GetImagesSideBar() {
 
       This prompt is for a children's story book, so think about exciting and engaging images for each page, not boring or same same. 
       `;
-      
+      console.log('prompt sent', imageDescriptionPrompt)
 try{
     const response = await fetch('/api/createStoryImagePrompts', {
         method: 'POST', 
@@ -97,10 +107,11 @@ try{
         },
         body: JSON.stringify({
             // promptType: 'backgroundImages', 
-            promptType: 'firstImageIdeas', 
-            prompt: imageDescriptionsPrompt,
+            promptType: 'firstImageIdea', 
+            prompt: imageDescriptionPrompt,
             session: session,
             storyId: storyId, 
+            pageId: pageId
 
         }),
     })
@@ -247,6 +258,12 @@ const getImage = async() => {
 
           <h1 className='text-xl text-purple-500 font-bold mt-4'>Get Images</h1>
 
+          {!firstImagePromptIdea && (
+            <h2>it looks like we dont have an idea for this page yet. I'll think up a few...</h2>
+          )}
+
+
+
           {loading &&  (
                 <SyncLoader
                 color={color}
@@ -257,7 +274,7 @@ const getImage = async() => {
                 data-testid="loader"
               />)}
 
-    {!loading && !firstImagePromptIdea && (
+    {!loading && !firstImagePromptIdea && firstImagePromptIdea &&  (
           <button className='bg-pink-500 text-white hover:bg-pink-300 rounded-lg p-4 '
                   onClick={handleGetImageIdeas}
           >
@@ -265,7 +282,7 @@ const getImage = async() => {
           </button>
       
     )}
-      {!smallImageUrl && (
+      {!smallImageUrl && firstImagePromptIdea &&  (
         <button className='bg-pink-500 text-white hover:bg-pink-300 rounded-lg p-4 '
         onClick={handleGetSmallImageIdeas}
       >
@@ -273,7 +290,7 @@ const getImage = async() => {
       </button>
       )}
 
-      {smallImageUrl && (
+      {smallImageUrl && firstImagePromptIdea && (
           <ImproveSmallImage />
       )}    
 
