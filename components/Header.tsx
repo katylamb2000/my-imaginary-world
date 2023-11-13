@@ -130,11 +130,9 @@ function Header(){
       }
 
   const goHome = () => {
-      dispatch(setName(''))
+      dispatch(setName('CoverPage'))
       dispatch(setEditBarType('main'))
       dispatch(setStoryId(null))
-      dispatch(setTitle(null))
-      dispatch(setName(''))
       dispatch(setEditBarType('main'))
       dispatch(setStoryId(null))
       dispatch(setThumbnailImage(null))
