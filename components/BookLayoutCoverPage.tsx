@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../app/GlobalRedux/store";
 import { setName } from '../app/GlobalRedux/Features/storyBuilderActiveSlice'
-import { setPagesComplete, setStoryComplete, setCompletedPages, setTitleIdeas, setThumbnailImage } from "../app/GlobalRedux/Features/viewStorySlice";
+import { setPagesComplete, setStoryComplete, setCompletedPages, setTitleIdeas, setThumbnailImage, setTitle } from "../app/GlobalRedux/Features/viewStorySlice";
 import { 
   setId, setText, setImageUrl, setButtonId, setPreviousPageText, setNextPageText, setFormattedText, 
   setAudioUrl, setWildcardIdea, setObjectIdea, setCharacterIdea, setBackgroundIdea, setImagePrompt, 
@@ -11,11 +11,14 @@ import {
   setSmallImageUrl, setTextColor, setRightPageText, setImprovedImageButtonId, setImprovedSmallImageUrl,
   setSmallImageButtonId, setRightPageLoading, setMidjourneyInitialRequestResponse, setFinalSmallImageUrl
 } from '../app/GlobalRedux/Features/pageToEditSlice'
+
+
 import { setPageId } from "../app/GlobalRedux/Features/getPageImageModal";
 
 type Props = {
     title: string,
     page: any | null, 
+    titlePage: any | null, 
     index: number, 
     previousPage: any | null,
     nextPage: any | null
@@ -35,7 +38,7 @@ type ImageIdea = {
       backgroundImage: string,
     }}
 
-function BookLayoutCoverPage({ page }: Props) {
+function BookLayoutCoverPage({ page, titlePage }: Props) {
     const dispatch = useDispatch()
     const [active, setActive] = useState(false)
     const [incomplete, setIncomplete] = useState(true)
@@ -43,11 +46,13 @@ function BookLayoutCoverPage({ page }: Props) {
     const storyTitle = useSelector((state: RootState) => state.viewStory.title)
     const storyBuilderActive = useSelector((state: RootState) => state.storyBuilderActive.name)
 
+
     const viewPage = () => {
         dispatch(setName('CoverPage'))
         setActive(true)
-        console.log('go to cover page')
-        dispatch(setId(''))
+        console.log('go to cover page =====> ', titlePage.data )
+        dispatch(setTitle(titlePage.data.text))
+        dispatch(setId('title'))
         // dispatch(setThumbnailImage(page.data().thumbnailImage))
         // dispatch(setTitleIdeas(page.data.titleIdeas.coverImagePrompt))
         console.log('title ideas --->>>', page.data())
@@ -60,6 +65,7 @@ function BookLayoutCoverPage({ page }: Props) {
     }, [storyBuilderActive])
 
     useEffect(() => {
+      console.log('cover image', coverImage)
       if (coverImage && storyTitle){
         setActive(true)
       }

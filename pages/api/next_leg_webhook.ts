@@ -206,7 +206,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         finalImageUrl: imageUrl,
         rightPageLoading: false
         });
-        if (page == 'page_1'){
+        if (page == 'title'){
           const docRef = adminDb
           .collection('users')
           .doc(userId)

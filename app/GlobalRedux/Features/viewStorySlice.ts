@@ -11,6 +11,10 @@ interface Character {
     description: string;
   }
 
+  interface Image {
+    id: string;
+    url: string;
+  }
   interface CompletePage {
     pageId: string;
   }
@@ -31,7 +35,8 @@ interface ViewStorySlice {
     titleIdeas: string | null,
     selectedTitle: string | null,
     pagesLoadingMainImage: Record<string, boolean>;
-    pdfUrl: string | null
+    pdfUrl: string | null,
+    images: Image[]
 
 }
 
@@ -51,7 +56,8 @@ const initialState: ViewStorySlice = {
     titleIdeas: null,
     selectedTitle: null,
     pagesLoadingMainImage: {},
-    pdfUrl: null
+    pdfUrl: null,
+    images: []
 }
 
 export const viewStorySlice = createSlice({
@@ -116,6 +122,9 @@ setPageDoneLoadingMainImage: (state, action) => {
 setPdfUrl: (state, action) => {
     state.pdfUrl = action.payload;
 },
+setStoryImages: (state, action) => {
+    state.images = action.payload;
+},
 
   
     }
@@ -124,7 +133,7 @@ setPdfUrl: (state, action) => {
 export const { 
     setTitle, setStoryId, setThumbnailImage, setBaseStoryImagePrompt, setBaseStoryImagePromptCreated, setFullStory, setCoverImage, 
     setStoryComplete, setStoryCharacters, setPagesComplete, setTitleTextColor, setCompletedPages, setTitleIdeas, setSelectedTitle,
-    setPageLoadingMainImage, setPageDoneLoadingMainImage, setPdfUrl
+    setPageLoadingMainImage, setPageDoneLoadingMainImage, setPdfUrl, setStoryImages
 } 
     = viewStorySlice.actions;
 

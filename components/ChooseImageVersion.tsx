@@ -7,9 +7,10 @@ function ChooseImageVersion() {
     const { data: session } = useSession()
     const storyId = useSelector((state: RootState) => state.viewStory.storyId)
     const buttonMsgId = useSelector((state: RootState) => state.pageToEdit.buttonMsgId)
+    const pageId = useSelector((state: RootState) => state.pageToEdit.id)
 
     const buttonClicked = async(button: string) => {
-
+      console.log("PAGE ID", pageId)
         try {
           var data = JSON.stringify({
             button: button,

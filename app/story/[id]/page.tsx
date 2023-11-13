@@ -19,7 +19,7 @@ import { RootState } from '../../../app/GlobalRedux/store';
 import { useSelector, useDispatch } from "react-redux"
 import { setbuttonMsgId, setCharacterDescription, setHeroCharacterName, setStyle } from '../../GlobalRedux/Features/pageToEditSlice'
 import { addCharacters, addCharacter } from "../../GlobalRedux/Features/characterSlice"
-import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters, setTitleIdeas, setThumbnailImage, setPdfUrl } from '../../GlobalRedux/Features/viewStorySlice'
+import { setBaseStoryImagePromptCreated, setTitle, setFullStory, setCoverImage, setStoryComplete, setStoryCharacters, setTitleIdeas, setThumbnailImage, setPdfUrl, setStoryImages } from '../../GlobalRedux/Features/viewStorySlice'
 import { setName } from '../../GlobalRedux/Features/storyBuilderActiveSlice'
 import SyncLoader from "react-spinners/SyncLoader";
 import axios from "axios"
@@ -98,6 +98,8 @@ function StoryPage() {
   const storyIdValue = storyId;
   const [sideBarCols, setSideBarCols] = useState(1)
   const [pageCols, setPageCols] = useState(6)
+  const [titlePage, setTitlePage] = useState<any>(null);
+
 
   useEffect(() => {
     if (!pathname) return;
@@ -231,26 +233,28 @@ useEffect(() => {
 
 })) ?? [];
 
+// const [images, imagesLoading, imagesError] = useCollection(
+//   session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'images') : null,
+// );
+
 const [images, imagesLoading, imagesError] = useCollection(
-  session?.user?.email && storyId ? collection(db, 'users', session.user.email, 'storys', storyId, 'images') : null,
+  session?.user?.email && storyId ? collection(db, 'users', session?.user.email, 'storys', storyId, 'images') : null,
 );
 
-useEffect(() => {
+useEffect(()=> {
   if (!images?.docs.length) return;
-  const sortedImages = images.docs
-    .map(doc => ({
-      id: doc.id,
-      data: doc.data(),
-    }))
-    .sort((a, b) => a.data.pageNumber - b.data.pageNumber);
 
-  setSortedImageIdeas(sortedImages)
-  sortedImages.map(image => {
-    if (!image.data.backgroundImageUrl){
-      console.log('no url yet')
-    }
-  })
-}, [images]);
+  if (images?.docs.length){
+
+    const imagesArray = images?.docs.map(doc => ({
+      id: doc.id,
+      url: doc.data().url,
+    }))
+    dispatch(setStoryImages(imagesArray))
+    console.log("IMAGES ARRAY ===>>", imagesArray)
+  }
+}, [images])
+
 
 const [story, storyLoading, storyError] = useDocument(
   session?.user?.email && storyId
@@ -260,9 +264,6 @@ const [story, storyLoading, storyError] = useDocument(
 
 useEffect(() => {
 
-   
-    // const coverImageUrl = story?.data()?.coverImageUrl
-    // dispatch(setThumbnailImage(coverImageUrl))
 
     const pdfUrl = story?.data()?.pdfUrl32FrontPage
     dispatch(setPdfUrl(pdfUrl))
@@ -279,6 +280,8 @@ useEffect(() => {
     const storyComplete = story?.data()?.storyComplete
 
 }, [story])
+
+
 
   const [storyContent, storyContentloading, storyContenterror] = useCollection(
     session?.user?.email && storyId ? collection(db, 'users', session?.user.email, 'storys', storyId, 'storyContent') : null,
@@ -365,7 +368,20 @@ useEffect(() => {
         data: doc.data(),
     }))
     .sort((a, b) => parseInt(a.id.split('_')[1]) - parseInt(b.id.split('_')[1]));
-    setSortedStoryContent(sortedPages);
+
+
+          // Find the title page
+          const titlePage = sortedPages.find(page => page.id === 'title');
+
+          // Update state
+        if (titlePage){
+          setTitlePage(titlePage);
+          dispatch(setTitle(titlePage.data.text))
+          console.log('TITLE PAGE IN PAGE ++++>>', titlePage)
+        }
+
+          setSortedStoryContent(sortedPages);
+        // }
     }, [storyContent]);
 
 
@@ -380,6 +396,7 @@ useEffect(() => {
     dispatch(setFullStory(finalString))
   
   }, [sortedStoryContent]);
+
 
   const switchToEdit = () => {
     setEditStoryPage(!editStoryPage)
@@ -402,16 +419,13 @@ useEffect(() => {
 
   return (
     <div className="w-screen bg-gray-50 grid grid-cols-7">
-      {/* <div className="w-full "> */}
-      {storyBuilderActive !== 'create story outline' && storyBuilderActive !== 'showCreateCharacterForm' && (
 
-        <div className={`col-span-${sideBarCols}`}>
-              {/* // <SideBar /> */}
-              <BookLayoutScrollBar storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} story={story} />
-       
-        </div>
-        
-        )}
+    {storyBuilderActive !== 'create story outline' && storyBuilderActive !== 'showCreateCharacterForm' && (
+      <div className={`col-span-${sideBarCols} hidden lg:block`}>
+        <BookLayoutScrollBar storyPages={sortedStoryContent} imageIdeas={sortedImageIdeas} story={story} />
+      </div>
+    )}
+
     {storyBuilderActive !== 'create story outline' && storyBuilderActive !== 'showCreateCharacterForm' && (
 
     <div className={`col-span-${pageCols} overflow-y-scroll bg-gray-50 `}>
@@ -510,7 +524,7 @@ useEffect(() => {
           </div>
         )}
 
-{storyBuilderActive == 'CoverPage' && (
+        {storyBuilderActive == 'CoverPage' && (
           <div className="col-span-3 bg-gray-50">
           <SideBar />
           </div>
@@ -536,13 +550,7 @@ useEffect(() => {
           <p>Add villain</p>
         )}
 
-        {/* {storyBuilderActive == 'create story outline' && (
-          <CharacterScrollBar characters={characters} />
-        )} */}
-{/* 
-        {storyBuilderActive == 'createPDF' && storyId && (
-          <GeneratePDF story={sortedStoryContent} storyId={storyId} />
-        )} */}
+
 
 
     {storyComplete && (

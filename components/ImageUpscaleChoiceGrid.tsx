@@ -32,51 +32,52 @@ function ImageUpscaleChoiceGrid() {
     }, [whichImage])
 
     const upscale = async(btn: string) => {
-    var data = JSON.stringify({
-      button: btn,
-      buttonMessageId: btnId ,
-      ref: { storyId: storyId, userId: session!.user!.email, action: action, page: pageId },
-      webhookOverride: ""
-    });
+      console.log('page id', pageId)
+    // var data = JSON.stringify({
+    //   button: btn,
+    //   buttonMessageId: btnId ,
+    //   ref: { storyId: storyId, userId: session!.user!.email, action: action, page: pageId },
+    //   webhookOverride: ""
+    // });
     
-    var config = {
-      method: 'post',
-      url: 'https://api.thenextleg.io/v2/button',
-      headers: { 
-        'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
-        'Content-Type': 'application/json'
-      },
-      data : data
-    };
-    axios(config)
-    .then(function (response) {
-      console.log(JSON.stringify(response.data));
-      setUpscaleRequestSuccessfull(true)
-    // dispatch(setImageUrl(null))
-    })
-    .catch(function (error) {
-      console.log(error);
+    // var config = {
+    //   method: 'post',
+    //   url: 'https://api.thenextleg.io/v2/button',
+    //   headers: { 
+    //     'Authorization': `Bearer ${process.env.next_leg_api_token}`, 
+    //     'Content-Type': 'application/json'
+    //   },
+    //   data : data
+    // };
+    // axios(config)
+    // .then(function (response) {
+    //   console.log(JSON.stringify(response.data));
+    //   setUpscaleRequestSuccessfull(true)
+    // // dispatch(setImageUrl(null))
+    // })
+    // .catch(function (error) {
+    //   console.log(error);
     
-    //   dispatch(setImageUrl(null))
-    });
+    // //   dispatch(setImageUrl(null))
+    // });
     }
   return (
-    <div className='w-full flex mx-auto '>
-      <p>if this is already an improved image chances are the button id is old. </p>
-      {upscaleRequestSuccessfull ? (
+<div className='w-full flex flex-col items-center mx-auto my-8'>
+    <p className="text-md text-gray-600 mb-4">If this is already an improved image, chances are the button ID is outdated.</p>
+    {upscaleRequestSuccessfull ? (
         <>
-        <p>Your final image is on its way!</p>
- 
-      </>
-      ):
-        <div className='w-48 h-48 bg-purple-400 grid grid-cols-2 gap-4 rounded-md'>
-        <button className='p-2 rounded-md bg-white hover:bg-purple-700 hover:text-white m-4 hover:shadow-xl' onClick={() => upscale('U1')}>U1</button>
-        <button className='p-2 rounded-md bg-white hover:bg-purple-700 hover:text-white m-4 hover:shadow-xl' onClick={() => upscale('U2')}>U2</button>
-        <button className='p-2 rounded-md bg-white hover:bg-purple-700 hover:text-white m-4 hover:shadow-2xl' onClick={() => upscale('U3')}>U3</button>
-        <button className='p-2 rounded-md bg-white hover:bg-purple-700 hover:text-white m-4 hover:shadow-xl' onClick={() => upscale('U4')}>U4</button>
-    </div>
-      }
-    </div>
+            <p className="text-lg font-semibold text-green-500">Your final image is on its way!</p>
+        </>
+    ) : (
+        <div className='w-64 h-64 bg-purple-500 grid grid-cols-2 gap-4 rounded-lg p-4 shadow-lg'>
+            <button className='w-full h-full rounded-md bg-white hover:bg-purple-600 hover:text-white transition-all duration-300 ease-in-out shadow-md hover:shadow-xl' onClick={() => upscale('U1')}>U1</button>
+            <button className='w-full h-full rounded-md bg-white hover:bg-purple-600 hover:text-white transition-all duration-300 ease-in-out shadow-md hover:shadow-xl' onClick={() => upscale('U2')}>U2</button>
+            <button className='w-full h-full rounded-md bg-white hover:bg-purple-600 hover:text-white transition-all duration-300 ease-in-out shadow-md hover:shadow-xl' onClick={() => upscale('U3')}>U3</button>
+            <button className='w-full h-full rounded-md bg-white hover:bg-purple-600 hover:text-white transition-all duration-300 ease-in-out shadow-md hover:shadow-xl' onClick={() => upscale('U4')}>U4</button>
+        </div>
+    )}
+</div>
+
   )
 }
 

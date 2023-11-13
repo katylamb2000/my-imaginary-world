@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { usePathname } from "next/navigation"
 import { HomeIcon, MapIcon, BriefcaseIcon, MagnifyingGlassCircleIcon, StarIcon, PlusCircleIcon  } from "@heroicons/react/24/solid";
+import { Menu } from "@mui/icons-material";
 import GeneratePDF from "./generatePDF";
 import { signOut } from 'next-auth/react'
 import { useEffect, useState } from "react";
@@ -179,15 +180,18 @@ function Header(){
 
 return(
 
-<header className="sticky bg-white top-0 z-50 shadow-md border-b border-purple-200 p-4 md:p-6 w-full flex justify-between items-center space-x-4">
-    <div className="flex items-center space-x-4 cursor-pointer" onClick={goHome}>
-        <img
-            src="https://firebasestorage.googleapis.com/v0/b/my-imaginary-world-b5705.appspot.com/o/MyImaginaryWorldLogo.png?alt=media&token=87d07dd8-56a5-4935-88f8-e562923bc7c0"
-            className="h-14 w-14 rounded-full hover:opacity-80"
-            alt='logo'
-        />
-        <h1 className="hidden md:block text-2xl font-mystery text-purple-600 font-extrabold">My Imaginary World</h1>
-    </div>
+<header className="sticky top-0 z-50 p-4 w-full border-b shadow-md bg-white md:p-6 border-purple-200 flex justify-between items-center space-x-4">
+    <button onClick={() => console.log('open side menu only in mobile./')} className="md:hidden">
+      <Menu className="text-gray-600"/>
+    </button>
+  <div className="flex items-center space-x-4 cursor-pointer" onClick={goHome}>
+    <img
+      src="https://firebasestorage.googleapis.com/v0/b/my-imaginary-world-b5705.appspot.com/o/MyImaginaryWorldLogo.png?alt=media&token=87d07dd8-56a5-4935-88f8-e562923bc7c0"
+      className="h-10 w-10 md:h-14 md:w-14 rounded-full hover:opacity-80"
+      alt='logo'
+    />
+    <h1 className="hidden text-2xl font-extrabold text-purple-600 md:block font-mystery">My Imaginary World</h1>
+  </div>
 
     <div className="flex items-center space-x-4">
         <button className="group flex flex-col items-center text-center hover:text-purple-500" onClick={createNewStory}>

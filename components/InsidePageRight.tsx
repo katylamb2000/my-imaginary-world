@@ -102,7 +102,7 @@ function InsidePageRight() {
     const textRef = useRef<HTMLParagraphElement | null>(null);
     const boxRef = useRef<HTMLDivElement | null>(null);
     const [color, setColor] = useState("#c026d3");
-    const [enhancedText, setEnhancedText] = useState('');
+    const [enhancedText, setEnhancedText] = useState<string | null>(null);
 
     const [url, setUrl] = useState<string | null>(null)
 
@@ -258,40 +258,41 @@ useEffect(() => {
   if (firstImagePromptIdea && storyCharacters.length > 0) {
     let newText = firstImagePromptIdea;
 
-      // Ensure newText is a string
-      if (typeof newText !== 'string') {
-        console.error('newText is not a string:', newText);
-        return; // Exit the effect if newText is not a string
-      }
+    if (typeof newText !== 'string') {
+      console.error('newText is not a string:', newText);
+      return;
+    }
 
     storyCharacters.forEach((character) => {
-      // Clean the character name by trimming spaces and removing commas
       const cleanName = character.name.trim().replace(',', '');
-
       const regex = new RegExp(`\\b${cleanName}\\b`, 'g');
-      const beforeReplace = newText;
-
-      newText = newText.replace(regex, (match) => {
-        return `${character.description} (${match})`;
-      });
-
-      if (beforeReplace === newText) {
-        console.log(`No replacement occurred for ${cleanName}.`);
-      }
+      newText = newText.replace(regex, (match) => `${character.description} (${match})`);
     });
 
+    // Trim newText to 1400 characters if it exceeds that length
+    if (newText.length > 1400) {
+      newText = newText.substring(0, 1400);
+      console.log('Trimmed enhanced text to 1400 characters.');
+    }
+
     if (newText !== firstImagePromptIdea) {
-      setEnhancedText(newText);   
+      console.log('ENHANCED ===>>', newText)
+      setEnhancedText(newText);
     }
   }
 }, [firstImagePromptIdea, storyCharacters]);
 
+
 const getImage = async () => {
-  if (!enhancedText) {
-      throw new Error("Image prompt is undefined.");
-  }
+    // if (!enhancedText) {
+    //     throw new Error("Image prompt is undefined.");
+    // }
+// if (firstImagePromptIdea && enhancedText){
+//   console.log('LENGTH', firstImagePromptIdea.length, 'enhanced ==>', enhancedText,  enhancedText.length, 'fipi ===>', firstImagePromptIdea )
+// }
+
   const data = JSON.stringify({
-      msg: enhancedText,
+      msg: enhancedText || firstImagePromptIdea,
       ref: { storyId: storyId, userId: session?.user?.email, action: 'imagine', page: pageId },
       webhookOverride: ""
   });
@@ -461,7 +462,7 @@ return (
       )}
     
     {firstImagePromptIdea && !imageUrl && !midjourneySuccess && (
-            <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
+            <button className="p-4 text-green-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
             onClick={getImage}
             >
                {firstImagePromptIdea}

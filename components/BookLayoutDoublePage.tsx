@@ -220,43 +220,41 @@ function BookLayoutDoublePage({ title, page, index, previousPage, nextPage, imag
     }, [page, pagesComplete])
 
 return (
-<div className={`transition-transform duration-500 ease-in-out transform hover:scale-110 group ${active ? 'bg-purple-500' : 'bg-purple-300'}`}>
+<div className={`transition-transform duration-500 ease-in-out transform hover:scale-110 group text-center ${active ? 'border-4 border-purple-800 rounded-md' : ''} ${active ? 'bg-purple-500' : 'bg-purple-300'}`}>
   <button
     onClick={viewPage}
-    className={`flex flex-col justify-center items-center w-full h-18 mx-auto p-2 text-center ${active ? 'bg-purple-600' : 'bg-purple-300'} hover:bg-purple-400 transition-colors duration-200 rounded-sm`}
+    className="flex flex-col items-center justify-center w-full h-full p-3"
   >
-    <div className={`flex space-x-1 p-2 border-2 border-transparent transition-all duration-200 ${active ? 'border-purple-700' : ''}`}>
-
-      <div className="flex flex-col items-center justify-center w-8 h-8 border border-gray-200 bg-white rounded-sm space-y-2">
-        {page.data.smallRoundImageUrl  && (
-      <div className="h-2 w-2 bg-gray-300 items-center" />
- 
-        )}
-   
-        {index !== null && page.data && page.data.page !== ''  && <p className="text-gray-400">***</p>}
-      </div>
-
-      {index !== null && (
-        <div className="relative w-8 h-8 border border-gray-200 bg-white rounded-sm">
-          {page.data.imageUrl && !page.data.finalImageUrl && (
-            <Image src={page.data.imageUrl} alt="/" className="rounded-lg object-fill" fill />
+    {/* <div className={`transition-all duration-300 mx-auto ${active ? 'border-4 border-purple-800 rounded-md' : ''}`}> */}
+      <div className="flex items-center justify-center space-x-3">
+        <div className="flex flex-col items-center justify-center w-10 h-10 border-2 border-gray-300 bg-white rounded-md space-y-3">
+          {page.data.smallRoundImageUrl && (
+            <div className="h-3 w-3 bg-gray-400 rounded-full" />
           )}
-          {page.data.finalImageUrl && (
-            <Image src={page.data.finalImageUrl} alt="/" className="rounded-lg object-fill" fill />
-          )}
+          {index !== null && page.data && page.data.page !== '' && <p className="text-gray-500 text-xs">***</p>}
         </div>
-      )}
-    </div>
-
-    <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
-      {/* {index === 0 ? title : index} */}
-      {index + 1}
-    </p>
-    <p className={`text-sm ${active ? 'text-white' : 'text-gray-600'} group-hover:text-gray-100 pt-1`}>
-      {incomplete ? 'stuff missing' : 'complete'}
-    </p>
+        {index !== null && (
+          <div className="relative w-10 h-10 border-2 border-gray-300 bg-white rounded-md overflow-hidden">
+            {page.data.imageUrl && !page.data.finalImageUrl && (
+              <Image src={page.data.imageUrl} alt="/" className="w-full h-full object-cover" fill/>
+            )}
+            {page.data.finalImageUrl && (
+              <Image src={page.data.finalImageUrl} alt="/" className="w-full h-full object-cover" fill />
+            )}
+          </div>
+        )}
+      </div>
+      <p className={`text-base font-semibold ${active ? 'text-white' : 'text-gray-200'} group-hover:text-gray-100 pt-2`}>
+        {index + 1}
+      </p>
+      <p className={`text-sm ${active ? 'text-white' : 'text-gray-200'} group-hover:text-gray-100 pt-1`}>
+        {incomplete ? 'Stuff Missing' : 'Complete'}
+      </p>
+    {/* </div> */}
   </button>
 </div>
+
+
 
 
   )

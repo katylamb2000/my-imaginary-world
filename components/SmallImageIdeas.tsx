@@ -1,9 +1,11 @@
-import { CSSProperties, useState } from 'react'
+import { CSSProperties, useEffect, useState } from 'react'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { RootState } from '../app/GlobalRedux/store'
 import { useSession } from 'next-auth/react'
 import { SyncLoader } from 'react-spinners'
+import { CloudArrowDownIcon } from '@heroicons/react/24/outline'
+import { Face2, Toys, Pets  } from '@mui/icons-material'
 
 function SmallImageIdeas() {
     const { data: session } = useSession()
@@ -16,8 +18,13 @@ function SmallImageIdeas() {
     const characterIdea = useSelector((state: RootState) => state.pageToEdit.characterIdea)
     const[success, setSuccess] = useState(false)
     const [color, setColor] = useState("#c026d3");
-
-    const override: CSSProperties = {
+    const [viewedIdea, setViewedIdea] = useState<any>('')
+    const imageIdeas = [
+      { idea: wildcardIdea, icon: <Toys /> },
+      { idea: objectIdea, icon: <Pets /> },
+      { idea: characterIdea, icon: <Face2 /> }
+    ];
+        const override: CSSProperties = {
     display: "block",
     margin: "0 auto",
     borderColor: "#c026d3",
@@ -55,9 +62,13 @@ function SmallImageIdeas() {
           });
         }
 
+    useEffect(() => {
+      console.log(viewedIdea)
+    }, [viewedIdea])
+
 
   return (
-    <div className="overflow-scroll h-1/3">
+    <div className="w-full text-center">
         {success ? (
         <div className="w-full h-full items-center text-center">
           <SyncLoader
@@ -71,24 +82,30 @@ function SmallImageIdeas() {
           <p>Your small image is on its way!</p>
         </div>
       ):
-<>
-    <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-      onClick={() => getSmallImage(wildcardIdea, 'wildcard')}
-      >
-        {wildcardIdea}
-    </button>
-    <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-      onClick={() => getSmallImage(characterIdea, 'character')}
-      >
-        {characterIdea}
-    </button>
 
-    <button className="p-4 text-purple-400 hover:underline-offset-1 hover:underline hover:text-purple-600"
-      onClick={() => getSmallImage(objectIdea, 'object')}
-      >
-        {objectIdea}
-    </button>
-</>
+<div className='flex-col w-full justify-evenly relative'>
+  <div className='flex w-full justify-evenly'>
+  {imageIdeas.map((idea, index) => (
+  <button className='group p-2 cursor-pointer' onClick={() => setViewedIdea(idea)} key={index}>
+    <div className='text-green-300 h-12 w-12 transition-all duration-300 group-hover:text-green-500 mx-auto'>
+      {idea.icon}
+    </div>
+  </button>
+))}
+
+  </div>
+
+    <p className='text-green-300 transition-all duration-300 mt-2'>{viewedIdea.idea}</p>
+    {viewedIdea.idea && (
+    <button className='p-4 rounded-lg border border-purple-500 text-purple-500'>Get this image</button>
+
+    )}
+
+
+</div>
+
+
+
 }
     </div>
   )

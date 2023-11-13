@@ -24,7 +24,7 @@ function RightPage() {
     
     {imageUrl && !finalImageUrl && !improvedImageUrl && (
       <>
-      <p className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-xl text-white bg-black bg-opacity-50 p-2'>{rightPageText}</p>
+      <p className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 text-xl text-white h-100 w-100 bg-opacity-50 p-2'>{rightPageText}</p>
       <Image src={imageUrl} alt="/" className="h-full w-full z-10" fill />
       </>
     )}
